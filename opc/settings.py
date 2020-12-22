@@ -88,8 +88,8 @@ DATABASES = {
         'NAME': 'opx_dev',
         'USER': 'opxuser',
         'PASSWORD': 'opx_dev_pass',
-        'HOST': 'localhost',
-        'PORT': '5433',
+        'HOST': '104.155.149.1',
+        'PORT': '5432',
     }
 }
 

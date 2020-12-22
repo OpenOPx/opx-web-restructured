@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views
+from myapp import views, proyecto
 
 
 urlpatterns = [
@@ -25,4 +25,10 @@ urlpatterns = [
 
     path('', views.loginView),
     path('login/', views.login),
+
+    path('proyectos/', proyecto.listadoProyectosView),
+    path('proyectos/gestion/', proyecto.gestionProyectosView),
+    path('proyectos/list/', proyecto.listadoProyectos),
+    path('proyectos/store/', proyecto.almacenamientoProyecto),
+
 ]
