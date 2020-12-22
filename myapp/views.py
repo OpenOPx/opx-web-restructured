@@ -28,6 +28,9 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
+from myapp.view.utilidades import dictfetchall, usuarioAutenticado
+
+
 # Create your views here.
 
 ##
@@ -47,17 +50,135 @@ def loginView(request):
 @permission_classes((AllowAny,))
 def login(request):
 
-    data = {
-        'token': 'str(refresh.access_token)',
-        'user': {
-            'userid':       'user.userid',
-            'userfullname': 'user.userfullname',
-            'useremail':    'user.useremail',
-            'rol':          'rol.rolname',
-            'puntaje':      'user.puntaje'
-        },
-        'code': 200
+    try:
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if username is None or password is None:
+
+            data = {
+               'status': 'error',
+               'message': 'Por favor especifique usuario y contraseña',
+               'code': 400
+            }
+
+        else:
+
+            user = models.User.objects.get(useremail__exact = username)
+
+            #.filter(password__exact = password)
+            #user = authenticate(email=username, password=password)
+
+            # Si el correo electrónico existe
+            # Contexto Passlib
+            pwd_context = CryptContext(
+                schemes=["pbkdf2_sha256"],
+                default="pbkdf2_sha256",
+                pbkdf2_sha256__default_rounds=30000
+            )
+            passwordVerification = pwd_context.verify(password, user.password)
+
+            if(passwordVerification):
+
+                # Generación de tokens
+                refresh = RefreshToken.for_user(user)
+
+                # Almacenando los permisos del usuario en la sesión
+                request.session['permisos'] = []
+
+                #permisos = models.FuncionRol.objects.filter(rolid__exact = user.rolid);
+
+                #for i in permisos:
+                #    request.session['permisos'].append(str(i.accionid))
+
+                # Consultando el nombre del rol del usuario autenticado
+                #rol = models.Rol.objects.get(pk = user.rolid)
+
+                data = {
+                    'token': str(refresh.access_token),
+                    'user': {
+                        'userid':       user.userid,
+                        'userfullname': 'user.userfullname',
+                        'useremail':    user.useremail,
+                        'rol':          'rol.rolname',
+                        'puntaje':      'user.puntaje'
+                    },
+                    'code': 200
+                }
+
+                # Puntaje esperado para llegar a rol proximo
+                # Voluntario
+                #if str(rol.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86':
+                #    data['user']['promocion'] = {
+                #        'rol': "Validador",
+                 #       'puntaje': int(settings['umbral-validador'])
+                 #   }
+
+                # Proyectista
+                #elif str(rol.rolid) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+                #    data['user']['promocion'] = {
+                #        'rol': "Proyectista",
+                #        'puntaje': int(settings['umbral-proyectista'])
+                #    }
+
+            else:
+
+                data = {
+                    'status': 'error',
+                    'message': 'Usuario y/o contraseña incorrecta',
+                    'code': 404
+                }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'status': 'error',
+            'message': 'Usuario y/o contraseña incorrecta',
+            'code': 404
         }
 
     return JsonResponse(data, status = data['code'])
+
+# ======================= usuarios ================================= 
+
+##
+# @brief plantilla de listado de usuarios
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def listadoUsuariosView(request):
+
+    return render(request, "usuarios/listado.html")
+
+
+##
+# @brief Recurso de listado de usuarios
+# @param request Instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def listadoUsuarios(request):
+
+    #users = models.Usuario.objects.all().values()
+    # json_res = serializers.serialize('python', users)
+
+    with connection.cursor() as cursor:
+        query = "SELECT userid, useremail, pers_id, pers_name, pers_lastname userestado, v1.usuarios.rolid, fecha_nacimiento, \
+                barrioid, generoid, nivel_educativo_id, telefono, v1.roles.rolname, latitud, longitud, \
+                horaubicacion, fecha_creacion, empleado \
+                FROM v1.usuarios \
+                INNER JOIN v1.roles ON v1.roles.rolid = v1.usuarios.rolid"
+
+        query = "SELECT userid, userfullname, useremail, userestado, v1.usuarios.rolid, fecha_nacimiento, \
+                barrioid, generoid, nivel_educativo_id, telefono, v1.roles.rolname, latitud, longitud, \
+                horaubicacion, fecha_creacion, empleado \
+                FROM v1.usuarios \
+                INNER JOIN v1.roles ON v1.roles.rolid = v1.usuarios.rolid"
+
+        cursor.execute(query)
+        users = dictfetchall(cursor)
+
+        return JsonResponse(users, safe=False)
 
