@@ -1,0 +1,223 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-instrumentos" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Instrumentos -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <button class="btn button-right" data-target="#agregar-instrumento" data-toggle="modal">Crear Instrumento</button>
+              <h4 class="card-title ">Instrumentos</h4>
+              <p class="card-category"> Gestión de Instrumentos </p>
+            </div>
+            <div class="card-header">
+              <form action="">
+                <div class="form-group">
+                  <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filter">
+                </div>
+              </form>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!--<table class="table">
+                  <thead class=" text-primary">
+                    <th>
+                      Tipo
+                    </th>
+                    <th>
+                      Nombre
+                    </th>
+                  <th>
+                    Descripción
+                  </th>
+                  <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="instrumento in instrumentos">
+                      <td>
+                        [[ instrumento.instrtipo | tipoInstrumento ]]
+                      </td>
+                      <td>
+                        [[ instrumento.instrnombre ]]
+                      </td>
+                      <td>
+                        [[ instrumento.instrdescripcion ]]
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="edicionInstrumento = instrumento" data-toggle="modal" data-target="#editar-instrumento" class="dropdown-item" href="#"> Edición </a>
+                            <a @click.prevent="eliminarInstrumento(instrumento.instrid)" class="dropdown-item" href="#"> Eliminación </a>
+                            <a v-if="instrumento.instrtipo == 1" @click.prevent="implementarEncuesta(instrumento.instrid)" class="dropdown-item" href="#"> Implementar </a>
+                            <a v-if="instrumento.instrtipo == 1" @click.prevent="informacionEncuesta(instrumento.instrid)" class="dropdown-item" href="#"> Información </a>
+                            <a v-if="instrumento.instrtipo == 2" class="dropdown-item" :href="'/instrumentos/informacion/' + instrumento.instrid"> Información </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>-->
+
+                <b-table
+                  :fields="instrumentosFields"
+                  :items="filteredInstruments"
+                  :per-page="pagination.perPage"
+                  :current-page="pagination.currentPage"
+                >
+                  <template v-slot:cell(instrtipo)="data">
+                    [[ data.item.instrtipo | tipoInstrumento ]]
+                  </template>
+
+                  <template v-slot:cell(acciones)="data">
+                  <div class="dropdown">
+                    <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a @click.prevent="edicionInstrumento = data.item" data-toggle="modal" data-target="#editar-instrumento" class="dropdown-item" href="#"> Edición </a>
+                      <!--<a @click.prevent="eliminarInstrumento(instrumento.instrid)" class="dropdown-item" href="#"> Eliminación </a>-->
+                      <a v-if="data.item.instrtipo == 1" @click.prevent="implementarEncuesta(data.item.instrid)" class="dropdown-item" href="#"> Implementar </a>
+                      <!-- <a v-if="instrumento.instrtipo == 1" @click.prevent="informacionEncuesta(instrumento.instrid)" class="dropdown-item" href="#"> Información </a>
+                      <a v-if="instrumento.instrtipo == 2" class="dropdown-item" :href="'/instrumentos/informacion/' + instrumento.instrid"> Información </a> -->
+                    </div>
+                  </div>
+                </template>
+                </b-table>
+
+                <b-pagination
+                  v-model="pagination.currentPage"
+                  :per-page="pagination.perPage"
+                  :total-rows="filteredInstruments.length"
+                ></b-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+     </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+        <!-- Creación de Instrumento -->
+        <div class="modal fade" id="agregar-instrumento">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Crear Instrumento</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+
+                <!-- Formulario de registro -->
+                <form action="" v-if="fase1">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Tipo</label>
+                          <select v-model="almacenamientoInstrumento.instrtipo" @change="cantidadFormulariosKobotoolboxPreregistro()" class="form-control">
+                              <option value="">Seleccione un tipo</option>
+                              <option value="1">Encuesta</option>
+                              <option value="2">Cartografia</option>
+                          </select>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Nombre</label>
+                        <input class="form-control" type="text" v-model="almacenamientoInstrumento.instrnombre">
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Descripción</label>
+                        <textarea class="form-control" v-model="almacenamientoInstrumento.instrdescripcion"></textarea>
+                      </div>
+                    </div>
+                    <div align="center" class="col-md-12">
+                      <div class="form-group">
+                        <button :disabled="!almacenamientoInstrumento.instrtipo || !almacenamientoInstrumento.instrnombre" class="btn" @click="prepararInstrumento()" type="button">Siguiente</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+                <div v-if="fase2encuesta">
+                   <iframe :src="kpiUrl"></iframe>
+                </div>
+
+                <!-- Mapa para instrumento Tipo Cartografía -->
+                <div id="tmmap" v-if="fase2Cartografia"></div>
+
+                <!-- Botón de almacenamiento de instrumentos -->
+                <div align="center">
+                  <button class="btn" v-if="allowRegister" @click.prevent="almacenarInstrumento()"> Guardar </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edición de Instrumento -->
+        <div class="modal fade" id="editar-instrumento">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Editar Instrumento</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="">
+                  <div class="row">
+                    <!--<div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Tipo</label>
+                          <select v-model="edicionInstrumento.instrtipo" class="form-control">
+                              <option value="">Seleccione</option>
+                              <option value="1">Encuesta</option>
+                              <option value="2">Cartografia</option>
+                          </select>
+                      </div>
+                    </div>-->
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Nombre</label>
+                        <input class="form-control" type="text" v-model="edicionInstrumento.instrnombre">
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">Descripción</label>
+                        <textarea class="form-control" v-model="edicionInstrumento.instrdescripcion"></textarea>
+                      </div>
+                    </div>
+                    <div align="center" class="col-md-12">
+                      <div class="form-group">
+                        <button :disabled="!edicionInstrumento.instrtipo || !edicionInstrumento.instrnombre" class="btn" @click="editarInstrumento()" type="button">Editar</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- <iframe src="http://kf.oim-opc.pre/accounts/login/?next=/#/" frameborder="0" height="500"></iframe>-->
+
+
+{% endblock %}

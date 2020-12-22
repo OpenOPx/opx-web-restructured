@@ -1,0 +1,41 @@
+.proyecto-durante{
+    cursor: pointer;
+    transition: 1s;
+    span.espacio{
+        margin-right: 10px;
+    }
+    span.encargado{
+        font-size: 12pt;
+        font-weight: bold;
+    }
+    span.valor{
+        color: #0CBAEF;
+        font-size: 12pt;
+        font-weight: bold;
+        margin-right: 0px;
+    }
+    h3{
+        font-weight: bold;
+        font-size: 12pt;
+    }
+     &:hover{
+        background: $tarjetasReportesHover;
+        transition: 1s;
+        *{
+            color: #FFF;
+        }
+        span.valor{
+            color: #FFF;
+        }
+        div.iniciales-usuario{
+            background: #F4B821;
+        }
+        #progress-bar #curprogress{
+            background: #FFF;
+        }
+     }
+}
+
+#reportes-durante .card-header a.nav-link{
+    color: #FFF !important;
+}

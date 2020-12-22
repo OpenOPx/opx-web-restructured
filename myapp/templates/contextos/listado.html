@@ -1,0 +1,154 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-contextos" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Contextos -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <button class="btn button-right" data-target="#agregar-contexto" data-toggle="modal">Crear Contexto</button>
+              <h4 class="card-title ">Contextos</h4>
+              <p class="card-category"> Gestión de Contextos </p>
+            </div>
+            <div class="card-header">
+              <form action="">
+                <div class="form-group">
+                  <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filter">
+                </div>
+              </form>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!--<table class="table">
+                  <thead class=" text-primary">
+                    <th>
+                      Descripción
+                    </th>
+                    <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="contexto in contextos">
+                      <td>
+                        [[ contexto.descripcion ]]
+                      </td>
+                       <td>
+                          <div class="dropdown">
+                            <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                              <a  @click.prevent="edicionContexto = contexto" data-toggle="modal" data-target="#editar-contexto" class="dropdown-item" href="#"> Edición </a>
+                              <a @click.prevent="eliminarContexto(contexto.contextoid)" class="dropdown-item" href="#"> Eliminación </a>
+                              <a class="dropdown-item" :href="'/contextos/datos/' + contexto.contextoid"> Datos </a>
+                            </div>
+                          </div>
+                        </td>
+                    </tr>
+                  </tbody>
+                </table>-->
+
+                <b-table
+                  :fields="contextsFields"
+                  :items="filteredContexts"
+                  :current-page="pagination.currentPage"
+                  :per-page="pagination.perPage"
+                >
+                  <template v-slot:cell(acciones)="data">
+                    <div class="dropdown">
+                      <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a  @click.prevent="edicionContexto = data.item" data-toggle="modal" data-target="#editar-contexto" class="dropdown-item" href="#"> Edición </a>
+                        <a @click.prevent="eliminarContexto(data.item.contextoid)" class="dropdown-item" href="#"> Eliminación </a>
+                        <a class="dropdown-item" :href="'/contextos/datos/' + data.item.contextoid"> Datos </a>
+                      </div>
+                    </div>
+                  </template>
+                </b-table>
+
+                <b-pagination
+                  v-model="pagination.currentPage"
+                  :per-page="pagination.perPage"
+                  :total-rows="filteredContexts.length"
+                ></b-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Contexto -->
+          <div class="modal fade" id="agregar-contexto">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Contexto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="almacenamientoContexto.descripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoContexto.descripcion" class="btn" @click="almacenarContexto()" type="button">Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Edición de Contexto -->
+          <div class="modal fade" id="editar-contexto">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Contexto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="edicionContexto.descripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionContexto.descripcion" class="btn" @click="editarContexto()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+
+{% endblock %}

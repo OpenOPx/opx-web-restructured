@@ -1,0 +1,29 @@
+#dimension{
+
+    height: 300px;
+}
+
+.modal#agregar-proyecto .modal-body{
+
+    /*overflow-y: scroll !important;
+    height: calc(100vh - 200px)*/
+}
+
+#container-mapa-gestion-cambios{
+    position: relative;
+    #map{
+        height: 300px;
+    }
+}
+
+/* Gestión de Cambios */
+#fab-gestion-cambios{
+    position: absolute;
+    top: 20px;
+    z-index: 1000;
+    right: 20px;
+}
+
+#mapa-dimension-territorial, #mapa-tarea{
+    height: 300px;
+}

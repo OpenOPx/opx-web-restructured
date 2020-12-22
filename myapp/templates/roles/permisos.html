@@ -1,0 +1,128 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-permisos-rol" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Permisos -->
+      <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <button class="btn button-right" data-target="#agregar-permiso" data-toggle="modal">Asignar Permiso</button>
+                  <h4 class="card-title ">{{ rol.rolname }}</h4>
+                  <p class="card-category"> Gestión de Rol {{ rol.rolname }} </p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Nombre
+                        </th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="permiso in permisos">
+                          <td>
+                            [[ permiso.nombre ]]
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a @click="eliminarPermiso(permiso.funcrolid)" class="dropdown-item" href="#"> Eliminación </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Permisos -->
+          <div class="modal fade" id="agregar-permiso">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Permiso</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Acción</label>
+                          <select v-model="almacenamientoPermiso.accionid" class="form-control">
+                            <option value=""> Seleccione </option>
+                            <option v-for="accion in acciones" :value="accion.accionid"> [[ accion.nombre ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoPermiso.accionid" class="btn" @click="almacenarPermiso()" type="button">Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edición de Roles -->
+          <!--<div class="modal fade" id="editar-rol">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Rol</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="edicionRol.rolname" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="edicionRol.roldescripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionRol.rolname || !edicionRol.roldescripcion" class="btn" @click="editarRol()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+-->
+        </div>
+    </div>
+
+{% endblock %}

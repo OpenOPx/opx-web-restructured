@@ -1,0 +1,19 @@
+#ranking-circle{
+    background: #F4B821;
+    border-radius: 50%;
+    height: 100px;
+    margin: 0 auto;
+    margin-top: -30px;
+    width: 100px;
+    i{
+        color: #FFF;
+        font-size: 35pt;
+        padding: 27px;
+        text-align: center;
+    }
+}
+#dashboard{
+    .table th, .table td{
+        text-align: center;
+    }
+}

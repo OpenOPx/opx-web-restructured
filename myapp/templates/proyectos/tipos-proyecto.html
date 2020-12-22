@@ -1,0 +1,143 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-tipos-proyecto" class="container-fluid">
+
+      <!--<div :class="{loading:loading}"></div>-->
+
+      <!-- Tipos de Proyecto -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <button class="btn button-right" data-backdrop="static" data-target="#agregar-tipo-proyecto" data-toggle="modal">Crear Tipo Proyecto</button>
+              <h4 class="card-title ">Tipos de Proyecto</h4>
+              <p class="card-category"> Gestión de Tipos de Proyecto </p>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead class=" text-primary">
+                    <th>
+                      Nombre
+                    </th>
+                    <th>
+                      Descripción
+                    </th>
+                    <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="tp in tiposProyecto">
+                      <td>
+                        [[ tp.nombre ]]
+                      </td>
+                      <td>
+                        [[ tp.descripcion ]]
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="edicionTipoProyecto = tp" data-toggle="modal" data-target="#editar-tipo-proyecto" class="dropdown-item" href="#"> Edición </a>
+                            <a @click.prevent="eliminarTipoProyecto(tp.tiproid)" class="dropdown-item" href="#"> Eliminación </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Proyecto -->
+          <div class="modal fade" id="agregar-tipo-proyecto">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Tipo de Proyecto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+
+                   <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="almacenamientoTipoProyecto.nombre" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="almacenamientoTipoProyecto.descripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                   </form>
+
+                  <!-- Guardado De tipo de proyecto -->
+                  <div align="center">
+                    <button class="btn" @click="almacenarTipoProyecto" :disabled="!almacenamientoTipoProyecto.nombre || !almacenamientoTipoProyecto.descripcion">Guardar</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edición de Proyecto -->
+          <div class="modal fade" id="editar-tipo-proyecto">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Tipo Proyecto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="edicionTipoProyecto.nombre" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="edicionTipoProyecto.descripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionTipoProyecto.nombre || !edicionTipoProyecto.descripcion" class="btn" @click="editarTipoProyecto()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+
+    </div>
+
+{% endblock %}

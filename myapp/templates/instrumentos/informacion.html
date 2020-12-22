@@ -1,0 +1,138 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-informacion-encuesta" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Información -->
+      <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <!--<button class="btn button-right" data-target="#agregar-instrumento" data-toggle="modal">Crear Instrumento</button>-->
+                  <h4 class="card-title ">Instrumento - {{ instrumento.instrnombre }} </h4>
+                  <!--<p class="card-category"> Gestión de Instrumento </p>-->
+                </div>
+                <div class="card-body">
+
+                  {% if instrumento.instrtipo == 1 %}
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead class=" text-primary">
+                          <th></th>
+                          <th v-for="campo in camposInformacion">
+                            [[ campo.label ]]
+                          </th>
+                          <th></th>
+                        </thead>
+                      <tbody>
+                        <tr v-for="info in informacion">
+                          <td>
+                            <i v-if="info.estado == 0" class="material-icons estado-encuesta sin-validar">fiber_manual_record</i>
+                            <i v-if="info.estado == 1" class="material-icons estado-encuesta invalido">fiber_manual_record</i>
+                            <i v-if="info.estado == 2" class="material-icons estado-encuesta valido">fiber_manual_record</i>
+                          </td>
+                          <td v-for="campo in camposInformacion">
+                            [[ info[campo.value] ]]
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a  @click.prevent="obtenerDetalleEncuesta(info)" class="dropdown-item" href="#"> Detalle </a>
+                                <a @click.prevent="validarEncuesta(info.encuestaid, 2, null)" class="dropdown-item" href="#"> Validar </a>
+                                <a @click.prevent="validarEncuesta(info.encuestaid, 1, null)" class="dropdown-item" href="#"> Invalidar </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                    <!-- Modal Detalle Encuesta -->
+                    <div class="modal fade" id="detalle-encuesta">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                            <table class="table table-responsive table-stripped">
+                              <tr v-for="detail in detalleEncuesta">
+                                <th>
+                                  [[ detail.label ]]
+                                </th>
+                                <td>
+                                  [[ detail.value ]]
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Modal Validación Encuesta -->
+                    <div class="modal fade" id="validacion-encuesta">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-body">
+                            <form action="" class="form-horizontal">
+                              <div class="form-group">
+                                <div class="col-xs-12">
+                                  <label for="">Observación</label>
+                                  <textarea v-model="observacionEncuesta" name="" id="" rows="5" class="form-control"></textarea>
+                                </div>
+                                <div align="center" class="col-xs-12">
+                                  <button  @click="validarEncuesta(encuestaID, 1, observacionEncuesta)" class="btn" :disabled="observacionEncuesta.length == 0" type="button">Guardar</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  {% elif instrumento.instrtipo == 2 %}
+                    <div id="tmmap"></div>
+                    <!-- Modal Validación Cartografia -->
+                    <div class="modal fade" id="validacion-cartografia">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                            <form action="" class="form-horizontal">
+                              <div class="form-group">
+                                <div class="col-xs-12">
+                                  <label for="">Tipo de Elemento</label>
+                                  <select v-model="almacenamientoCartografia.osmelement" name="" id="" class="form-control">
+                                    <option value="">Seleccione</option>
+                                    <option v-for="tipo in tiposElementoOSM" :value="tipo.elemosmid"> [[ tipo.nombre ]] </option>
+                                  </select>
+                                </div>
+                                <div align="center" class="col-xs-12">
+                                  <button @click.prevent="almacenarCartografia()" :disabled="!almacenamientoCartografia.osmelement" class="btn" type="button">Guardar</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+    </div>
+
+{% endblock %}

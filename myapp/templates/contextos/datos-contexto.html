@@ -1,0 +1,191 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-datos-contexto" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Datos Contexto -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <button class="btn button-right" data-target="#agregar-dato-contexto" data-toggle="modal">Crear Dato de Contexto</button>
+              <h4 class="card-title ">Datos de Contexto</h4>
+              <p class="card-category"> Gestión de Datos de Contexto <b> {{ contexto.descripcion }} </b> </p>
+            </div>
+            <div class="card-header">
+              <form action="">
+                <div class="form-group">
+                  <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filter">
+                </div>
+              </form>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!--<table class="table">
+                  <thead class=" text-primary">
+                    <th> HDX </th>
+                    <th> Descripción</th>
+                    <th>Valor</th>
+                    <th>Métrica</th>
+                    <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="datoContexto in datosContexto">
+                      <td>
+                        [[ datoContexto.hdxtag ]]
+                      </td>
+                      <td>
+                        [[ datoContexto.descripcion ]]
+                      </td>
+                      <td>
+                        [[ datoContexto.datavalor ]]
+                      </td>
+                      <td>
+                        [[ datoContexto.datatipe ]]
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="edicionDatoContexto = datoContexto" data-toggle="modal" data-target="#editar-dato-contexto" class="dropdown-item" href="#"> Edición </a>
+                            <a @click.prevent="eliminarDatoContexto(datoContexto.dataid)" class="dropdown-item" href="#"> Eliminación </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>-->
+
+                <b-table
+                  :fields="contextsDataFields"
+                  :items="filteredContextsData"
+                  :per-page="pagination.perPage"
+                  :current-page="pagination.currentPage"
+                >
+                  <template v-slot:cell(acciones)="data">
+                    <div class="dropdown">
+                      <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a @click.prevent="edicionDatoContexto = data.item" data-toggle="modal" data-target="#editar-dato-contexto" class="dropdown-item" href="#"> Edición </a>
+                        <a @click.prevent="eliminarDatoContexto(data.item.dataid)" class="dropdown-item" href="#"> Eliminación </a>
+                      </div>
+                    </div>
+                  </template>
+                </b-table>
+
+                <b-pagination
+                  v-model="pagination.currentPage"
+                  :per-page="pagination.perPage"
+                  :total-rows="filteredContextsData.length"
+                ></b-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Datos de Contexto -->
+          <div class="modal fade" id="agregar-dato-contexto">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Dato de Contexto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="" id="registro-dato-contexto">
+                    <div class="row">
+<!--                      <div class="col-md-12">-->
+<!--                        <div class="form-group">-->
+<!--                          <label class="bmd-label-floating">Etiqueta HDX</label>-->
+<!--                          <input name="hdxtag" type="text" v-model="almacenamientoDatoContexto.hdxtag" class="form-control"/>-->
+<!--                        </div>-->
+<!--                      </div>-->
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <div>
+                            <span class="btn btn-round btn-rose btn-file">
+                              <span class="fileinput-new btn-file">Archivo separado por comas</span>
+                              <input type="hidden"><input type="file" name="file">
+                              <div class="ripple-container"></div>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button class="btn" @click="almacenarDatoContexto()" type="button">Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+           <!-- Edición de Dato de Contexto -->
+          <div class="modal fade" id="editar-dato-contexto">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Dato de Contexto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="" id="edicion-dato-contexto">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Etiqueta HDX</label>
+                          <input type="text" v-model="edicionDatoContexto.hdxtag" class="form-control"/>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="edicionDatoContexto.descripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Valor</label>
+                          <input type="text" v-model="edicionDatoContexto.datavalor" class="form-control"/>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Métrica</label>
+                          <input type="text" v-model="edicionDatoContexto.datatipe" class="form-control"/>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionDatoContexto.hdxtag || !edicionDatoContexto.descripcion || !edicionDatoContexto.datavalor || !edicionDatoContexto.datatipe" class="btn" @click="editarDatoContexto()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+
+{% endblock %}

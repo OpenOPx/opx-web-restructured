@@ -1,0 +1,154 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div class="container-fluid" id="gestion-miembros-plantilla" :load="plantillaID = '{{ plantilla.planid }}'">
+
+      <!--<div :class="{loading:loading}"></div>-->
+
+      <div class="row">
+
+        <!-- Miembros de la plantilla -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <h4 class="card-title ">Equipo {{ plantilla.descripcion }}</h4>
+              <p class="card-category"> Gestión de Equipo </p>
+            </div>
+            <div class="card-header">
+              <form action="">
+                <div class="form-group">
+                  <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filterTeam">
+                </div>
+              </form>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!--<table class="table">
+                  <thead class=" text-primary">
+                    <th>
+                      Nombre
+                    </th>
+                    <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="miembro in miembrosPlantilla">
+                      <td>
+                        [[ miembro.userfullname ]]
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="eliminarIntegrante(miembro.miplid)" class="dropdown-item" href="#"> Eliminación </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>-->
+
+                <b-table
+                  :current-page="paginationTeam.currentPage"
+                  :fields="teamFields"
+                  :items="filteredTeam"
+                  :per-page="paginationTeam.perPage"
+                >
+                  <template v-slot:cell(acciones)="data">
+                    <div class="dropdown">
+                      <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a @click.prevent="eliminarIntegrante(data.item.miplid)" class="dropdown-item" href="#"> Eliminación </a>
+                      </div>
+                    </div>
+                  </template>
+                </b-table>
+
+                <b-pagination
+                  v-model="paginationTeam.currentPage"
+                  :per-page="paginationTeam.perPage"
+                  :total-rows="filteredTeam.length"
+                ></b-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Usuarios Disponibles -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <h4 class="card-title "> Usuarios Disponibles </h4>
+              <p class="card-category"> Usuarios Disponibles </p>
+            </div>
+            <div class="card-header">
+              <form action="">
+                <div class="form-group">
+                  <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filterAvailableUsers">
+                </div>
+              </form>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!--<table class="table">
+                  <thead class=" text-primary">
+                    <th>
+                      Nombre
+                    </th>
+                    <th></th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="u in usuariosDisponibles">
+                      <td>
+                        [[ u.userfullname ]]
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="agregarIntegrante(u.userid)" class="dropdown-item" href="#"> Agregar </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>-->
+
+                <b-table
+                  :current-page="paginationAvailableUsers.currentPage"
+                  :fields="availableUserFields"
+                  :items="filteredAvailableUsers"
+                  :per-page="paginationAvailableUsers.perPage"
+                >
+                  <template v-slot:cell(acciones)="data">
+                    <div class="dropdown">
+                      <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a @click.prevent="agregarIntegrante(data.item.userid)" class="dropdown-item" href="#"> Agregar </a>
+                      </div>
+                    </div>
+                  </template>
+                </b-table>
+
+                <b-pagination
+                  v-model="paginationAvailableUsers.currentPage"
+                  :per-page="paginationAvailableUsers.perPage"
+                  :total-rows="filteredAvailableUsers.length"
+                ></b-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+{% endblock %}

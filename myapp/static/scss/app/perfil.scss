@@ -1,0 +1,88 @@
+#gestion-perfil{
+    .content{
+        background: #FFF;
+        height: 450px;
+        .btn{
+            background: #0CBAEF;
+            margin-top: 30px;
+        }
+    }
+    #left{
+        .content{
+            padding: 25px 10px;
+            #iniciales{
+                background: #F4B821;
+                border-radius: 50%;
+                height: 100px;
+                margin: 0 auto;
+                width: 100px;
+                p{
+                    color: #FFF;
+                    font-size: 35pt;
+                    font-weight: bold;
+                    padding: 35px 0;
+                    text-align: center;
+                    text-transform: uppercase;
+                }
+            }
+            #info{
+                text-align: center;
+                p{
+                    color: #000;
+                    font-size: 18pt;
+                    font-weight: bold;
+                    margin-top: 15px;
+                    span{
+                        display: block;
+                        font-size: 11pt;
+                        font-weight: normal;
+                        text-transform: uppercase;
+                    }
+                }
+            }
+            #acciones{
+                list-style: none;
+                li{
+                    border-bottom: 1px Solid #F6F6F6;
+                    border-top: 1px Solid #F6F6F6;
+                    padding: 5px 0;
+                    transition: 1s;
+                    &:hover:not(.subtitulo){
+                        background: #0CBAEF;
+                        padding-left: 10px;
+                        transition: .5s;
+                        a{
+                            color: #FFF;
+                        }
+                    }
+                    a{
+                        color: #000;
+                    }
+                }
+                li.subtitulo{
+                    color: #969696;
+                }
+            }
+        }
+    }
+    #right{
+        .content{
+            padding: 20px;
+            h2{
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            form h2{
+                margin-top: 30px;
+            }
+        }
+    }
+}
+
+@media only screen and(max-width: 992px){
+
+    .content{
+        height: auto;
+    }
+}

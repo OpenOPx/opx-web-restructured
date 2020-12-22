@@ -1,0 +1,283 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div class="container-fluid" id="reportes-detalle-proyecto" :run="proyectoID = '{{ proyecto.proyid }}'">
+
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <a href="/estadisticas/{{proyecto.proyid}}/exportar-encuestas/" class="btn btn-success float-right"> Encuestas </a>
+                    <a href="/estadisticas/{{proyecto.proyid}}/exportar-proyecto/" class="btn btn-success float-right"> Información </a>
+
+                    <h2> {{ proyecto.proynombre }} </h2>
+                    <p> {{ proyecto.proydescripcion | safe }} </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="card">
+            <div class="card-body">
+              <table class="table table-hover">
+                <thead>
+                <tr>
+                  <th class="cursor-point" @click="getModalDecisiones">Decisiones</th>
+                  <th class="cursor-point" @click="getModalContextos">Contextos</th>
+                  <th class="cursor-point" @click="getModalCampanas">Campaña</th>
+                  <th class="cursor-point" @click="getModalEquipo">Convocatoria</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cursor-point" @click="getModalDecisiones"> [[ datosGenerales.decisiones ]] </td>
+                    <td class="cursor-point" @click="getModalContextos"> [[ datosGenerales.contextos ]] </td>
+                    <td class="cursor-point" @click="getModalCampanas"> [[ datosGenerales.campana ]] </td>
+                    <td class="cursor-point" @click="getModalEquipo"> [[ datosGenerales.convocatoria ]] </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+              <div class="card">
+                  <div id="ranking-circle">
+                    <i class="fa fa-trophy" aria-hidden="true"></i>
+                  </div>
+                <div class="card-body">
+                  <table class="table table-hover">
+                    <thead class="text-warning">
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Puntaje</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="r in ranking">
+                        <td>[[ r.userfullname ]]</td>
+                        <td> [[ r.puntaje ]] </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="tipos-tarea" width="400" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="usuarios-barrio" width="400" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="usuarios-nivel-educativo" width="400" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="usuarios-rol" width="400" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="usuarios-genero" width="400" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modales -->
+        <div class="row">
+            <!-- Dimensiones Territoriales -->
+            <div class="modal" id="dimensionesProyecto">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                            <h2>Dimensiones Territoriales</h2>
+                            <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                  Dimension Territorial
+                                </th>
+                                <th>
+                                  Creación
+                                </th>
+                                <th></th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="dimension in dimensionesProyecto">
+                                  <td>
+                                    [[ dimension.nombre ]]
+                                  </td>
+                                  <td>
+                                    <button @click="getTareasDimension(dimension.dimensionid)" class="btn">
+                                        Ver Tareas
+                                    </button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                            <h3>Tareas</h3>
+                            <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                    Tarea
+                                </th>
+                                <th>
+                                  Progreso
+                                </th>
+                                <th></th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="tarea in tareasDimension">
+                                  <td>
+                                    [[ tarea.tarenombre ]]
+                                  </td>
+                                  <td>
+                                    [[ tarea.progreso ]]
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipo del proyecto -->
+            <div class="modal" id="equipoProyecto">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="row">
+                                <!-- Integrantes Equipo -->
+                                <div class="col-lg-12">
+                                    <h2>Equipo</h2>
+                                    <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                  Integrante
+                                </th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="integrante in equipoProyecto">
+                                  <td>
+                                    [[ integrante.userfullname ]]
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contextos del Proyecto -->
+            <div class="modal" id="contextosProyecto">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                            <h2>Contextos</h2>
+                            <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                  Contexto
+                                </th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="contexto in contextosProyecto">
+                                  <td>
+                                    [[ contexto.descripcion ]]
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decisiones del Proyecto -->
+            <div class="modal" id="decisionesProyecto">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                            <h2>Decisiones</h2>
+                            <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                  Decision
+                                </th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="decision in decisionesProyecto">
+                                  <td>
+                                    [[ decision.desidescripcion ]]
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuario Barrio Especifico -->
+            <div class="modal" id="usuariosBarrioEspecifico">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+
+                            <h2>Usuarios</h2>
+                            <table class="table">
+                              <thead class=" text-primary">
+                                <th>
+                                  Nombre
+                                </th>
+                              </thead>
+                              <tbody>
+                                <tr v-for="usuario in usuariosBarrioEspecifico">
+                                  <td>
+                                    [[ usuario.userfullname ]]
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

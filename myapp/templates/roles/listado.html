@@ -1,0 +1,137 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-roles" class="container-fluid">
+
+      <!-- Roles -->
+      <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+<!--                  <button class="btn button-right" data-target="#agregar-rol" data-toggle="modal">Crear Rol</button>-->
+                  <h4 class="card-title ">Roles</h4>
+                  <p class="card-category"> Gestión de Roles </p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Nombre
+                        </th>
+                        <th>
+                          Descripción
+                        </th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="rol in roles">
+                          <td>
+                            [[ rol.rolname ]]
+                          </td>
+                          <td class="text-primary">
+                            [[ rol.roldescripcion  ]]
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <!--<a @click.prevent="edicionRol = rol" data-toggle="modal" data-target="#editar-rol" class="dropdown-item" href="#"> Edición </a>
+                                <a @click.prevent="eliminarRol(rol.rolid)" class="dropdown-item" href="#"> Eliminación </a>-->
+                                <a :href="'/roles/permisos/' + rol.rolid" class="dropdown-item" > Permisos </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Roles -->
+          <div class="modal fade" id="agregar-rol">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Rol</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="almacenamientoRol.rolname" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="almacenamientoRol.roldescripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoRol.rolname" class="btn" @click="almacenarRol()" type="button">Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+            <!-- Edición de Roles -->
+          <div class="modal fade" id="editar-rol">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Rol</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="edicionRol.rolname" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <textarea v-model="edicionRol.roldescripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionRol.rolname || !edicionRol.roldescripcion" class="btn" @click="editarRol()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+
+{% endblock %}

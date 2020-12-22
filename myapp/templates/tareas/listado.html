@@ -1,0 +1,326 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-tareas" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Tareas -->
+      <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <button @click="generarMapa(2000)" class="btn button-right" data-target="#agregar-tarea" data-toggle="modal">Crear Tarea</button>
+                  <h4 class="card-title ">Tareas</h4>
+                  <p class="card-category"> Gestión de Tareas </p>
+                </div>
+                <div class="card-header">
+                  <form action="">
+                    <div class="form-group">
+                      <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filtro">
+                    </div>
+                  </form>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <!--<table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Nombre
+                        </th>
+                        <th>
+                          Tipo
+                        </th>
+                        <th>
+                          Cantidad
+                        </th>
+                        <th>
+                          Instrumento
+                        </th>
+                        <th>
+                          Proyecto
+                        </th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="tarea in tareas">
+                          <td>
+                            [[ tarea.tarenombre ]]
+                          </td>
+                          <td>
+                            [[ tarea.taretipo | tipoTarea ]]
+                          </td>
+                          <td>
+                            [[ tarea.tarerestriccant ]]
+                          </td>
+                          <td>
+                            [[ tarea.instrnombre ]]
+                          </td>
+                          <td>
+                            [[ tarea.proynombre ]]
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a @click.prevent="edicionTarea = tarea; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
+                                <a @click.prevent="eliminarTarea(tarea.tareid)" class="dropdown-item" href="#"> Eliminación </a>
+                                <a class="dropdown-item" :href="'/instrumentos/informacion/' + tarea.instrid"> Validar </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table> -->
+                    <b-table
+                            :fields="tareasFields"
+                            :items="filteredTasks"
+                            :current-page="pagination.currentPage"
+                            :per-page="pagination.perPage"
+                    >
+                      <template v-slot:cell(taredescripcion)="data">
+                        <span v-html="data.item.taredescripcion"></span>
+                      </template>
+                      <template v-slot:cell(taretipo)="data">
+                        [[ data.item.taretipo | tipoTarea ]]
+                      </template>
+                      <template v-slot:cell(tareprioridad)="data">
+                        [[ data.item.tareprioridad | prioridadTarea ]]
+                      </template>
+                      <template v-slot:cell(acciones)="data">
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="edicionTarea = data.item; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
+                            <a @click.prevent="eliminarTarea(data.item.tareid)" class="dropdown-item" href="#"> Eliminación </a>
+                            <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrid"> Validar </a>
+                          </div>
+                        </div>
+                      </template>
+                    </b-table>
+
+                    <b-pagination
+                      v-model="pagination.currentPage"
+                      :total-rows="filteredTasks.length"
+                      :per-page="pagination.perPage"
+                    ></b-pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Tarea -->
+          <div class="modal fade" id="agregar-tarea">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Tarea</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="almacenamientoTarea.tarenombre" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Tipo</label>
+                          <select v-model="almacenamientoTarea.taretipo" @change="listadoInstrumentos(almacenamientoTarea.taretipo); restablecerMapa()" class="form-control">
+                            <option value="">Seleccione un tipo</option>
+                            <option value="1">Encuesta</option>
+                            <option value="2">Cartografia</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Cantidad</label>
+                          <input v-model="almacenamientoTarea.tarerestriccant" type="number" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Proyecto</label>
+                          <select v-model="almacenamientoTarea.proyid" @change="obtenerDimensionesTerritoriales(almacenamientoTarea.proyid)" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proyid"> [[ proyecto.proynombre ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div v-if="almacenamientoTarea.taretipo == '1'" class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Dimension Territorial</label>
+                          <select @change="generarDimensionTerritorial(almacenamientoTarea.dimensionid)" v-model="almacenamientoTarea.dimensionid" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="dimension in dimensionesTerritoriales" :value="dimension"> [[ dimension.nombre ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Instrumento</label>
+                          <select v-model="almacenamientoTarea.instrid" @change="generarDimensionTerritorialInstrumento(almacenamientoTarea.instrid)" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="instrumento in instrumentos" :value="instrumento"> [[ instrumento.instrnombre ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Prioridad</label>
+                          <select v-model="almacenamientoTarea.tareprioridad" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="1"> Alta </option>
+                            <option value="2"> Media </option>
+                            <option value="3"> Baja </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <!--<textarea v-model="almacenamientoTarea.taredescripcion" rows="5" class="form-control"></textarea>-->
+                          <editor
+                             api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
+                             :init="{
+                               height: 300,
+                               menubar: false,
+                               plugins: 'link',
+                               toolbar:
+                                 'undo redo | formatselect | bold italic backcolor | \
+                                 alignleft aligncenter alignright alignjustify | \
+                                 bullist numlist outdent indent | removeformat | link'
+                             }"
+                             v-model="almacenamientoTarea.taredescripcion"
+                           />
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div id="taskmap"></div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoTarea.tarenombre || !almacenamientoTarea.taretipo || !almacenamientoTarea.tarerestriccant || !almacenamientoTarea.instrid || !almacenamientoTarea.proyid || !almacenamientoTarea.geojsonsubconjunto" class="btn" @click="almacenarTarea()" type="button">Guardar</button>
+                        </div>
+                      </div>                
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Edición de Tarea -->
+          <div class="modal fade" id="editar-tarea">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Tarea</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="edicionTarea.tarenombre" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Tipo</label>
+                          <select @change="listadoInstrumentos(edicionTarea.taretipo)" v-model="edicionTarea.taretipo" class="form-control">
+                            <option value="">Seleccione un tipo</option>
+                            <option value="1">Encuesta</option>
+                            <option value="2">Cartografia</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Cantidad</label>
+                          <input v-model="edicionTarea.tarerestriccant" type="number" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Proyecto</label>
+                          <select v-model="edicionTarea.proyid" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proyid"> [[ proyecto.proynombre ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Prioridad</label>
+                          <select v-model="edicionTarea.tareprioridad" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="1"> Alta </option>
+                            <option value="2"> Media </option>
+                            <option value="3"> Baja </option>
+                          </select>
+                        </div>
+                      </div>
+                      <!--<div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Instrumento</label>
+                          <select v-model="edicionTarea.instrid" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="instrumento in instrumentos" :value="instrumento.instrid"> [[ instrumento.instrnombre ]] </option>
+                          </select>
+                        </div>
+                      </div>-->
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                          <!--<textarea v-model="edicionTarea.taredescripcion" rows="5" class="form-control"></textarea>-->
+                          <editor
+                             api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
+                             :init="{
+                               height: 300,
+                               menubar: false,
+                               plugins: 'link',
+                               toolbar:
+                                 'undo redo | formatselect | bold italic backcolor | \
+                                 alignleft aligncenter alignright alignjustify | \
+                                 bullist numlist outdent indent | removeformat | link'
+                             }"
+                             v-model="edicionTarea.taredescripcion"
+                           />
+                        </div>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionTarea.tarenombre || !edicionTarea.taretipo || !edicionTarea.tarerestriccant || !edicionTarea.instrid || !edicionTarea.proyid" class="btn" @click="editarTarea()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+
+{% endblock %}

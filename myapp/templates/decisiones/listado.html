@@ -1,0 +1,176 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+    <div id="gestion-decisiones" class="container-fluid">
+
+      <div :class="{loading:loading}"></div>
+
+      <!-- Decisiones -->
+      <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <button class="btn button-right" data-target="#agregar-decision" data-toggle="modal">Crear Decisión</button>
+                  <h4 class="card-title ">Decisiones</h4>
+                  <p class="card-category"> Gestión de Decisiones </p>
+                </div>
+                <div class="card-header">
+                  <form action="">
+                    <div class="form-group">
+                      <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filter">
+                    </div>
+                  </form>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <!--<table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Descripción
+                        </th>
+                        <th>
+                          Usuario
+                        </th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="decision in decisiones">
+                          <td>
+                            [[ decision.desidescripcion ]]
+                          </td>
+                          <td>
+                            [[ decision.userfullname ]]
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a @click.prevent="edicionDecision = decision" data-toggle="modal" data-target="#editar-decision" class="dropdown-item" href="#"> Edición </a>
+                                <a @click.prevent="eliminarDecision(decision.desiid)" class="dropdown-item" href="#"> Eliminación </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>-->
+
+                    <b-table
+                      :fields="decisionesFields"
+                      :items="filteredDesitions"
+                      :current-page="pagination.currentPage"
+                      :per-page="pagination.perPage"
+                    >
+                      <template v-slot:cell(acciones)="data">
+                        <div class="dropdown">
+                          <a class="actions-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a @click.prevent="edicionDecision = data.item" data-toggle="modal" data-target="#editar-decision" class="dropdown-item" href="#"> Edición </a>
+                            <a @click.prevent="eliminarDecision(data.item.desiid)" class="dropdown-item" href="#"> Eliminación </a>
+                          </div>
+                        </div>
+                      </template>
+                    </b-table>
+
+                    <b-pagination
+                      v-model="pagination.currentPage"
+                      :per-page="pagination.perPage"
+                      :total-rows="filteredDesitions.length"
+                    ></b-pagination>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Modales -->
+      <div class="row">
+
+          <!-- Creación de Decisión -->
+          <div class="modal fade" id="agregar-decision">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Crear Decisión</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                            <textarea v-model="almacenamientoDecision.desidescripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <!--<div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Usuario</label>
+                            <select v-model="almacenamientoDecision.userid" class="form-control">
+                                <option value="">Seleccione</option>
+                                <option v-for="usuario in usuarios" :value="usuario.userid"> [[ usuario.userfullname ]] </option>
+                            </select>
+                        </div>
+                      </div>-->
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoDecision.desidescripcion" class="btn" @click="almacenarDecision()" type="button">Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Edición de Decisión -->
+          <div class="modal fade" id="editar-decision">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Decisión</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                            <textarea v-model="edicionDecision.desidescripcion" class="form-control"></textarea>
+                        </div>
+                      </div>
+                      <!--<div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Usuario</label>
+                            <select v-model="edicionDecision.userid" class="form-control">
+                                <option value="">Seleccione</option>
+                                <option v-for="usuario in usuarios" :value="usuario.userid"> [[ usuario.userfullname ]] </option>
+                            </select>
+                        </div>
+                      </div>-->
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!edicionDecision.desidescripcion || !edicionDecision.userid" class="btn" @click="editarDecision()" type="button">Editar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+
+{% endblock %}

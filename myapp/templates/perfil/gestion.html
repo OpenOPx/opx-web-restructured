@@ -1,0 +1,96 @@
+{% extends "layouts/main.html" %}
+
+{% block content %}
+
+<div class="container-fluid" id="gestion-perfil">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xs-3" id="left">
+            <div class="content">
+                <div id="iniciales">
+                    <p> [[ iniciales ]] </p>
+                </div>
+                <div id="info">
+                    <p>
+                        [[ informacionUsuario.userfullname ]]
+                        <span> [[ informacionUsuario.rolname ]] </span>
+                    </p>
+                </div>
+                <ul id="acciones">
+                    <li>
+                        <a onclick="logout()" href="#">
+                           <i aria-hidden="true" class="fa fa-sign-out"></i>
+                            Cerrar Sesión
+                        </a>
+                    </li>
+                    <li class="subtitulo"> ACERCA DE </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                            Ayuda
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-lock" aria-hidden="true"></i>
+                            Privacidad
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            Condiciones del Servicio
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 col-xs-9" id="right">
+            <div class="content">
+                <h2> Información personal </h2>
+                <!-- Formulario -->
+                <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="informacionUsuario.userfullname" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                           <label class="bmd-label-floating">Correo electrónico</label>
+                           <input type="email" v-model="informacionUsuario.useremail" class="form-control"/>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="" class="bmd-label-floating">Teléfono</label>
+                          <input class="form-control" type="text" v-model="informacionUsuario.telefono"/>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <h2>Nueva contraseña</h2>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="" class="bmd-label-floating">Contraseña</label>
+                          <input class="form-control" type="password" v-model="informacionUsuario.password"/>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="" class="bmd-label-floating">Confirmar contraseña</label>
+                          <input class="form-control" type="password" v-model="informacionUsuario.passwordConfirm"/>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                          <button :disabled="!this.informacionUsuario.userfullname || !this.informacionUsuario.useremail || !this.informacionUsuario.telefono" @click="actualizarInformacion()" type="button" class="btn btn-success">Guardar cambios</button>
+                      </div>
+                    </div>
+                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
