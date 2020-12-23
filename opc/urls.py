@@ -17,10 +17,14 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto
+from myapp import views, proyecto, decision
 from myapp.view import (
     userview,
+<<<<<<< HEAD
     utilidades,
+=======
+    utilidades
+>>>>>>> 647aec84385dacbc1f51a6a4c093f10e74e4ae8a
 )
 
 
@@ -46,6 +50,14 @@ urlpatterns = [
     #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
     #path('usuarios/<str:userid>', userview.actualizarUsuario),
 
-    path('generos/list/', utilidades.listadoGeneros),
+    path('decisiones/', decision.listadoDecisionesView),
+    path('decisiones/list/', decision.listadoDecisiones),
+    path('decisiones/store/', decision.almacenarDecision),
+    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision),
+    path('decisiones/<str:desiid>', decision.actualizarDecision),
 
+    path('niveles-educativos/list/', utilidades.listadoNivelesEducativos),
+    #Falta elementos OSM
+    path('barrios/list/', utilidades.listadoBarrios),
+    path('generos/list/', utilidades.listadoGeneros),
 ]

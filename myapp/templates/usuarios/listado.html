@@ -153,7 +153,7 @@
                           <label class="bmd-label-floating">Barrio</label>
                           <select v-model="almacenamientoUsuario.barrioid" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="barrio in barrios" :value="barrio.barrioid"> [[ barrio.nombre ]] </option>
+                            <option v-for="barrio in barrios" :value="barrio.neighb_id"> [[ barrio.neighb_name ]] </option>
                           </select>
                         </div>
                       </div>
@@ -162,7 +162,7 @@
                           <label class="bmd-label-floating">Nivel Educativo</label>
                           <select v-model="almacenamientoUsuario.nivel_educativo_id" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="ne in nivelesEducativos" :value="ne.nivelid"> [[ ne.nombre ]] </option>
+                            <option v-for="ne in nivelesEducativos" :value="ne.educlevel_id"> [[ ne.educlevel_name ]] </option>
                           </select>
                         </div>
                       </div>
@@ -252,7 +252,7 @@
                           <label class="bmd-label-floating">Barrio</label>
                           <select v-model="edicionUsuario.barrioid" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="barrio in barrios" :value="barrio.barrioid"> [[ barrio.nombre ]] </option>
+                            <option v-for="barrio in barrios" :value="barrio.neighb_id"> [[ barrio.neighb_name ]] </option>
                           </select>
                         </div>
                       </div>
@@ -261,7 +261,7 @@
                           <label class="bmd-label-floating">Nivel Educativo</label>
                           <select v-model="edicionUsuario.nivel_educativo_id" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="ne in nivelesEducativos" :value="ne.nivelid"> [[ ne.nombre ]] </option>
+                            <option v-for="ne in nivelesEducativos" :value="ne.educlevel_id"> [[ ne.educlevel_name ]] </option>
                           </select>
                         </div>
                       </div>

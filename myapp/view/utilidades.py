@@ -55,11 +55,11 @@ def listadoGeneros(request):
 @permission_classes((AllowAny,))
 def listadoNivelesEducativos(request):
 
-    nivelesEducativos = models.NivelEducativo.objects.all().values()
+    educationLevel = models.EducationLevel.objects.all().values()
 
     data = {
         'code': 200,
-        'nivelesEducativos': list(nivelesEducativos),
+        'nivelesEducativos': list(educationLevel),
         'status': 'success'
     }
 
@@ -74,11 +74,11 @@ def listadoNivelesEducativos(request):
 @permission_classes((AllowAny,))
 def listadoBarrios(request):
 
-    barrios = models.Barrio.objects.all().values()
+    neighborhood = models.Neighborhood.objects.all().values()
 
     data = {
         'code': 200,
-        'barrios': list(barrios),
+        'barrios': list(neighborhood),
         'status': 'success'
     }
 
@@ -96,7 +96,7 @@ def usuarioAutenticado(request):
                                 settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
     # consultando el usuario
-    user = models.Usuario.objects.get(pk=tokenDecoded['user_id'])
+    user = models.User.objects.get(pk=tokenDecoded['user_id'])
 
     return user
 
