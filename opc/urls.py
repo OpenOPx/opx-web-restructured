@@ -17,14 +17,11 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-<<<<<<< HEAD
 from myapp import views, proyecto, decision
-=======
-from myapp import views, proyecto
 from myapp.view import (
     userview,
+    utilidades
 )
->>>>>>> ef3cd8c320b9eefcf053bf40a02a46d80f67307e
 
 
 urlpatterns = [
@@ -49,10 +46,17 @@ urlpatterns = [
     #path('usuarios/delete/<str:userid>', views.eliminarUsuario),
     #path('usuarios/<str:userid>', views.actualizarUsuario),
 
+#los id's los pasan por el path y deberian pasarlos internamente
+
     path('decisiones/', decision.listadoDecisionesView),
     path('decisiones/list/', decision.listadoDecisiones),
-    path('decisiones/store/', decision.almacenarDecision),
+    path('decisiones/store/', decision.almacenarDecision), #falta verificar que no existan decisiones con el mismo nombre
     path('decisiones/delete/<str:desiid>/', decision.eliminarDecision),
-    path('decisiones/<str:desiid>', decision.actualizarDecision),
+    path('decisiones/<str:desiid>', decision.actualizarDecision), #falta verificar que no existan decisiones con el mismo nombre
 
+    path('plantillas-equipo/list/', equipo.listadoEquipos), 
+    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo),
+    path('plantillas-equipo/store/', equipo.crearEquipo),
+    path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo),
+    
 ]
