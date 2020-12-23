@@ -28,7 +28,7 @@ gestionPerfil = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.informacionUsuario = response.data.usuario;
+                    this.informacionUsuario = response.data.user;
 
                     if(this.informacionUsuario.hasOwnProperty('userfullname') && this.informacionUsuario.userfullname != null){
 
