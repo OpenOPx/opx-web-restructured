@@ -36,7 +36,7 @@ def dictfetchall(cursor):
 @permission_classes((AllowAny,))
 def listadoGeneros(request):
 
-    generos = models.Genero.objects.all().values()
+    generos = models.Gender.objects.all().values()
 
     data = {
         'code': 200,

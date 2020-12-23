@@ -20,6 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto
 from myapp.view import (
     userview,
+    utilidades,
 )
 
 
@@ -44,4 +45,7 @@ urlpatterns = [
     path('usuarios/detail/<str:userid>', userview.detalleUsuario),
     #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
     #path('usuarios/<str:userid>', userview.actualizarUsuario),
+
+    path('generos/list/', utilidades.listadoGeneros),
+
 ]
