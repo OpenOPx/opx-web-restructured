@@ -73,6 +73,7 @@ def listadoEquipos(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def crearEquipo(request):
+
     try:
         user = usuarioAutenticado(request)
         person = models.Person.objects.get(user__userid = user.userid)
@@ -97,6 +98,41 @@ def crearEquipo(request):
             'code': 400,
             'errors': dict(e),
             'status': 'success'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
+##
+# @brief Recurso de eliminación de plantilla de equipo
+# @param request Instancia HttpRequest
+# @param planid Identificación de Plantilla de Equipo
+# @return cadena JSON
+#
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
+def eliminarEquipo(request, planid):
+
+    try:
+        plantilla = models.Team.objects.get(pk=planid)
+        
+        plantilla.delete()
+
+        response = {
+            'code': 200,
+            'status': 'success'
+        }
+
+    except ObjectDoesNotExist:
+
+        response = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError:
+        response = {
+            'code': 400,
+            'status': 'error'
         }
 
     return JsonResponse(response, safe=False, status=response['code'])

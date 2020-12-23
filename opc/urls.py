@@ -83,7 +83,7 @@ urlpatterns = [
     #path('equipos/proyecto/<str:proyid>', equipo.equipoProyectoView),
 
     path('plantillas-equipo/list/', equipo.listadoEquipos), #JM
-    #path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM
+    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM
     path('plantillas-equipo/store/', equipo.crearEquipo), #falta verificar que no existan equipos con el mismo nombre #JM
     #path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo), #JM
 
