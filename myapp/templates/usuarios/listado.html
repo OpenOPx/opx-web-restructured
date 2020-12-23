@@ -75,8 +75,8 @@
                       :per-page="pagination.perPage"
                       :current-page="pagination.currentPage"
                     >
-                      <template v-slot:cell(userestado)="data">
-                        [[ data.item.userestado | estado-entidad ]]
+                      <template v-slot:cell(isactive)="data">
+                        [[ data.item.isactive | estado-entidad ]]
                       </template>
                       <template v-slot:cell(acciones)="data">
                         <div class="dropdown">

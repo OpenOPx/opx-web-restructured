@@ -17,7 +17,14 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
+<<<<<<< HEAD
 from myapp import views, proyecto, decision
+=======
+from myapp import views, proyecto
+from myapp.view import (
+    userview,
+)
+>>>>>>> ef3cd8c320b9eefcf053bf40a02a46d80f67307e
 
 
 urlpatterns = [

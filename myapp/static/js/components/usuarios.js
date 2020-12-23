@@ -32,11 +32,15 @@ let usuario = new Vue({
         userFields: [
             {
                 label: 'Estado',
-                key: 'userestado'
+                key: 'isactive'
             },
             {
-                label: 'Nombre',
-                key: 'userfullname'
+                label: 'Nombres',
+                key: 'pers_name'
+            },
+            {
+                label: 'Apellisods',
+                key: 'pers_lastname'
             },
             {
                 label: 'E-mail',
@@ -44,11 +48,11 @@ let usuario = new Vue({
             },
             {
                 label: 'Rol',
-                key: 'rolname'
+                key: 'role_name'
             },
             {
                 label: 'Fecha de Creación',
-                key: 'fecha_creacion'
+                key: 'pers_creation_date'
             },
             {
                 label: '',
