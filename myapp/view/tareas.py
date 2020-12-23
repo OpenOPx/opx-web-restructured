@@ -48,18 +48,23 @@ def listadoTareas(request):
 
         # Obtener usuario autenticado
         usuario = usuarioAutenticado(request)
+        person = models.Person.objects.get(user__userid = usuario.userid)
 
         # Superadministrador
-        if str(usuario.rolid) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+        if str(person.pers_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
             proyectosUsuario = []
 
         # Consulta de proyectos para un usuario proyectista
-        elif str(usuario.rolid) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-            proyectosUsuario = list(models.Proyecto.objects.filter(proypropietario=usuario.userid).values('proyid'))
+        elif str(person.pers_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            proyectosUsuario = list(models.Project.objects.filter(proypropietario=usuario.userid).values('proj_owner'))
 
         # Consulta de proyectos para un usuario voluntario o validador
-        elif str(usuario.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(usuario.rolid) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
-            proyectosUsuario = list(models.Equipo.objects.filter(userid = usuario.userid).values('proyid'))
+        elif str(person.pers_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            tasksid = list(models.PersonTask.objects.filter(userid = usuario.userid).values('task_id'))
+            proyectosUsuario = []
+            for t in tasksid:
+                proyectosUsuario[i] = models.Task.objects.filter(task_id = tasksid[i]).values('projectproject_id') #QUEDA FALTANDO A QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
+            #proyectosUsuario = list(models.Equipo.objects.filter(userid = usuario.userid).values('proj_owner'))
 
         # ================ Obtener página validación de la misma ========================
         page = request.GET.get('page')
@@ -71,10 +76,10 @@ def listadoTareas(request):
 
         # Obtener Búsqueda y validación de la misma
         search = request.GET.get('search')
-
-        query = "select t.*, i.instrnombre, p.proynombre from v1.tareas as t " \
-                "inner join v1.proyectos as p on t.proyid = p.proyid " \
-                "inner join v1.instrumentos  as i on t.instrid = i.instrid"
+        #que hago con esa consulta si quitaste instrumentos Leo
+        query = "select t.*, i.instrnombre, p.proj_name from opx.task as t " \ 
+                "inner join opx.project as p on t.projectproject_id = p.proj_id " \
+                "inner join opx.instrumentos  as i on t.instrid = i.instrid"
 
         if len(proyectosUsuario) > 0 or search is not None:
 
@@ -82,7 +87,7 @@ def listadoTareas(request):
 
             #   Busqueda de tareas por proyecto
             if len(proyectosUsuario) == 1:
-                query += "t.proyid = '" + str(proyectosUsuario[0]['proyid']) + "'"
+                query += "t.projectproject_id = '" + str(proyectosUsuario[0]['proj_id']) + "'"
 
             if len(proyectosUsuario) > 1:
                 firstItemQuery = True
@@ -92,16 +97,16 @@ def listadoTareas(request):
                         query += "("
                         firstItemQuery = False
 
-                    query += "t.proyid = '" + str(p['proyid']) + "' or "
+                    query += "t.projectproject_id = '" + str(p['proj_id']) + "' or "
 
-                query += "t.proyid = '" + str(proyectosUsuario[-1]['proyid']) + "')"
+                query += "t.projectproject_id = '" + str(proyectosUsuario[-1]['proj_id']) + "')"
 
             # Busqueda por Nombre
             if search is not  None:
                 if len(proyectosUsuario) > 0:
                     query += " and"
 
-                query += " (t.tarenombre ~* '" + search + "');"
+                query += " (t.task_name ~* '" + search + "');"
 
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -112,9 +117,9 @@ def listadoTareas(request):
             # Progreso de las Tareas
             for t in tareas:
                 # Tipo encuesta
-                if t['taretipo'] == 1:
+                if t['task_type_id'] == 1:
 
-                    encuestas = models.Encuesta.objects.filter(tareid__exact=t['tareid'])
+                    encuestas = models.Encuesta.objects.filter(tareid__exact=t['tareid']) #Me quedé varado en el survey
                     progreso = (len(encuestas) * 100) / t['tarerestriccant']
                     t['progreso'] = progreso
 
@@ -229,7 +234,7 @@ def detalleTarea(request, tareid):
         tareaDict = model_to_dict(tarea)
         
         # Tipo encuesta
-        if tareaDict['taretipo'] == 1:
+        if tareaDict['task_type_id'] == 1:
 
             encuestas = models.Encuesta.objects.filter(tareid__exact=tarea.tareid)
             progreso = (len(encuestas) * 100) / tareaDict['tarerestriccant']
@@ -272,7 +277,7 @@ def detalleTarea(request, tareid):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
-def almacenamientoTarea(request):
+def almacenamientoTarea(request): #Por aquí iba
 
     tareNombre = request.POST.get('tarenombre')
     tareTipo = request.POST.get('taretipo')
@@ -280,16 +285,18 @@ def almacenamientoTarea(request):
     tareRestricCant = request.POST.get('tarerestriccant')
     tareRestricTime = "{}"
     instrID = request.POST.get('instrid')
-    proyID = request.POST.get('proyid')
+    proyID = request.POST.get('proj_id')
     dimensionid = request.POST.get('dimensionid')
     geojson_subconjunto = request.POST.get('geojsonsubconjunto')
     taredescripcion = request.POST.get('taredescripcion')
     tareprioridad = request.POST.get('tareprioridad')
+    isactive = request.POST.get('isactive')
 
-    tarea = models.Tarea(tarenombre = tareNombre, taretipo = tareTipo, tarerestricgeo = tareRestricGeo,
+
+    tarea = models.Tarea(task_name = tareNombre, task_type_id = tareTipo, tarerestricgeo = tareRestricGeo,
                          tarerestriccant = tareRestricCant, tarerestrictime = tareRestricTime,
                          instrid = instrID, proyid = proyID, dimensionid = dimensionid,
-                         geojson_subconjunto = geojson_subconjunto, taredescripcion = taredescripcion,
+                         geojson_subconjunto = geojson_subconjunto,  task_description = taredescripcion,isactive = isactive
                          tareprioridad=tareprioridad)
 
     try:
@@ -362,7 +369,7 @@ def actualizarTarea(request, tareid):
         tarea.tarenombre = request.POST.get('tarenombre')
         #tarea.taretipo = request.POST.get('taretipo')
         tarea.tarerestriccant = request.POST.get('tarerestriccant')
-        tarea.proyid = request.POST.get('proyid')
+        tarea.proyid = request.POST.get('proj_id')
         tarea.taredescripcion = request.POST.get('taredescripcion')
         tarea.tareprioridad = request.POST.get('tareprioridad');
 
@@ -390,7 +397,7 @@ def actualizarTarea(request, tareid):
             detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
 
             # Enviar Notificaciones
-            gestionCambios(usuarios, 'tarea', tarea.tarenombre, 1, detalle)
+            gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
 
         response = {
             'code': 200,
@@ -434,9 +441,9 @@ def actualizarTarea(request, tareid):
 #
 def validarTarea(tarea):
 
-    if ((tarea.tareestado == 1 and tarea.taretipo == 1) or (tarea.tareestado != 2 and tarea.taretipo == 2)):
+    if ((tarea.tareestado == 1 and tarea.task_type_id == 1) or (tarea.tareestado != 2 and tarea.taretipo == 2)):
 
-        if tarea.taretipo == 1:
+        if tarea.task_type_id == 1:
 
             encuestasSinValidar = models.Encuesta.objects.filter(instrid__exact=tarea.instrid) \
                                                          .filter(estado__exact=0)
@@ -464,7 +471,7 @@ def validarTarea(tarea):
             else:
                 raise ValidationError(['Todas las encuestas deben ser validadas'])
 
-        elif tarea.taretipo == 2:
+        elif tarea.task_type_id == 2:
 
             cartografias = models.Cartografia.objects.filter(instrid__exact=tarea.instrid)
 

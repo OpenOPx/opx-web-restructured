@@ -20,7 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto, decision, equipo
 from myapp.view import (
     userview,
-    utilidades,
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -46,19 +46,19 @@ urlpatterns = [
     #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
     #path('usuarios/<str:userid>', userview.actualizarUsuario),
 
-    #path('contextos/', views.listadoContextosView),
-    #path('contextos/list/', views.listadoContextos),
-    #path('contextos/<str:proyid>/list/', views.listadoContextosProyecto),
-    #path('contextos/store/', views.almacenamientoContexto),
-    #path('contextos/delete/<str:contextoid>', views.eliminarContexto),
-    #path('contextos/<str:contextoid>', views.actualizarContexto),
-    #path('contextos/datos/<str:contextoid>', views.listadoDatosContextoView),
+    path('contextos/', contextoview.listadoContextosView), #OK S PROBAR
+    path('contextos/list/', contextoview.listadoContextos), #OK S PROBAR
+    path('contextos/<str:proyid>/list/', contextoview.listadoContextosProyecto), #OK S PROBAR
+    path('contextos/store/', contextoview.almacenamientoContexto), #OK S PROBAR
+    path('contextos/delete/<str:contextoid>', contextoview.eliminarContexto), #OK S PROBAR
+    path('contextos/<str:contextoid>', contextoview.actualizarContexto), #OK S PROBAR
+    path('contextos/datos/<str:contextoid>', contextoview.listadoDatosContextoView), #OK S PROBAR
 
-    #path('datos-contexto/list/', views.listadoDatosContextoCompleto),
-    #path('datos-contexto/list/<str:contextoid>', views.listadoDatosContexto),
-    #path('datos-contexto/store/', views.almacenarDatoContexto),
-    #path('datos-contexto/delete/<str:dataid>', views.eliminarDatoContexto),
-    #path('datos-contexto/<str:dataid>', views.actualizarDatoContexto),
+    #path('datos-contexto/list/', contextoview.listadoDatosContextoCompleto), # S LO QUIERO COGER YO
+    #path('datos-contexto/list/<str:contextoid>', contextoview.listadoDatosContexto), # S LO QUIERO COGER YO
+    #path('datos-contexto/store/', contextoview.almacenarDatoContexto), # S LO QUIERO COGER YO
+    #path('datos-contexto/delete/<str:dataid>', contextoview.eliminarDatoContexto), # S LO QUIERO COGER YO
+    #path('datos-contexto/<str:dataid>', contextoview.actualizarDatoContexto), # S LO QUIERO COGER YO
 
     #path('decisiones/<str:proyid>/list/', views.listDecisionesProyecto),
 
@@ -92,12 +92,12 @@ urlpatterns = [
     #path('miembros-plantilla/<str:miplid>/delete/', plantillaEquipo.eliminarMiembro),
     #path('miembros-plantilla/<str:planid>/usuarios-disponibles/', plantillaEquipo.miembrosDisponibles),
 
-    #path('acciones/list/', views.listadoAcciones),
+    path('acciones/list/', rolesview.listadoAcciones), #OK - S PERO EVALUAR LA CORRECCIÓN PROPUESTA
 
-    #path('funciones-rol/list/<str:rolid>', views.listadoFuncionesRol),
-    #path('funciones-rol/store/', views.almacenamientoFuncionRol),
-    #path('funciones-rol/delete/<str:funcrolid>', views.eliminarFuncionRol),
-    #path('funciones-rol/<str:funcrolid>', views.actualizarFuncionRol),
+    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), #ESTÁ CONFUSA - S O NO SÉ SI ES EL SUEÑO
+    #path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), #F, MUCHO SUEÑO - S
+    #path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol),
+    #path('funciones-rol/<str:funcrolid>', rolesview.actualizarFuncionRol),
 
     #path('instrumentos/', views.listadoInstrumentosView),
     #path('instrumentos/list/', views.listadoInstrumentos),
@@ -126,22 +126,22 @@ urlpatterns = [
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 
-    #path('tipos-proyecto/', tiposProyecto.tiposProyectoView),
-    #path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto),
-    #path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),
-    #path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto),
-    #path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto),
+    path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S PROBAR
+    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S PROBAR
+    path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S PROBAR
+    path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S PROBAR
+    path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S PROBAR
 
-    #path('roles/', views.listadoRolesView),
-    #path('roles/list/', views.listadoRoles),
-    #path('roles/store/', views.almacenamientoRol),
-    #path('roles/delete/<str:rolid>', views.eliminarRol),
-    #path('roles/<str:rolid>', views.actualizarRol),
-    #path('roles/permisos/<str:rolid>', views.permisosRolView),
+    path('roles/', rolesview.listadoRolesView), #OK - S PROBAR
+    path('roles/list/', rolesview.listadoRoles), #OK - S PROBAR
+    path('roles/store/', rolesview.almacenamientoRol), #OK - S PROBAR
+    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S PROBAR
+    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S PROBAR
+    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S PROBAR
 
-    #path('tareas/', tareas.listadoTareasView),
-    #path('tareas/list/', tareas.listadoTareas),
-    #path('tareas/store/', tareas.almacenamientoTarea),
+    #path('tareas/', tareas.listadoTareasView), #OK S
+    #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
+    #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
     #path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
     #path('tareas/<str:tareid>', tareas.actualizarTarea),
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
@@ -151,29 +151,29 @@ urlpatterns = [
 
     path('generos/list/', utilidades.listadoGeneros), #OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S
-    #path('elementos-osm/list/', osm.elementosOsm), 
+    #path('elementos-osm/list/', osm.elementosOsm),  # Falta cargarlo en el modelo para seguir
 
     path('barrios/list/', utilidades.listadoBarrios), #OK S
 
-    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion),
-    #path('contextualizacion/todo/', contextualizacion.todo),
-    #path('contextualizacion/mes/', contextualizacion.mensual),
-    #path('contextualizacion/semana/', contextualizacion.semanal),
-    #path('contextualizacion/dia/', contextualizacion.dia),
+    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Falta cargarlo en el modelo para seguir
+    #path('contextualizacion/todo/', contextualizacion.todo), # Falta cargarlo en el modelo para seguir
+    #path('contextualizacion/mes/', contextualizacion.mensual), # Falta cargarlo en el modelo para seguir
+    #path('contextualizacion/semana/', contextualizacion.semanal), # Falta cargarlo en el modelo para seguir
+    #path('contextualizacion/dia/', contextualizacion.dia), # Falta cargarlo en el modelo para seguir
 
     # ========================== Estadisticas Antes =================================
-    #path('estadisticas/datos-generales/', estadisticas.datosGenerales),
-    #path('estadisticas/usuarios-x-rol/', estadisticas.usuariosXRol),
-    #path('estadisticas/usuarios-x-genero/', estadisticas.usuariosXGenero),
-    #path('estadisticas/usuarios-x-nivel-educativo/', estadisticas.usuariosXNivelEducativo),
-    #path('estadisticas/usuarios-x-barrio/', estadisticas.usuariosXBarrio),
-    #path('estadisticas/ranking/', estadisticas.ranking),
-    #path('estadisticas/tareas-x-tipo/', estadisticas.tareasXTipo),
+    path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR
+    path('estadisticas/usuarios-x-rol/', estadisticas.usuariosXRol), #OK - S PROBAR
+    path('estadisticas/usuarios-x-genero/', estadisticas.usuariosXGenero), #OK - S PROBAR
+    path('estadisticas/usuarios-x-nivel-educativo/', estadisticas.usuariosXNivelEducativo), #OK - S PROBAR (OJO CON ESE NOMBRE EN LA IMAGEN DEL MODELO QUE NO ME LO VAYA A CAMBIAR)
+    path('estadisticas/usuarios-x-barrio/', estadisticas.usuariosXBarrio), #OK - S PROBAR
+    path('estadisticas/ranking/', estadisticas.ranking),  #OK - S PROBAR 
+    path('estadisticas/tareas-x-tipo/', estadisticas.tareasXTipo), #OK - S OJO CON LOS CAMBIOS A HACER
 
     # ======================== Estadisticas Durante ===================================
 
-    #path('estadisticas/proyectos-tareas/', estadisticas.proyectosTareas),
-    #path('estadisticas/estado-proyectos/', estadisticas.estadoActualProyectos),
+    path('estadisticas/proyectos-tareas/', estadisticas.proyectosTareas), # QUEDÉ EN LA PARTE DE ENCUESTAS Y PROGRESO - S
+    #path('estadisticas/estado-proyectos/', estadisticas.estadoActualProyectos), # AHORA QUE ME ACUERDO ESTO NO SE VA A USAR 
 
     # ======================== Estadisticas Después ===================================
 
@@ -199,17 +199,17 @@ urlpatterns = [
 
     # ========================= Vista Estadísticas =====================================
 
-    #path('reportes/antes/', estadisticas.estadisticasView),
-    #path('reportes/durante/', estadisticas.estadisticasDuranteView),
-    #path('reportes/despues/', estadisticas.estadisticasDespuesView),
-    #path('reportes/<str:proyid>/detalle/', estadisticas.estadisticasDetalleView),
+    path('reportes/antes/', estadisticas.estadisticasView), #OK - S OJO CON LOS CAMBIOS A HACER
+    path('reportes/durante/', estadisticas.estadisticasDuranteView), #OK - S OJO CON LOS CAMBIOS A HACER
+    path('reportes/despues/', estadisticas.estadisticasDespuesView), #OK - S OJO CON LOS CAMBIOS A HACER
+    path('reportes/<str:proyid>/detalle/', estadisticas.estadisticasDetalleView), #OK - S OJO CON LOS CAMBIOS A HACER
 
-    #path('reportes/ranking/', estadisticas.rankingView),
-    #path('reportes/proyecto/', estadisticas.reportesProyectosIndividualesView),
-    #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),
+    #path('reportes/ranking/', estadisticas.rankingView),  #S - Vistas que se agregan después por nuestra funcionalidad
+    #path('reportes/proyecto/', estadisticas.reportesProyectosIndividualesView), #S - Vistas que se agregan después por nuestra funcionalidad
+    #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),  #S - Vistas que se agregan después por nuestra funcionalidad
 
     # =========================== Perfil ===============================================
-    #path('mi-perfil/', views.perfilView)
+    path('mi-perfil/', profileview.perfilView) # UFF TOCA RECONSTRUIR TODA LA CLASE DEL JS PORQUE TRABAJA SOLO LOS ATRIBUTOS DE USER QUE TENÍA ANTES USUARIO QUE PARA NOSOTROS SERÍA PERSON
 
 
 
