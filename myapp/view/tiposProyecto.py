@@ -10,6 +10,8 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
+from myapp import models
+
 from myapp.models import ProjectType
 
 ##
@@ -21,7 +23,7 @@ from myapp.models import ProjectType
 @permission_classes((IsAuthenticated,))
 def listadoTiposProyecto(request):
 
-    tiposProyecto = ProjectType.objects.all().values()
+    tiposProyecto = models.ProjectType.objects.all().values()
 
     response = {
         'code': 200,

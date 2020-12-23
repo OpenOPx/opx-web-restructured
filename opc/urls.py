@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto
 from myapp.view import (
     userview,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
@@ -46,13 +46,13 @@ urlpatterns = [
     #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
     #path('usuarios/<str:userid>', userview.actualizarUsuario),
 
-    path('contextos/', contextoview.listadoContextosView), #OK S PROBAR
-    path('contextos/list/', contextoview.listadoContextos), #OK S PROBAR
-    path('contextos/<str:proyid>/list/', contextoview.listadoContextosProyecto), #OK S PROBAR
-    path('contextos/store/', contextoview.almacenamientoContexto), #OK S PROBAR
-    path('contextos/delete/<str:contextoid>', contextoview.eliminarContexto), #OK S PROBAR
-    path('contextos/<str:contextoid>', contextoview.actualizarContexto), #OK S PROBAR
+    path('contextos/', contextoview.listadoContextosView), #OK S 
+    path('contextos/list/', contextoview.listadoContextos), #OK S 
+    path('contextos/store/', contextoview.almacenamientoContexto), #OK S 
+    path('contextos/delete/<str:contextoid>', contextoview.eliminarContexto), #OK S 
+    path('contextos/<str:contextoid>', contextoview.actualizarContexto), #OK S 
     path('contextos/datos/<str:contextoid>', contextoview.listadoDatosContextoView), #OK S PROBAR
+    path('contextos/<str:proyid>/list/', contextoview.listadoContextosProyecto), #OK S PROBAR
 
     #path('datos-contexto/list/', contextoview.listadoDatosContextoCompleto), # S LO QUIERO COGER YO
     #path('datos-contexto/list/<str:contextoid>', contextoview.listadoDatosContexto), # S LO QUIERO COGER YO
@@ -62,16 +62,15 @@ urlpatterns = [
 
     #path('decisiones/<str:proyid>/list/', views.listDecisionesProyecto),
 
-    path('decisiones/', decision.listadoDecisionesView), #JM
-    path('decisiones/list/', decision.listadoDecisiones), #JM
-    path('decisiones/store/', decision.almacenarDecision), #falta verificar que no existan decisiones con el mismo nombre #JM
-    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM
-    path('decisiones/<str:desiid>', decision.actualizarDecision), #falta verificar que no existan decisiones con el mismo nombre #JM
+    path('decisiones/', decision.listadoDecisionesView), #JM OK
+    path('decisiones/list/', decision.listadoDecisiones), #JM OK
+    path('decisiones/store/', decision.almacenarDecision), #JM OK
+    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM OK 
+    path('decisiones/<str:desiid>', decision.actualizarDecision), #JM OK
 
-    #path('decisiones-proyecto/', views.listadoDecisionesProyecto),
-    #path('decisiones-proyecto/store/', proyecto.almacenarDecisionProyecto),
-    #path('decisiones-proyecto/delete/<str:desproid>/', views.eliminarDecisionProyecto),
-    #path('decisiones-proyecto/<str:desproid>', views.actualizarDecisionProyecto),
+    path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #JM OK
+    path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
+    path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #JM OK
 
     #path('equipos/', plantillaEquipo.plantillasView),
     #path('equipos/<str:planid>/miembros/', plantillaEquipo.miembrosPlantillaView),
@@ -82,10 +81,10 @@ urlpatterns = [
     #path('equipos/<str:equid>', equipo.actualizarEquipo),
     #path('equipos/proyecto/<str:proyid>', equipo.equipoProyectoView),
 
-    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM
-    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM
-    path('plantillas-equipo/store/', equipo.crearEquipo), #falta verificar que no existan equipos con el mismo nombre #JM
-    #path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo), #JM
+    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK
+    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK
+    path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK
+    path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo), #JM OK
 
     #path('miembros-plantilla/<str:planid>/list/', plantillaEquipo.miembrosPlantilla),
     #path('miembros-plantilla/<str:planid>/store/', plantillaEquipo.agregarMiembro),
@@ -127,13 +126,13 @@ urlpatterns = [
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 
     path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S PROBAR
-    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S PROBAR
+    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S 
     path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S PROBAR
     path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S PROBAR
     path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S PROBAR
 
     path('roles/', rolesview.listadoRolesView), #OK - S PROBAR
-    path('roles/list/', rolesview.listadoRoles), #OK - S PROBAR
+    path('roles/list/', rolesview.listadoRoles), #OK - S 
     path('roles/store/', rolesview.almacenamientoRol), #OK - S PROBAR
     path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S PROBAR
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S PROBAR
@@ -209,9 +208,13 @@ urlpatterns = [
     #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),  #S - Vistas que se agregan después por nuestra funcionalidad
 
     # =========================== Perfil ===============================================
-    path('mi-perfil/', profileview.perfilView) # UFF TOCA RECONSTRUIR TODA LA CLASE DEL JS PORQUE TRABAJA SOLO LOS ATRIBUTOS DE USER QUE TENÍA ANTES USUARIO QUE PARA NOSOTROS SERÍA PERSON
+    path('mi-perfil/', profileview.perfilView), # UFF TOCA RECONSTRUIR TODA LA CLASE DEL JS PORQUE TRABAJA SOLO LOS ATRIBUTOS DE USER QUE TENÍA ANTES USUARIO QUE PARA NOSOTROS SERÍA PERSON
 
-
+    #Comment
+    path('comentario/<str:proyid>/', comentario.listadoComentarios), #JM 
+    path('comentario/<str:commentid>/delete/', comentario.eliminarComentario), #JM ???
+    path('comentario/store/', comentario.crearComentario), #JM ???
+    path('comentario/<str:commentid>/', comentario.actualizarComentario), #JM ???
 
 
 

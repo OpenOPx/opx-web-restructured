@@ -40,34 +40,10 @@ from myapp.view.utilidades import usuarioAutenticado
 #
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def listadoEquipos(request):
-
-     decisiones = models.Team.objects.all().values()
-     return JsonResponse(list(decisiones), safe = False)
-
-    #user = usuarioAutenticado(request)
-    #person = models.Person.objects.get(user__userid = user.userid)
-    #rol = str(person.role.role_id)
-    #print(rol)
-    #if(rol == '628acd70-f86f-4449-af06-ab36144d9d6a' or rol == '8945979e-8ca5-481e-92a2-219dd42ae9fc'):
-
-        #plantillas = models.Team.objects.filter(user__userid = user.userid).values()
-
-       # response = {
-        #    'code': 200,
-        #    'data': list(plantillas),
-        #    'status': 'success'
-       # }
-
-    #else:
-     #   response = {
-      #      'code': 403,
-       #     'message': 'Usuario no permitido',
-        #    'status': 'error'
-        #}
-
-   # return JsonResponse(response, safe=False, status=response['code'])
-
+def listadoComentarios(request,proyid):
+     comentarios = models.Comment.objects.filter(project__proj_id__exact = proyid)
+     comentarios = list(comentarios.values())
+     return JsonResponse(list(comentario), safe = False)
 
 ##
 # @brief Recurso de creación de plantilla de equipo
@@ -76,28 +52,26 @@ def listadoEquipos(request):
 #
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def crearEquipo(request):
+def crearComentario(request):
+    user = usuarioAutenticado(request)
+
+    comentario = models.Comment(
+        comment_title = request.POST.get('tituloComentario'), 
+        comment_description = request.POST.get('descripcionComentario')
+    )
 
     try:
-        user = usuarioAutenticado(request)
-        person = models.Person.objects.get(user__userid = user.userid)
 
-        plantilla = models.Team(
-            team_name = request.POST.get('nombreEquipo'), 
-            team_leader = person
-        )
-
-        plantilla.full_clean()
-        plantilla.save()
+        comentario.full_clean()
+        comentario.save()
 
         response = {
             'code': 201,
-            'data': model_to_dict(plantilla),
+            'data': model_to_dict(comentario),
             'status': 'success'
         }
 
     except ValidationError as e:
-
         response = {
             'code': 400,
             'errors': dict(e),
@@ -114,18 +88,11 @@ def crearEquipo(request):
 #
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
-def eliminarEquipo(request, planid):
-
-    proyecto_equipo = models.ProjectTeam.objects.filter(team__team_id__exact = planid)
-    proyecto_equipo = list(proyecto_equipo.values())
-
-    if len(proyecto_equipo) > 0:
-        raise ValueError("El equipo esta asociado a un proyecto")
-
+def eliminarComentario(request, commentid):
     try:
-        plantilla = models.Team.objects.get(pk=planid)
+        comentario = models.Comment.objects.get(pk=commentid)
         
-        plantilla.delete()
+        comentario.delete()
 
         response = {
             'code': 200,
@@ -155,21 +122,24 @@ def eliminarEquipo(request, planid):
 #
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-def actualizarEquipo(request, planid):
+def actualizarComentario(request, commentid):
 
     try:
-        plantilla = models.Team.objects.get(pk=planid)
+        comentario = models.Comment.objects.get(pk=commentid)
 
-        plantilla.team_name = request.POST.get('name')
+        comentario.team_name = request.POST.get('name')
+        
+        comentario.comment_title = request.POST.get('titulo')
+        comentario.comment_description = request.POST.get('descripcion')
 
         response = {
             'code': 200,
-            'data': model_to_dict(plantilla),
+            'data': model_to_dict(comentario),
             'status': 'success'
         }
 
-        plantilla.full_clean()
-        plantilla.save()
+        comentario.full_clean()
+        comentario.save()
 
     except ObjectDoesNotExist:
         response = {
