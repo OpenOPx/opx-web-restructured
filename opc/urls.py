@@ -55,4 +55,5 @@ urlpatterns = [
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos),
     #Falta elementos OSM
     path('barrios/list/', utilidades.listadoBarrios)
+    
 ]
