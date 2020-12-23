@@ -29,7 +29,7 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado
+from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto
 
 ##
 # @brief Función que provee una plantilla HTML para la gestión de proyectos
@@ -74,17 +74,20 @@ def listadoProyectos(request):
             # ============================ Consultando proyectos ====================================
 
             #Consulta de proyectos para super administrador
-            if str(user.rolid) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+
+            person = models.Person.objects.get(user__userid = user.userid)
+                
+            if str(person.role.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
                 proyectos = models.Project.objects.all()
 
             # Consulta de proyectos para proyectista
-            elif str(user.rolid) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-                proyectos = models.Project.objects.filter(proj_owner__exact = user.userid)
+            elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+                proyectos = models.Project.objects.filter(proj_owner__pers_id__exact = person.pers_id)
 
             # Consulta de proyectos para voluntarios o validadores
-            elif str(user.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(user.rolid) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
 
-                proyectosAsignados = models.Team.objects.filter(userid__exact = user.userid)
+                proyectosAsignados = models.Team.objects.filter(team_leader__pers_id__exact = person.pers_id)
                 proyectosAsignadosID = []
 
                 for p in proyectosAsignados:
@@ -109,17 +112,19 @@ def listadoProyectos(request):
 
         # convirtiendo a lista de diccionarios
         proyectos = list(proyectos.values())
-
+        print(proyectos)
         listadoProyectos = []
         for p in proyectos:
 
             #Consulta del proyectista
-            p['proyectista'] = models.User.objects.get(pk = p['proypropietario']).userfullname
+            persona = models.Person.objects.get(pk = p['proj_owner_id'])
+            p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
-            if 'user' in locals() and str(user.rolid) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            if 'user' in locals() and str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
 
                 p['dimensiones_territoriales'] = []
-                dimensionesTerritoriales = models.DelimitacionGeografica.objects\
+
+                dimensionesTerritoriales = models.TerritorialDimension.objects\
                                            .filter(proyid__exact = p['proyid'])\
                                            .filter(estado=1)\
                                            .values()

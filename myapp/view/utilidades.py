@@ -96,7 +96,7 @@ def usuarioAutenticado(request):
                                 settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
     # consultando el usuario
-    user = models.Usuario.objects.get(pk=tokenDecoded['user_id'])
+    user = models.User.objects.get(pk=tokenDecoded['user_id'])
 
     return user
 

@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto
+from myapp import views, proyecto, decision
 
 
 urlpatterns = [
@@ -41,4 +41,11 @@ urlpatterns = [
     #path('usuarios/detail/<str:userid>', views.detalleUsuario),
     #path('usuarios/delete/<str:userid>', views.eliminarUsuario),
     #path('usuarios/<str:userid>', views.actualizarUsuario),
+
+    path('decisiones/', decision.listadoDecisionesView),
+    path('decisiones/list/', decision.listadoDecisiones),
+    path('decisiones/store/', decision.almacenarDecision),
+    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision),
+    path('decisiones/<str:desiid>', decision.actualizarDecision),
+
 ]
