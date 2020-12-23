@@ -20,11 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto, decision
 from myapp.view import (
     userview,
-<<<<<<< HEAD
     utilidades,
-=======
-    utilidades
->>>>>>> 647aec84385dacbc1f51a6a4c093f10e74e4ae8a
 )
 
 
