@@ -20,7 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto, decision
 from myapp.view import (
     userview,
-    utilidades
+    utilidades,
 )
 
 
@@ -39,12 +39,12 @@ urlpatterns = [
     #path('auth/password-reset-verification/', auth.passwordResetVerification),
     #path('auth/password-reset/<str:token>', auth.passwordResetConfirmation),
     #path('auth/password-reset-done/', auth.passwordResetDone),
-    path('usuarios/', views.listadoUsuariosView),
-    path('usuarios/list/', views.listadoUsuarios),
-    #path('usuarios/store/', views.almacenarUsuario),
-    #path('usuarios/detail/<str:userid>', views.detalleUsuario),
-    #path('usuarios/delete/<str:userid>', views.eliminarUsuario),
-    #path('usuarios/<str:userid>', views.actualizarUsuario),
+    path('usuarios/', userview.listadoUsuariosView),
+    path('usuarios/list/', userview.listadoUsuarios),
+    #path('usuarios/store/', userview.almacenarUsuario),
+    path('usuarios/detail/<str:userid>', userview.detalleUsuario),
+    #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
+    #path('usuarios/<str:userid>', userview.actualizarUsuario),
 
 #los id's los pasan por el path y deberian pasarlos internamente
 
@@ -59,4 +59,8 @@ urlpatterns = [
     path('plantillas-equipo/store/', equipo.crearEquipo),
     path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo),
     
+    path('niveles-educativos/list/', utilidades.listadoNivelesEducativos),
+    #Falta elementos OSM
+    path('barrios/list/', utilidades.listadoBarrios),
+    path('generos/list/', utilidades.listadoGeneros),
 ]

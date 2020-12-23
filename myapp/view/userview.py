@@ -29,6 +29,8 @@ from rest_framework.permissions import (
 
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
+PROYECTISTA = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
+#VOLUNTARIO = 
 
 # ======================= usuarios =================================
 
@@ -86,9 +88,9 @@ def detalleUsuario(request, userid):
         usuario = {}
 
         with connection.cursor() as cursor:
-            query = "SELECT u.*, r.rolname from v1.usuarios u \
-                    INNER JOIN v1.roles r ON r.rolid = u.rolid " \
-                    "WHERE u.userid = '{}'".format(userid)
+            query = "SELECT p.*, r.role_name from opx.person p \
+                    INNER JOIN opx.role r ON r.rol_id = p.role_id " \
+                    "WHERE p.pers_id = '{}'".format(userid)
             cursor.execute(query)
             queryResult = dictfetchall(cursor)
 
@@ -98,10 +100,10 @@ def detalleUsuario(request, userid):
 
             # Puntaje esperado para llegar a rol proximo
             # Voluntario
-            if str(usuario['rolid']) == '0be58d4e-6735-481a-8740-739a73c3be86':
+            if str(usuario['role_id']) == '0be58d4e-6735-481a-8740-739a73c3be86':
                 usuario['promocion'] = {
                     'rol': "Validador",
-                    'puntaje': int(settings['umbral-validador'])
+                    'puntaje': 22 #int(settings['umbral-validador'])
                 }
 
             # Proyectista
@@ -112,8 +114,8 @@ def detalleUsuario(request, userid):
                 }
 
             # Remover la información que no se desea mostrar
-            del usuario['password']
-            del usuario['usertoken']
+            #del usuario['password']
+            #del usuario['usertoken']
 
             data = {
                 'code': 200,
