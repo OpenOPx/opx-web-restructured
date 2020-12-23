@@ -5,6 +5,8 @@ import os
 import http.client
 from passlib.context import CryptContext
 
+from django.forms.models import model_to_dict
+
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -71,18 +73,13 @@ def listadoEquipos(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def crearEquipo(request):
-
     try:
-
         user = usuarioAutenticado(request)
+        person = models.Person.objects.get(user__userid = user.userid)
 
-        plantilla = Team(
-            descripcion=request.POST.get('descripcion'), 
-            userid=user.userid
-
-            team_name = request.POST.get(''), 
-            team_leader = request.POST.get(''), 
-            team_effectiveness = request.POST.get('')
+        plantilla = models.Team(
+            team_name = request.POST.get('nombreEquipo'), 
+            team_leader = person
         )
 
         plantilla.full_clean()
@@ -101,6 +98,5 @@ def crearEquipo(request):
             'errors': dict(e),
             'status': 'success'
         }
-
 
     return JsonResponse(response, safe=False, status=response['code'])
