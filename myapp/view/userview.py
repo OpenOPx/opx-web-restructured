@@ -30,7 +30,7 @@ from rest_framework.permissions import (
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
 PROYECTISTA = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
-#VOLUNTARIO = 
+# VOLUNTARIO =
 
 # ======================= usuarios =================================
 
@@ -79,6 +79,8 @@ def listadoUsuarios(request):
 # @param userid identificación del usuario
 # @return Cadena JSON
 #
+
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def detalleUsuario(request, userid):
@@ -103,14 +105,14 @@ def detalleUsuario(request, userid):
             if str(usuario['role_id']) == '0be58d4e-6735-481a-8740-739a73c3be86':
                 usuario['promocion'] = {
                     'rol': "Validador",
-                    'puntaje': 22 #int(settings['umbral-validador'])
+                    'puntaje': 22  # int(settings['umbral-validador'])
                 }
 
             # Proyectista
             elif str(usuario['role_id']) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
                 usuario['promocion'] = {
                     'rol': "Proyectista",
-                    'puntaje': 22#int(settings['umbral-proyectista'])
+                    'puntaje': 22  # int(settings['umbral-proyectista'])
                 }
 
             # Remover la información que no se desea mostrar
@@ -154,56 +156,63 @@ def detalleUsuario(request, userid):
 # @param request Instancia HttpRequest
 # @return cadena JSON
 #
+
+
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def almacenarUsuario(request):
 
     useremail = request.POST.get('useremail')
-    usertoken = request.POST.get('usertoken')
-    userfullname = request.POST.get('userfullname')
+    fcm_token = request.POST.get('fcm_token')
+    #userfullname = request.POST.get('userfullname')
+    pers_name = request.POST.get('pers_name')
+    pers_lastname = request.POST.get('pers_lastname')
     password = request.POST.get('password')
-    rolid = request.POST.get('rolid')
-    userleveltype = 1
-    userestado = 1
-    fechaNacimiento = request.POST.get('fecha_nacimiento')
-    genero = request.POST.get('generoid')
-    barrio = request.POST.get('barrioid')
-    nivelEducativo = request.POST.get('nivel_educativo_id')
-    telefono = request.POST.get('telefono')
-    fechaCreacion = datetime.today()
-    empleado = request.POST.get('empleado')
-
-    usuario = models.Usuario(useremail = useremail, usertoken = usertoken, userfullname = userfullname,
-                             password = password, rolid = rolid, userleveltype = userleveltype,
-                             userestado = userestado, fecha_nacimiento = fechaNacimiento, generoid = genero,
-                             barrioid = barrio, nivel_educativo_id = nivelEducativo, telefono = telefono,
-                             fecha_creacion=fechaCreacion)
+    role_id = request.POST.get('role_id')
+    #userleveltype = 1
+    #userestado = 1
+    pers_birthdate = request.POST.get('pers_birthdate')
+    gender_id = request.POST.get('gender_id')
+    neighborhood_id = request.POST.get('neighborhood_id')
+    education_level_id = request.POST.get('education_level_id')
+    pers_telephone = request.POST.get('pers_telephone')
+    #fechaCreacion = datetime.today()
+    isemployee = request.POST.get('isemployee')
 
     try:
-        # Asignación de estado "empleado" a usuario en caso tal sea enviado
-        if empleado is not None:
-            if empleado == "true":
-                usuario.empleado = 1
-            else:
-                usuario.empleado = 0
-
-        # Validación de campos
-        usuario.full_clean()
-
+        user = models.User(useremail=useremail, password=password)
         # Contexto Passlib
         pwd_context = CryptContext(
             schemes=["pbkdf2_sha256"],
             default="pbkdf2_sha256",
             pbkdf2_sha256__default_rounds=30000
         )
-        usuario.password = pwd_context.encrypt(usuario.password)
+        user.password = pwd_context.encrypt(user.password)
+        user.save()
+        role = models.Role.objects.get(pk = role_id)
+        gender = models.Gender.objects.get(pk = gender_id)
+        neighborhood = models.Neighborhood.objects.get(pk = neighborhood_id)
+        education_level = models.EducationLevel.objects.get(pk = education_level_id)
 
-        usuario.save()
+        person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
+                               role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
+                               gender=gender, neighborhood=neighborhood, education_level=education_level,
+                               user = user)
+        # Asignación de estado "empleado" a usuario en caso tal sea enviado
+        if isemployee is not None:
+            if isemployee == "true":
+                person.isemployee = 1
+            # else:
+            #    usuario.empleado = 0
+
+        # Validación de campos
+        person.full_clean()
+        person.save()
 
         data = {
             'code': 201,
-            'usuario': serializers.serialize('python', [usuario])[0],
+            'usuario': serializers.serialize('python', [user])[0],#mando user o person?
             'status': 'success'
         }
 
@@ -223,4 +232,4 @@ def almacenarUsuario(request):
             'status': 'error'
         }
 
-    return JsonResponse(data, safe = False, status=data['code'])
+    return JsonResponse(data, safe=False, status=data['code'])
