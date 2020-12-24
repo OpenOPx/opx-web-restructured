@@ -280,7 +280,7 @@ class Team(models.Model):
     team_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     team_name = models.CharField(max_length=100)
     team_leader = models.ForeignKey(Person, on_delete=models.PROTECT)
-    team_effectiveness = models.FloatField()  # agreagr al diagrama - changos
+    team_effectiveness = models.FloatField(default=0.0)  # agreagr al diagrama - changos
 
     class Meta:
         db_table = '"opx"."team"'
