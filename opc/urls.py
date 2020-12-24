@@ -62,11 +62,11 @@ urlpatterns = [
 
     #path('decisiones/<str:proyid>/list/', views.listDecisionesProyecto),
 
-    path('decisiones/', decision.listadoDecisionesView), #JM OK
-    path('decisiones/list/', decision.listadoDecisiones), #JM OK
-    path('decisiones/store/', decision.almacenarDecision), #JM OK
-    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM OK 
-    path('decisiones/<str:desiid>', decision.actualizarDecision), #JM OK
+    path('decisiones/', decision.listadoDecisionesView), #JM OK OK
+    path('decisiones/list/', decision.listadoDecisiones), #JM OK OK
+    path('decisiones/store/', decision.almacenarDecision), #JM OK OK
+    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM OK OK
+    path('decisiones/<str:desiid>', decision.actualizarDecision), #JM OK OK
 
     path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #JM OK
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
@@ -215,7 +215,6 @@ urlpatterns = [
     path('comentario/<str:commentid>/delete/', comentario.eliminarComentario), #JM ???
     path('comentario/store/', comentario.crearComentario), #JM ???
     path('comentario/<str:commentid>/', comentario.actualizarComentario), #JM ???
-
 
     #TeamPerson
     path('equipo-persona/list/', equipoPersona.listadoEquiposPersona), #JM OK

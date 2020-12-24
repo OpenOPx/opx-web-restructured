@@ -29,7 +29,7 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado
+from myapp.view.utilidades import usuarioAutenticado, dictfetchall
 
 ##
 # @brief Plantilla de decisiones
@@ -47,8 +47,13 @@ def listadoDecisionesView(request):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def listadoDecisiones(request):
-     decisiones = models.Decision.objects.all().values()
-     return JsonResponse(list(decisiones), safe = False)
+    with connection.cursor() as cursor:
+        cursor.execute("select opx.decision.decs_id, opx.decision.decs_description, opx.decision.decs_name from opx.decision")
+        columns = dictfetchall(cursor)
+        return JsonResponse(columns, safe = False)
+
+     #decisiones = models.Decision.objects.all().values()
+     #return JsonResponse(list(decisiones), safe = False)
 
 
 ##
@@ -77,8 +82,7 @@ def almacenarDecision(request):
     except ValidationError as e:
         return JsonResponse(dict(e), safe = True, status = 400)
 
-        ##
-
+##
 # @brief Recurso de eliminación de decisiones
 # @param request Instancia HttpRequest
 # @param desiid Identificación de la decisión
@@ -120,8 +124,8 @@ def actualizarDecision(request, desiid):
     try:
         decision = models.Decision.objects.get(pk=desiid)
 
-        decision.decs_description = request.POST.get('desidescripcion')
-        decision.decs_name = request.POST.get('desinombre')
+        decision.decs_description = request.POST.get('decs_description')
+        decision.decs_name = request.POST.get('decs_name')
 
         decision.full_clean()
 
