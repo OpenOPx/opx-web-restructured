@@ -41,32 +41,32 @@ urlpatterns = [
 
     path('usuarios/', userview.listadoUsuariosView), #OK LEO
     path('usuarios/list/', userview.listadoUsuarios), #OK LEO
-    #path('usuarios/store/', userview.almacenarUsuario),
+    path('usuarios/store/', userview.almacenarUsuario), 
     path('usuarios/detail/<str:userid>', userview.detalleUsuario), #OK LEO
     #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
     #path('usuarios/<str:userid>', userview.actualizarUsuario),
 
-    path('contextos/', contextoview.listadoContextosView), #OK S 
-    path('contextos/list/', contextoview.listadoContextos), #OK S 
-    path('contextos/store/', contextoview.almacenamientoContexto), #OK S 
+    path('contextos/', contextoview.listadoContextosView), #OK S OK
+    path('contextos/list/', contextoview.listadoContextos), #OK S OK
+    path('contextos/store/', contextoview.almacenamientoContexto), #OK S OK
     path('contextos/delete/<str:contextoid>', contextoview.eliminarContexto), #OK S 
-    path('contextos/<str:contextoid>', contextoview.actualizarContexto), #OK S 
-    path('contextos/datos/<str:contextoid>', contextoview.listadoDatosContextoView), #OK S PROBAR
-    path('contextos/<str:proyid>/list/', contextoview.listadoContextosProyecto), #OK S PROBAR
+    path('contextos/<str:contextoid>', contextoview.actualizarContexto), #OK S OK
+    path('contextos/datos/<str:contextoid>', contextoview.listadoDatosContextoView), #OK S OK
+    path('contextos/<str:proyid>/list/', contextoview.listadoContextosProyecto), #OK S OK
 
-    #path('datos-contexto/list/', contextoview.listadoDatosContextoCompleto), # S LO QUIERO COGER YO
-    #path('datos-contexto/list/<str:contextoid>', contextoview.listadoDatosContexto), # S LO QUIERO COGER YO
-    #path('datos-contexto/store/', contextoview.almacenarDatoContexto), # S LO QUIERO COGER YO
-    #path('datos-contexto/delete/<str:dataid>', contextoview.eliminarDatoContexto), # S LO QUIERO COGER YO
-    #path('datos-contexto/<str:dataid>', contextoview.actualizarDatoContexto), # S LO QUIERO COGER YO
+    path('datos-contexto/list/', contextoview.listadoDatosContextoCompleto), # OK S OK
+    path('datos-contexto/list/<str:contextoid>', contextoview.listadoDatosContexto), # OK S OK
+    path('datos-contexto/store/', contextoview.almacenarDatoContexto), # OK S OK
+    path('datos-contexto/delete/<str:dataid>', contextoview.eliminarDatoContexto), #OK S OK
+    path('datos-contexto/<str:dataid>', contextoview.actualizarDatoContexto), #OK S OK
 
     #path('decisiones/<str:proyid>/list/', views.listDecisionesProyecto),
 
-    path('decisiones/', decision.listadoDecisionesView), #JM OK
-    path('decisiones/list/', decision.listadoDecisiones), #JM OK
-    path('decisiones/store/', decision.almacenarDecision), #JM OK
-    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM OK 
-    path('decisiones/<str:desiid>', decision.actualizarDecision), #JM OK
+    path('decisiones/', decision.listadoDecisionesView), #JM OK OK
+    path('decisiones/list/', decision.listadoDecisiones), #JM OK OK
+    path('decisiones/store/', decision.almacenarDecision), #JM OK OK
+    path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #JM OK OK
+    path('decisiones/<str:desiid>', decision.actualizarDecision), #JM OK OK
 
     path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #JM OK
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
@@ -131,8 +131,8 @@ urlpatterns = [
     path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S PROBAR
     path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S PROBAR
 
-    path('roles/', rolesview.listadoRolesView), #OK - S PROBAR
-    path('roles/list/', rolesview.listadoRoles), #OK - S 
+    path('roles/', rolesview.listadoRolesView), #OK - S OK
+    path('roles/list/', rolesview.listadoRoles), #OK - S  OK
     path('roles/store/', rolesview.almacenamientoRol), #OK - S PROBAR
     path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S PROBAR
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S PROBAR
@@ -148,11 +148,11 @@ urlpatterns = [
     #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial),
 
-    path('generos/list/', utilidades.listadoGeneros), #OK S
-    path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S
+    path('generos/list/', utilidades.listadoGeneros), #OK S OK
+    path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S OK
     #path('elementos-osm/list/', osm.elementosOsm),  # Falta cargarlo en el modelo para seguir
 
-    path('barrios/list/', utilidades.listadoBarrios), #OK S
+    path('barrios/list/', utilidades.listadoBarrios), #OK S OK
 
     #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/todo/', contextualizacion.todo), # Falta cargarlo en el modelo para seguir
@@ -215,7 +215,6 @@ urlpatterns = [
     path('comentario/<str:commentid>/delete/', comentario.eliminarComentario), #JM ???
     path('comentario/store/', comentario.crearComentario), #JM ???
     path('comentario/<str:commentid>/', comentario.actualizarComentario), #JM ???
-
 
     #TeamPerson
     path('equipo-persona/list/', equipoPersona.listadoEquiposPersona), #JM OK

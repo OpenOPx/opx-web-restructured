@@ -148,3 +148,79 @@ def detalleUsuario(request, userid):
         }
 
     return JsonResponse(data, status=data['code'])
+
+##
+# @brief Recurso de almacenamiento de usuarios
+# @param request Instancia HttpRequest
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def almacenarUsuario(request):
+
+    useremail = request.POST.get('useremail')
+    usertoken = request.POST.get('usertoken')
+    userfullname = request.POST.get('userfullname')
+    password = request.POST.get('password')
+    rolid = request.POST.get('rolid')
+    userleveltype = 1
+    userestado = 1
+    fechaNacimiento = request.POST.get('fecha_nacimiento')
+    genero = request.POST.get('generoid')
+    barrio = request.POST.get('barrioid')
+    nivelEducativo = request.POST.get('nivel_educativo_id')
+    telefono = request.POST.get('telefono')
+    fechaCreacion = datetime.today()
+    empleado = request.POST.get('empleado')
+
+    usuario = models.Usuario(useremail = useremail, usertoken = usertoken, userfullname = userfullname,
+                             password = password, rolid = rolid, userleveltype = userleveltype,
+                             userestado = userestado, fecha_nacimiento = fechaNacimiento, generoid = genero,
+                             barrioid = barrio, nivel_educativo_id = nivelEducativo, telefono = telefono,
+                             fecha_creacion=fechaCreacion)
+
+    try:
+        # Asignación de estado "empleado" a usuario en caso tal sea enviado
+        if empleado is not None:
+            if empleado == "true":
+                usuario.empleado = 1
+            else:
+                usuario.empleado = 0
+
+        # Validación de campos
+        usuario.full_clean()
+
+        # Contexto Passlib
+        pwd_context = CryptContext(
+            schemes=["pbkdf2_sha256"],
+            default="pbkdf2_sha256",
+            pbkdf2_sha256__default_rounds=30000
+        )
+        usuario.password = pwd_context.encrypt(usuario.password)
+
+        usuario.save()
+
+        data = {
+            'code': 201,
+            'usuario': serializers.serialize('python', [usuario])[0],
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'errors': dict(e),
+            'status': 'error'
+        }
+
+    except IntegrityError as e:
+
+        data = {
+            'code': 500,
+            'errors': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(data, safe = False, status=data['code'])

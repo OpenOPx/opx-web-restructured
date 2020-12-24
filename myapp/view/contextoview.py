@@ -53,7 +53,7 @@ def listadoContextos(request):
 def listadoContextosProyecto(request, proyid):
 
     try:
-        models.Project.objects.get(pk=proyid)
+        models.Project.objects.get(proj_id=proyid)
 
         # Listado de IDS de contexto
         contextos = []
@@ -67,7 +67,7 @@ def listadoContextosProyecto(request, proyid):
             contextos.append(str(contexto.context_id))
 
         # Consulta de contextos
-        contextos = models.Context.objects.filter(pk__in=contextos).values()
+        contextos = models.Context.objects.filter(ontext_id__in=contextos).values()
 
         response = {
             'code':         200,
@@ -138,7 +138,7 @@ def eliminarContexto(request, contextoid):
         raise ValueError("El contexto esta asociado a un proyecto")
 
     try:
-        contexto = models.Context.objects.get(pk = contextoid)
+        contexto = models.Context.objects.get(context_id = contextoid)
 
         contexto.delete()
 
@@ -174,7 +174,8 @@ def eliminarContexto(request, contextoid):
 @permission_classes((IsAuthenticated,))
 def actualizarContexto(request, contextoid):
     try:
-        contexto = models.Context.objects.get(pk = contextoid)
+        id = request.POST.get('context_id')
+        contexto = models.Context.objects.get(context_id = id)
 
         contexto.context_description = request.POST.get('descripcion')
 
@@ -269,19 +270,19 @@ def listadoDatosContextoCompleto(request):
 
     contextosList = []
 
-    contextos = models.Contexto.objects.all()
+    contextos = models.Context.objects.all()
 
     if contextos:
 
         for c in contextos:
 
-            datosContexto = models.DatosContexto.objects.filter(contextoid__exact = c.contextoid)
+            datosContexto = models.DataContext.objects.filter(context__exact = c.context_id)
 
             if datosContexto:
 
                 contextosList.append({
-                    'contextoid': c.contextoid,
-                    'contexto': c.descripcion,
+                    'contextoid': c.context_id,
+                    'contexto': c.context_description,
                     'datos': list(datosContexto.values())
                 })
 
@@ -303,7 +304,7 @@ def listadoDatosContextoCompleto(request):
 @permission_classes((IsAuthenticated,))
 def listadoDatosContexto(request, contextoid):
 
-    datosContexto = models.DatosContexto.objects.filter(contextoid__exact = contextoid).values()
+    datosContexto = models.DataContext.objects.filter(context__exact = contextoid).values()
 
     data = {
         'status': 'success',
@@ -364,21 +365,21 @@ def almacenarDatoContexto(request):
 
                    datosContexto.append({
                     'hdxtag': data[0],
-                    'descripcion': data[1],
-                    'valor': data[2],
-                    'metrica': data[3],
-                    'geojson': geopandaGeojson(data[4]),
-                    'fecha': fecha,
-                    'hora': hora
+                    'data_description': data[1],
+                    'data_value': data[2],
+                    'data_type': data[3],
+                    'data_geojson': geopandaGeojson(data[4]),
+                    'data_date': fecha,
+                    'data_time': hora
                    })
 
                 try:
                     with transaction.atomic():
 
-                      contextoid = request.POST.get('contextoid')
+                      contextoid = request.POST.get('context_id')
 
                       for dt in datosContexto:
-                         datosContexto = models.DatosContexto(hdxtag=dt['hdxtag'], datavalor=dt['valor'], datatipe= dt['metrica'], contextoid=contextoid, descripcion = dt['descripcion'], geojson = dt['geojson'], fecha=dt['fecha'], hora=dt['hora'])
+                         datosContexto = models.DataContext(hdxtag=dt['hdxtag'], data_value=dt['data_value'], data_type= dt['data_type'], context_id=contextoid, data_description = dt['data_description'], geojson = dt['geojson'], data_date=dt['data_date'], data_time=dt['data_time'])
                          datosContexto.full_clean()
                          datosContexto.save()
 
@@ -433,7 +434,7 @@ def almacenarDatoContexto(request):
 def eliminarDatoContexto(request, dataid):
 
     try:
-        datoContexto = models.DatosContexto.objects.get(pk = dataid)
+        datoContexto = models.DataContext.objects.get(data_id = dataid)
 
         datoContexto.delete()
 
@@ -458,12 +459,12 @@ def eliminarDatoContexto(request, dataid):
 @permission_classes((IsAuthenticated,))
 def actualizarDatoContexto(request, dataid):
     try:
-        datoContexto = models.DatosContexto.objects.get(pk=dataid)
+        datoContexto = models.DatosContexto.objects.get(data_id=dataid)
 
         datoContexto.hdxtag = request.POST.get('hdxtag')
-        datoContexto.descripcion = request.POST.get('descripcion')
-        datoContexto.datavalor = request.POST.get('datavalor')
-        datoContexto.datatipe = request.POST.get('datatipe')
+        datoContexto.data_description = request.POST.get('descripcion')
+        datoContexto.data_value = request.POST.get('datavalor')
+        datoContexto.data_type = request.POST.get('datatipe')
 
         datoContexto.full_clean()
 
@@ -519,8 +520,7 @@ def actualizarDatoContexto(request, dataid):
 def listadoDatosContextoView(request, contextoid):
 
     try:
-        contexto = models.Context.objects.get(pk = contextoid)
-
+        contexto = models.Context.objects.get(context_id = contextoid)
         return render(request, "contextos/datos-contexto.html", {'contexto': contexto})
 
     except ObjectDoesNotExist:
