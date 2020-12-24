@@ -89,7 +89,7 @@ def detalleUsuario(request, userid):
 
         with connection.cursor() as cursor:
             query = "SELECT p.*, r.role_name from opx.person p \
-                    INNER JOIN opx.role r ON r.rol_id = p.role_id " \
+                    INNER JOIN opx.role r ON r.role_id = p.role_id " \
                     "WHERE p.pers_id = '{}'".format(userid)
             cursor.execute(query)
             queryResult = dictfetchall(cursor)
@@ -107,10 +107,10 @@ def detalleUsuario(request, userid):
                 }
 
             # Proyectista
-            elif str(usuario['rolid']) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(usuario['role_id']) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
                 usuario['promocion'] = {
                     'rol': "Proyectista",
-                    'puntaje': int(settings['umbral-proyectista'])
+                    'puntaje': 22#int(settings['umbral-proyectista'])
                 }
 
             # Remover la información que no se desea mostrar
