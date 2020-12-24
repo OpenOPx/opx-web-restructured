@@ -153,7 +153,7 @@ def listadoRolesView(request):
 def permisosRolView(request, rolid):
 
     try:
-        rol = models.Role.objects.get(pk = rolid)
+        rol = models.Role.objects.get(role_id__exact = rolid)
 
         return render(request, "roles/permisos.html", {'rol': rol})
 
