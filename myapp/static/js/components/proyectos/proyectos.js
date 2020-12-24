@@ -44,7 +44,7 @@ proyecto = new Vue({
         ],
         pagination: {
             currentPage: 1,
-            perPage: 3
+            perPage: 10
         },
         tiposProyecto: [],
         contextos: [],
