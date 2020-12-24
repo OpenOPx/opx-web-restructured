@@ -1,7 +1,36 @@
+
+from datetime import datetime
+import json
+import os
+import http.client
+from passlib.context import CryptContext
+
+from django.forms.models import model_to_dict
+
+from django.conf import settings
+from django.core import serializers
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.paginator import(
+    Paginator,
+    EmptyPage
+)
+from django.db import (connection, transaction)
+from django.db.utils import IntegrityError, DataError
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.http.response import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-
+from rest_framework_simplejwt.backends import TokenBackend
+from rest_framework_simplejwt.exceptions import TokenBackendError
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated
+)
+from myapp import models
+
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
@@ -16,9 +45,7 @@ from rest_framework.permissions import (
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def listadoContextos(request):
-
     contextos = models.Context.objects.all().values()
-
     return JsonResponse(list(contextos), safe = False)
 
 @api_view(['GET'])
@@ -71,9 +98,9 @@ def listadoContextosProyecto(request, proyid):
 @permission_classes((IsAuthenticated,))
 def almacenamientoContexto(request):
 
-    descripcion = request.POST.get('descripcion');
-
-    contexto = models.Context(description=descripcion)
+    contexto = models.Context(
+        context_description=request.POST.get('descripcion')
+    )
 
     try:
         contexto.full_clean()
@@ -103,6 +130,12 @@ def almacenamientoContexto(request):
 @api_view(["DELETE"])
 @permission_classes((IsAuthenticated,))
 def eliminarContexto(request, contextoid):
+
+    proyecto_contexto = models.ProjectContext.objects.filter(context__context_id__exact = contextoid)
+    proyecto_contexto = list(proyecto_contexto)
+
+    if len(proyecto_contexto) > 0:
+        raise ValueError("El contexto esta asociado a un proyecto")
 
     try:
         contexto = models.Context.objects.get(pk = contextoid)
@@ -140,13 +173,10 @@ def eliminarContexto(request, contextoid):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def actualizarContexto(request, contextoid):
-
-    descripcion = request.POST.get('descripcion')
-
     try:
-        contexto = models.Contexto.objects.get(pk = contextoid)
+        contexto = models.Context.objects.get(pk = contextoid)
 
-        contexto.description = descripcion
+        contexto.context_description = request.POST.get('descripcion')
 
         contexto.full_clean()
 

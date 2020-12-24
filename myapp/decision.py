@@ -69,8 +69,8 @@ def almacenarDecision(request):
 
     try:
         decision.full_clean()
-
         decision.save()
+        
         data = serializers.serialize('python', [decision])
         return JsonResponse(data, safe = False, status = 201)
 
@@ -90,12 +90,10 @@ def almacenarDecision(request):
 def eliminarDecision(request, desiid):
     
     proyecto_decision = models.ProjectDecision.objects.filter(decision__decs_id__exact = desiid)
-    proyecto_decision = list(proyecto_decision)
-    print(proyecto_decision)
-    for x in proyecto_decision:
-        if len(proyecto_decision) == 0:
-            raise ValueError("La decision esta asociada a un proyecto")
+    proyecto_decision = list(proyecto_decision.values())
 
+    if len(proyecto_decision) > 0:
+        raise ValueError("La decision esta asociada a un proyecto")
 
     try:
         decision = models.Decision.objects.get(pk = desiid)
@@ -118,11 +116,12 @@ def eliminarDecision(request, desiid):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def actualizarDecision(request, desiid):
+
     try:
         decision = models.Decision.objects.get(pk=desiid)
 
-        decision.desidescripcion = request.POST.get('desidescripcion')
-        # decision.userid = request.POST.get('userid')
+        decision.decs_description = request.POST.get('desidescripcion')
+        decision.decs_name = request.POST.get('desinombre')
 
         decision.full_clean()
 
@@ -135,3 +134,5 @@ def actualizarDecision(request, desiid):
 
     except ValidationError as e:
         return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+        
