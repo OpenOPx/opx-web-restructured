@@ -39,7 +39,7 @@ let usuario = new Vue({
                 key: 'pers_name'
             },
             {
-                label: 'Apellisods',
+                label: 'Apellidos',
                 key: 'pers_lastname'
             },
             {

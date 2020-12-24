@@ -29,7 +29,7 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado
+from myapp.view.utilidades import usuarioAutenticado, dictfetchall
 
 ##
 # @brief Plantilla de decisiones
@@ -47,8 +47,13 @@ def listadoDecisionesView(request):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def listadoDecisiones(request):
-     decisiones = models.Decision.objects.all().values()
-     return JsonResponse(list(decisiones), safe = False)
+    with connection.cursor() as cursor:
+        cursor.execute("select opx.decision.decs_id, opx.decision.decs_description, opx.decision.decs_name from opx.decision")
+        columns = dictfetchall(cursor)
+        return JsonResponse(columns, safe = False)
+
+     #decisiones = models.Decision.objects.all().values()
+     #return JsonResponse(list(decisiones), safe = False)
 
 
 ##
@@ -69,16 +74,15 @@ def almacenarDecision(request):
 
     try:
         decision.full_clean()
-
         decision.save()
+        
         data = serializers.serialize('python', [decision])
         return JsonResponse(data, safe = False, status = 201)
 
     except ValidationError as e:
         return JsonResponse(dict(e), safe = True, status = 400)
 
-        ##
-
+##
 # @brief Recurso de eliminación de decisiones
 # @param request Instancia HttpRequest
 # @param desiid Identificación de la decisión
@@ -90,12 +94,10 @@ def almacenarDecision(request):
 def eliminarDecision(request, desiid):
     
     proyecto_decision = models.ProjectDecision.objects.filter(decision__decs_id__exact = desiid)
-    proyecto_decision = list(proyecto_decision)
-    print(proyecto_decision)
-    for x in proyecto_decision:
-        if len(proyecto_decision) == 0:
-            raise ValueError("La decision esta asociada a un proyecto")
+    proyecto_decision = list(proyecto_decision.values())
 
+    if len(proyecto_decision) > 0:
+        raise ValueError("La decision esta asociada a un proyecto")
 
     try:
         decision = models.Decision.objects.get(pk = desiid)
@@ -118,11 +120,12 @@ def eliminarDecision(request, desiid):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def actualizarDecision(request, desiid):
+
     try:
         decision = models.Decision.objects.get(pk=desiid)
 
-        decision.desidescripcion = request.POST.get('desidescripcion')
-        # decision.userid = request.POST.get('userid')
+        decision.decs_description = request.POST.get('decs_description')
+        decision.decs_name = request.POST.get('decs_name')
 
         decision.full_clean()
 
@@ -135,3 +138,5 @@ def actualizarDecision(request, desiid):
 
     except ValidationError as e:
         return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+        
