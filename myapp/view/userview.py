@@ -181,40 +181,41 @@ def almacenarUsuario(request):
     isemployee = request.POST.get('isemployee')
 
     try:
-        user = models.User(useremail=useremail, password=password)
-        # Contexto Passlib
-        pwd_context = CryptContext(
-            schemes=["pbkdf2_sha256"],
-            default="pbkdf2_sha256",
-            pbkdf2_sha256__default_rounds=30000
-        )
-        user.password = pwd_context.encrypt(user.password)
-        user.save()
-        role = models.Role.objects.get(pk = role_id)
-        gender = models.Gender.objects.get(pk = gender_id)
-        neighborhood = models.Neighborhood.objects.get(pk = neighborhood_id)
-        education_level = models.EducationLevel.objects.get(pk = education_level_id)
+        with transaction.atomic():
+            user = models.User(useremail=useremail, password=password)
+            # Contexto Passlib
+            pwd_context = CryptContext(
+                schemes=["pbkdf2_sha256"],
+                default="pbkdf2_sha256",
+                pbkdf2_sha256__default_rounds=30000
+            )
+            user.password = pwd_context.encrypt(user.password)
+            user.save()
+            role = models.Role.objects.get(pk = role_id)
+            gender = models.Gender.objects.get(pk = gender_id)
+            neighborhood = models.Neighborhood.objects.get(pk = neighborhood_id)
+            education_level = models.EducationLevel.objects.get(pk = education_level_id)
 
-        person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
-                               role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
-                               gender=gender, neighborhood=neighborhood, education_level=education_level,
-                               user = user)
-        # Asignación de estado "empleado" a usuario en caso tal sea enviado
-        if isemployee is not None:
-            if isemployee == "true":
-                person.isemployee = 1
-            # else:
-            #    usuario.empleado = 0
+            person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
+                                role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
+                                gender=gender, neighborhood=neighborhood, education_level=education_level,
+                                user = user)
+            # Asignación de estado "empleado" a usuario en caso tal sea enviado
+            if isemployee is not None:
+                if isemployee == "true":
+                    person.isemployee = 1
+                # else:
+                #    usuario.empleado = 0
 
-        # Validación de campos
-        person.full_clean()
-        person.save()
+            # Validación de campos
+            person.full_clean()
+            person.save()
 
-        data = {
-            'code': 201,
-            'usuario': serializers.serialize('python', [user])[0],#mando user o person?
-            'status': 'success'
-        }
+            data = {
+                'code': 201,
+                'usuario': serializers.serialize('python', [user])[0],#mando user o person?
+                'status': 'success'
+            }
 
     except ValidationError as e:
 
