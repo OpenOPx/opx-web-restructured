@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona
 from myapp.view import (
     userview,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
@@ -84,7 +84,7 @@ urlpatterns = [
     path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK
     path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK
     path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK
-    path('plantillas-equipo/<str:planid>', equipo.actualizarEquipo), #JM OK
+    path('plantillas-equipo/<str:planid>/', equipo.actualizarEquipo), #JM OK
 
     #path('miembros-plantilla/<str:planid>/list/', plantillaEquipo.miembrosPlantilla),
     #path('miembros-plantilla/<str:planid>/store/', plantillaEquipo.agregarMiembro),
@@ -217,5 +217,10 @@ urlpatterns = [
     path('comentario/<str:commentid>/', comentario.actualizarComentario), #JM ???
 
 
+    #TeamPerson
+    path('equipo-persona/list/', equipoPersona.listadoEquiposPersona), #JM OK
+    path('equipo-persona/<str:teamPersonId>/delete/', equipoPersona.eliminarEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
+    path('equipo-persona/store/', equipoPersona.crearEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
+    path('equipo-persona/<str:teamPersonId>/', equipoPersona.actualizarEquipoPersona), #JM -  pendiente que Leo le agregue Pk para verificar
 
 ]
