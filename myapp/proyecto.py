@@ -299,20 +299,50 @@ def almacenamientoProyecto(request):
 # @return booleano
 #
 def almacenarDecisionProyecto(proyecto, decisiones):
-
-    try:
-        for decision in decisiones:
     
+    try:
+        for decisionI in decisiones:
+
             decisionProyecto = None
 
-            decisionProyecto = models.DecisionProyecto(
-                project = proyecto.proj_id, 
-                decision = decision
+            decisionProyecto = models.ProjectDecision(
+                project = proyecto, 
+                decision = decisionI
             )
 
             decisionProyecto.save()
 
         return True
+
+    except ValidationError as e:
+        return False
+
+    
+    
+    
+    try:
+        proj_id = request.POST.get('proj_id')
+        decisiones = request.POST.get('decision')
+        proyecto = models.Project.objects.get(proj_id=proj_id)
+        decision = models.Decision.objects.get(decs_id=decisiones)
+        decisionProyecto = models.ProjectDecision(
+            project = proyecto, 
+            decision = decision
+        )
+        decisionProyecto.save()
+    #try:
+    #    for decision in decisiones:
+    #
+    #        decisionProyecto = None
+#
+    #        decisionProyecto = models.ProjectDecision(
+    #            project = proj_id, 
+    #            decision = decisiones
+    #        )
+#
+    #        decisionProyecto.save()
+#
+    #    return True
 
     except ValidationError as e:
         return False

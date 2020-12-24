@@ -69,7 +69,7 @@ urlpatterns = [
     path('decisiones/<str:desiid>', decision.actualizarDecision), #falta verificar que no existan decisiones con el mismo nombre #JM
 
     #path('decisiones-proyecto/', views.listadoDecisionesProyecto),
-    #path('decisiones-proyecto/store/', proyecto.almacenarDecisionProyecto),
+    path('decisiones-proyecto/store/', proyecto.almacenarDecisionProyecto),
     #path('decisiones-proyecto/delete/<str:desproid>/', views.eliminarDecisionProyecto),
     #path('decisiones-proyecto/<str:desproid>', views.actualizarDecisionProyecto),
 
