@@ -318,19 +318,6 @@ def almacenarDecisionProyecto(proyecto, decisiones):
         return False
 
     
-    
-    
-    try:
-        proj_id = request.POST.get('proj_id')
-        decisiones = request.POST.get('decision')
-        proyecto = models.Project.objects.get(proj_id=proj_id)
-        decision = models.Decision.objects.get(decs_id=decisiones)
-        decisionProyecto = models.ProjectDecision(
-            project = proyecto, 
-            decision = decision
-        )
-        decisionProyecto.save()
-    #try:
     #    for decision in decisiones:
     #
     #        decisionProyecto = None

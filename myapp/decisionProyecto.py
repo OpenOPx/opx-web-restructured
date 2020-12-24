@@ -44,30 +44,59 @@ def listadoDecisionesProyecto(request,proyid):
      return JsonResponse(decisionesProyecto, safe = False)
 
 ##
-# @brief Recurso de almacenamiento de decisiones-proyectos
-# @param request Instancia HttpRequest
-# @return cadena JSON
+# @brief Funcion que asigna decision(es) a un proyecto especifico
+# @param proyecto instancia del modelo proyecto
+# @param decisiones listado de identificadores de decisiones
+# @return booleano
 #
-@csrf_exempt
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
-def almacenarDecisionProyecto(request):
-        userid = usuarioAutenticado(request).userid
+def almacenarDecisionProyecto(proyecto, decisiones):
+    
+    try:
+        for decisionI in decisiones:
 
-        decisionProyecto = models.ProjectDecision(
-            project = request.POST.get('proyectoId'),
-            decision = request.POST.get('decisionId')
-        )
+            decisionProyecto = None
 
-        try:
-            decisionProyecto.full_clean()
+            decisionProyecto = models.ProjectDecision(
+                project = proyecto, 
+                decision = decisionI
+            )
+
             decisionProyecto.save()
 
-            data = serializers.serialize('python', [decisionProyecto])
-            return JsonResponse(data, safe = False, status = 201)
+        return True
 
-        except ValidationError as e:
-            return JsonResponse(dict(e), safe = True, status = 400)
+    except ValidationError as e:
+        return False
+
+    
+    
+    
+    try:
+        proj_id = request.POST.get('proj_id')
+        decisiones = request.POST.get('decision')
+        proyecto = models.Project.objects.get(proj_id=proj_id)
+        decision = models.Decision.objects.get(decs_id=decisiones)
+        decisionProyecto = models.ProjectDecision(
+            project = proyecto, 
+            decision = decision
+        )
+        decisionProyecto.save()
+    #try:
+    #    for decision in decisiones:
+    #
+    #        decisionProyecto = None
+#
+    #        decisionProyecto = models.ProjectDecision(
+    #            project = proj_id, 
+    #            decision = decisiones
+    #        )
+#
+    #        decisionProyecto.save()
+#
+    #    return True
+
+    except ValidationError as e:
+        return False
 
 ##
 # @brief Recurso de eliminación de decisiones-proyectos
