@@ -31,7 +31,6 @@ let rol = new Vue({
                 }
             })
             .then(response => {
-
                 this.permisos = response.data;
                 this.loader(false);
             });
@@ -41,7 +40,9 @@ let rol = new Vue({
             this.loader(true);
 
             this.almacenamientoPermiso.rolid = this.rolID;
-
+            console.log("pasooooooooooooooooooooo")
+            console.log(this.almacenamientoPermiso.rolid)
+            console.log(this.almacenamientoPermiso.accionid)
             var queryString = Object.keys(this.almacenamientoPermiso).map(key => {
                 return key + '=' + this.almacenamientoPermiso[key]
             }).join('&');

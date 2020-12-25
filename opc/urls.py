@@ -91,10 +91,10 @@ urlpatterns = [
     #path('miembros-plantilla/<str:miplid>/delete/', plantillaEquipo.eliminarMiembro),
     #path('miembros-plantilla/<str:planid>/usuarios-disponibles/', plantillaEquipo.miembrosDisponibles),
 
-    path('acciones/list/', rolesview.listadoAcciones), #OK - S PERO EVALUAR LA CORRECCIÓN PROPUESTA
+    path('acciones/list/', rolesview.listadoAcciones), #OK - S 
 
-    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), #ESTÁ CONFUSA - S O NO SÉ SI ES EL SUEÑO
-    #path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), #F, MUCHO SUEÑO - S
+    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S
+    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # - S
     #path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol),
     #path('funciones-rol/<str:funcrolid>', rolesview.actualizarFuncionRol),
 
