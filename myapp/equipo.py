@@ -33,6 +33,15 @@ from rest_framework.permissions import (
 from myapp import models
 from myapp.view.utilidades import usuarioAutenticado
 
+
+##
+# @brief Función que provee plantilla HTML para gestión de plantillas de equipo
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def equiposView(request):
+    return render(request, "proyectos/gestion-plantillas.html")
+
 ##
 # @brief Recurso de listado de plantillas de equipo
 # @param request Instancia HttpRequest
@@ -42,9 +51,34 @@ from myapp.view.utilidades import usuarioAutenticado
 @permission_classes((IsAuthenticated,))
 def listadoEquipos(request):
 
-     equipos = models.Team.objects.all().values()
-     return JsonResponse(list(equipos), safe = False)
+    user = usuarioAutenticado(request)
+    person = models.Person.objects.get(user__userid = user.userid)
+    rol = str(person.role.role_id)
+    
+    if (rol == '8945979e-8ca5-481e-92a2-219dd42ae9fc'):
+        equipos = models.Team.objects.all().values()
+        response = {
+            'code': 200,
+            'data': list(equipos),
+            'status': 'success'
+        }
 
+    elif (rol == '628acd70-f86f-4449-af06-ab36144d9d6a'):
+        equipos = models.Team.objects.filter(team_leader__pers_id__exact = person.pers_id).values()
+        response = {
+            'code': 200,
+            'data': list(equipos),
+            'status': 'success'
+        }
+
+    else:
+        response = {
+            'code': 403,
+            'message': 'Usuario no permitido',
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
 ##
 # @brief Recurso de creación de plantilla de equipo
 # @param request Instancia HttpRequest
@@ -58,9 +92,12 @@ def crearEquipo(request):
         user = usuarioAutenticado(request)
         person = models.Person.objects.get(user__userid = user.userid)
 
+        team_description = request.POST.get('team_description')
+
         plantilla = models.Team(
-            team_name = request.POST.get('nombreEquipo'), 
-            team_leader = person
+            team_name = request.POST.get('team_name'), 
+            team_leader = person,
+            #team_description = request.POST.get('descripcionEquipo')
         )
 
         plantilla.full_clean()

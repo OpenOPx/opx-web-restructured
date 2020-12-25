@@ -8,7 +8,7 @@ let gestionPlantilla = new Vue({
         // Paginación
         pagination: {
             currentPage: 1,
-            perPage: 2
+            perPage: 10
         },
         // Búsqueda
         filter: '',
@@ -16,18 +16,17 @@ let gestionPlantilla = new Vue({
         teamFields: [
             {
                 label: 'Nombre',
-                key: 'descripcion'
+                key: 'team_name'
             },
             {
-                label: '',
-                key: 'acciones'
+                label: 'Descripcion',
+                key: ''
             }
         ]
     },
     created(){
 
         if(window.location.pathname == '/equipos/'){
-
             this.listadoPlantillas();
         }
     },
@@ -80,16 +79,25 @@ let gestionPlantilla = new Vue({
 
                             Swal.fire({
                                 title: 'Exito',
-                                text: 'Plantilla Eliminada',
+                                text: 'Equipo Eliminado',
                                 type: 'success'
                             })
                         }
-                    });
+                    })
+                    .catch(response => {
+
+                        this.listadoPlantillas();
+   
+                        Swal.fire(
+                         'Error!',
+                         'Ocurrio un error por favor intenta de nuevo',
+                         'error'
+                       );
+                   });
                 }
             });
         },
         guardarPlantilla(){
-
             queryString = Object.keys(this.almacenamientoPlantilla).map(key => {
 
                 return key + "=" + this.almacenamientoPlantilla[key];
@@ -109,11 +117,30 @@ let gestionPlantilla = new Vue({
 
                 if(response.data.code == 201 && response.data.status == 'success'){
 
-                    this.listadoPlantillas();
                     $("#agregar-plantilla").modal('hide');
                     this.almacenamientoPlantilla = {}
+                    this.listadoPlantillas();
+
+                    Swal.fire({
+                    title: 'Exito!',
+                    text: 'Equipo creado satisfactoriamente',
+                    type: 'success',
+                    confirmButtonText: 'Acepto'
+                    });
                 }
             })
+            .catch(response => {
+
+                $("#agregar-plantilla").modal('hide')
+                this.almacenamientoPlantilla = {};
+
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  type: 'error',
+                  confirmButtonText: 'Acepto'
+                });
+            });
         },
         editarPlantilla(){
 
@@ -124,7 +151,7 @@ let gestionPlantilla = new Vue({
             .join('&');
 
             axios({
-                url: '/plantillas-equipo/' + this.plantillaEdicion.planid,
+                url: '/plantillas-equipo/' + this.plantillaEdicion.planid+'/',
                 method: 'PUT',
                 data: queryString,
                 headers: {
@@ -136,15 +163,26 @@ let gestionPlantilla = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
+                    this.listadoPlantillas();
                     $("#editar-plantilla").modal('hide');
 
                     Swal.fire({
                         title: 'Exito',
-                        text: 'Plantilla modificada',
+                        text: 'Equipo modificada',
                         type: 'success',
                     });
                 }
             })
+            .catch(() => {
+
+                $("#editar-plantilla").modal('hide');
+
+                Swal.fire(
+                    'Error!',
+                    'Ocurrio un error. Por favor intenta de nuevo',
+                    'error'
+                );
+            });
         }
     },
     computed: {

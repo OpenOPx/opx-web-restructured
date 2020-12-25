@@ -72,7 +72,7 @@ urlpatterns = [
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
     path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #JM OK
 
-    #path('equipos/', plantillaEquipo.plantillasView),
+    path('equipos/', equipo.equiposView),
     #path('equipos/<str:planid>/miembros/', plantillaEquipo.miembrosPlantillaView),
     #path('equipos/list/<str:proyid>', equipo.equipoProyecto),
     #path('equipos/<str:proyid>/usuarios-disponibles/', equipo.usuariosDisponiblesProyecto),
