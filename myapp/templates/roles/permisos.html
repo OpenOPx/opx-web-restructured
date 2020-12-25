@@ -27,7 +27,7 @@
                       <tbody>
                         <tr v-for="permiso in permisos">
                           <td>
-                            [[ permiso.nombre ]]
+                            [[ permiso.perm_name ]]
                           </td>
                           <td>
                             <div class="dropdown">
@@ -69,7 +69,7 @@
                           <label class="bmd-label-floating">Acción</label>
                           <select v-model="almacenamientoPermiso.accionid" class="form-control">
                             <option value=""> Seleccione </option>
-                            <option v-for="accion in acciones" :value="accion.accionid"> [[ accion.nombre ]] </option>
+                            <option v-for="accion in acciones" :value="accion.perm_id"> [[ accion.perm_name ]] </option>
                           </select>
                         </div>
                       </div>

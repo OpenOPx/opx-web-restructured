@@ -66,6 +66,7 @@ def login(request):
         else:
 
             user = models.User.objects.get(useremail__exact=username)
+            person = models.Person.objects.get(user__userid__exact=user.userid)
 
             # .filter(password__exact = password)
             #user = authenticate(email=username, password=password)
@@ -87,10 +88,9 @@ def login(request):
                 # Almacenando los permisos del usuario en la sesión
                 request.session['permisos'] = []
 
-                #permisos = models.FuncionRol.objects.filter(rolid__exact = user.rolid);
-
-                # for i in permisos:
-                #    request.session['permisos'].append(str(i.accionid))
+                permisos = models.RolePermissionn.objects.filter(role__role_id__exact = person.role.role_id)
+                for i in permisos:
+                    request.session['permisos'].append(str(i.permissionn_id))
 
                 # Consultando el nombre del rol del usuario autenticado
                 #rol = models.Rol.objects.get(pk = user.rolid)
