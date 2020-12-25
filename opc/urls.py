@@ -39,12 +39,12 @@ urlpatterns = [
     #path('auth/password-reset/<str:token>', auth.passwordResetConfirmation),
     #path('auth/password-reset-done/', auth.passwordResetDone),
 
-    path('usuarios/', userview.listadoUsuariosView), #OK LEO
-    path('usuarios/list/', userview.listadoUsuarios), #OK LEO
-    path('usuarios/store/', userview.almacenarUsuario), 
+    path('usuarios/', userview.listadoUsuariosView), #OK K.O LEO
+    path('usuarios/list/', userview.listadoUsuarios), #OK K.O LEO
+    path('usuarios/store/', userview.almacenarUsuario), #ok OK L
     path('usuarios/detail/<str:userid>', userview.detalleUsuario), #OK LEO
-    #path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
-    #path('usuarios/<str:userid>', userview.actualizarUsuario),
+    path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
+    path('usuarios/<str:userid>', userview.actualizarUsuario),
 
     path('contextos/', contextoview.listadoContextosView), #OK S OK
     path('contextos/list/', contextoview.listadoContextos), #OK S OK
@@ -72,7 +72,7 @@ urlpatterns = [
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
     path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #JM OK
 
-    #path('equipos/', plantillaEquipo.plantillasView),
+    path('equipos/', equipo.equiposView),
     #path('equipos/<str:planid>/miembros/', plantillaEquipo.miembrosPlantillaView),
     #path('equipos/list/<str:proyid>', equipo.equipoProyecto),
     #path('equipos/<str:proyid>/usuarios-disponibles/', equipo.usuariosDisponiblesProyecto),
@@ -91,10 +91,10 @@ urlpatterns = [
     #path('miembros-plantilla/<str:miplid>/delete/', plantillaEquipo.eliminarMiembro),
     #path('miembros-plantilla/<str:planid>/usuarios-disponibles/', plantillaEquipo.miembrosDisponibles),
 
-    path('acciones/list/', rolesview.listadoAcciones), #OK - S PERO EVALUAR LA CORRECCIÓN PROPUESTA
+    path('acciones/list/', rolesview.listadoAcciones), #OK - S 
 
-    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), #ESTÁ CONFUSA - S O NO SÉ SI ES EL SUEÑO
-    #path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), #F, MUCHO SUEÑO - S
+    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S
+    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # - S
     #path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol),
     #path('funciones-rol/<str:funcrolid>', rolesview.actualizarFuncionRol),
 

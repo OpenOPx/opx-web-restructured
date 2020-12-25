@@ -30,7 +30,7 @@ from rest_framework.permissions import (
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
 PROYECTISTA = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
-#VOLUNTARIO = 
+# VOLUNTARIO =
 
 # ======================= usuarios =================================
 
@@ -79,6 +79,8 @@ def listadoUsuarios(request):
 # @param userid identificación del usuario
 # @return Cadena JSON
 #
+
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def detalleUsuario(request, userid):
@@ -89,7 +91,7 @@ def detalleUsuario(request, userid):
 
         with connection.cursor() as cursor:
             query = "SELECT p.*, r.role_name from opx.person p \
-                    INNER JOIN opx.role r ON r.rol_id = p.role_id " \
+                    INNER JOIN opx.role r ON r.role_id = p.role_id " \
                     "WHERE p.pers_id = '{}'".format(userid)
             cursor.execute(query)
             queryResult = dictfetchall(cursor)
@@ -103,14 +105,14 @@ def detalleUsuario(request, userid):
             if str(usuario['role_id']) == '0be58d4e-6735-481a-8740-739a73c3be86':
                 usuario['promocion'] = {
                     'rol': "Validador",
-                    'puntaje': 22 #int(settings['umbral-validador'])
+                    'puntaje': 22  # int(settings['umbral-validador'])
                 }
 
             # Proyectista
-            elif str(usuario['rolid']) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(usuario['role_id']) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
                 usuario['promocion'] = {
                     'rol': "Proyectista",
-                    'puntaje': int(settings['umbral-proyectista'])
+                    'puntaje': 22  # int(settings['umbral-proyectista'])
                 }
 
             # Remover la información que no se desea mostrar
@@ -154,57 +156,171 @@ def detalleUsuario(request, userid):
 # @param request Instancia HttpRequest
 # @return cadena JSON
 #
+
+
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def almacenarUsuario(request):
 
     useremail = request.POST.get('useremail')
-    usertoken = request.POST.get('usertoken')
-    userfullname = request.POST.get('userfullname')
+    fcm_token = request.POST.get('fcm_token')
+    #userfullname = request.POST.get('userfullname')
+    pers_name = request.POST.get('pers_name')
+    pers_lastname = request.POST.get('pers_lastname')
     password = request.POST.get('password')
-    rolid = request.POST.get('rolid')
-    userleveltype = 1
-    userestado = 1
-    fechaNacimiento = request.POST.get('fecha_nacimiento')
-    genero = request.POST.get('generoid')
-    barrio = request.POST.get('barrioid')
-    nivelEducativo = request.POST.get('nivel_educativo_id')
-    telefono = request.POST.get('telefono')
-    fechaCreacion = datetime.today()
-    empleado = request.POST.get('empleado')
-
-    usuario = models.Usuario(useremail = useremail, usertoken = usertoken, userfullname = userfullname,
-                             password = password, rolid = rolid, userleveltype = userleveltype,
-                             userestado = userestado, fecha_nacimiento = fechaNacimiento, generoid = genero,
-                             barrioid = barrio, nivel_educativo_id = nivelEducativo, telefono = telefono,
-                             fecha_creacion=fechaCreacion)
+    role_id = request.POST.get('role_id')
+    #userleveltype = 1
+    #userestado = 1
+    pers_birthdate = request.POST.get('pers_birthdate')
+    gender_id = request.POST.get('gender_id')
+    neighborhood_id = request.POST.get('neighborhood_id')
+    education_level_id = request.POST.get('education_level_id')
+    pers_telephone = request.POST.get('pers_telephone')
+    #fechaCreacion = datetime.today()
+    isemployee = request.POST.get('isemployee')
 
     try:
-        # Asignación de estado "empleado" a usuario en caso tal sea enviado
-        if empleado is not None:
-            if empleado == "true":
-                usuario.empleado = 1
-            else:
-                usuario.empleado = 0
+        with transaction.atomic():
+            user = models.User(useremail=useremail, password=password)
+            # Contexto Passlib
+            pwd_context = CryptContext(
+                schemes=["pbkdf2_sha256"],
+                default="pbkdf2_sha256",
+                pbkdf2_sha256__default_rounds=30000
+            )
+            user.password = pwd_context.encrypt(user.password)
+            user.save()
+            role = models.Role.objects.get(pk=role_id)
+            gender = models.Gender.objects.get(pk=gender_id)
+            neighborhood = models.Neighborhood.objects.get(pk=neighborhood_id)
+            education_level = models.EducationLevel.objects.get(
+                pk=education_level_id)
 
-        # Validación de campos
-        usuario.full_clean()
+            person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
+                                   role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
+                                   gender=gender, neighborhood=neighborhood, education_level=education_level,
+                                   user=user)
+            # Asignación de estado "empleado" a usuario en caso tal sea enviado
+            if isemployee is not None:
+                if isemployee == "true":
+                    person.isemployee = 1
+                # else:
+                #    usuario.empleado = 0
 
-        # Contexto Passlib
-        pwd_context = CryptContext(
-            schemes=["pbkdf2_sha256"],
-            default="pbkdf2_sha256",
-            pbkdf2_sha256__default_rounds=30000
-        )
-        usuario.password = pwd_context.encrypt(usuario.password)
+            # Validación de campos
+            person.full_clean()
+            person.save()
 
-        usuario.save()
+            data = {
+                'code': 201,
+                # mando user o person?
+                'usuario': serializers.serialize('python', [person])[0],
+                'status': 'success'
+            }
+
+    except ValidationError as e:
 
         data = {
-            'code': 201,
-            'usuario': serializers.serialize('python', [usuario])[0],
-            'status': 'success'
+            'code': 400,
+            'errors': dict(e),
+            'status': 'error'
+        }
+
+    except IntegrityError as e:
+
+        data = {
+            'code': 500,
+            'errors': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(data, safe=False, status=data['code'])
+
+##
+# @brief Recurso de Actualización de usuarios
+# @param request Instancia HttpRequest
+# @param userid Identificación de usuario autenticado
+# @return cadena JSON
+#
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarUsuario(request, userid):
+
+    try:
+        with transaction.atomic():
+            print("updating user", userid)
+            # Obteniendo datos respecto a la ubicacion del usuario
+            latitud = request.POST.get('latitud')
+            longitud = request.POST.get('longitud')
+
+            # Asignando la nueva información al usuario
+            user = models.User.objects.get(pk=userid)
+            print(user.password)
+            person = models.Person.objects.get(user__userid__exact=userid)
+            print(person)
+            role = models.Role.objects.get(pk=request.POST.get('role_id'))
+
+            user.useremail = request.POST.get('useremail')
+            person.role = role
+            person.pers_name = request.POST.get('pers_name')
+            person.pers_lastname = request.POST.get('pers_lastname')
+            person.pers_birthdate = request.POST.get('pers_birthdate')
+            gender = models.Role.objects.get(pk=request.POST.get('gender_id'))
+            person.gender = gender
+            neighborhood = models.Neighborhood.objects.get(
+                pk=request.POST.get('neighborhood_id'))
+            person.neighborhood = neighborhood
+            education_level = models.EducationLevel.objects.get(
+                pk=request.POST.get('education_level_id'))
+            person.education_level = education_level
+            person.pers_telephone = request.POST.get('pers_telephone')
+
+            # Asignando la información de ubicacion al usuario en caso de ser enviada
+            if latitud is not None and longitud is not None:
+                person.pers_latitude = latitud
+                person.pers_longitude = longitud
+                person.hour_location = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # Asignando la nueva contraseña en caso de ser enviada
+            if request.POST.get('password') is not None and len(request.POST.get('password')) > 0:
+
+                # Contexto Passlib
+                pwd_context = CryptContext(
+                    schemes=["pbkdf2_sha256"],
+                    default="pbkdf2_sha256",
+                    pbkdf2_sha256__default_rounds=30000
+                )
+                user.password = pwd_context.encrypt(
+                    request.POST.get('password'))
+
+            # Asignando el estado "empleado" del usuario en tal caso sea enviado
+            if request.POST.get('isemployee') is not None:
+                if request.POST.get('isemployee') == "true":
+                    person.isemployee = 1
+                else:
+                    person.isemployee = 0
+
+            person.full_clean()
+
+            user.save()
+            person.save()
+
+            data = {
+                'code': 200,
+                'usuario': serializers.serialize('python', [person])[0],
+                'status': 'success'
+            }
+            print(data)
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
         }
 
     except ValidationError as e:
@@ -223,4 +339,30 @@ def almacenarUsuario(request):
             'status': 'error'
         }
 
-    return JsonResponse(data, safe = False, status=data['code'])
+    return JsonResponse(data, status=data['code'], safe=False)
+
+##
+# @brief Recurso de eliminación de usuarios
+# @param request Instancia HttpRequest
+# @param userid Identificación de usuario autenticado
+# @return cadena JSON
+#
+
+
+@csrf_exempt
+@api_view(["DELETE"])
+@permission_classes((IsAuthenticated,))
+def eliminarUsuario(request, userid):
+
+    try:
+        usuario = models.Usuario.objects.get(userid=userid)
+
+        usuario.delete()
+
+        return JsonResponse({'status': 'success'})
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'El usuario no existe'}, safe=True, status=404)
+
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe=True, status=400)

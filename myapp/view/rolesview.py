@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 
 from django.forms.models import model_to_dict
 
+
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -24,6 +25,8 @@ from rest_framework_simplejwt.backends import TokenBackend
 from rest_framework_simplejwt.exceptions import TokenBackendError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
+from myapp.view.utilidades import dictfetchall, usuarioAutenticado
+
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
@@ -153,7 +156,7 @@ def listadoRolesView(request):
 def permisosRolView(request, rolid):
 
     try:
-        rol = models.Role.objects.get(pk = rolid)
+        rol = models.Role.objects.get(role_id__exact = rolid)
 
         return render(request, "roles/permisos.html", {'rol': rol})
 
@@ -189,7 +192,7 @@ def listadoAcciones(request):
 def listadoFuncionesRol(request, rolid):
 
     with connection.cursor() as cursor:
-        cursor.execute("select opx.funciones_rol.funcrolid, opx.acciones.nombre from opx.funciones_rol inner join opx.acciones on opx.funciones_rol.accionid = opx.acciones.accionid where opx.funciones_rol.rolid = %s", [rolid])
+        cursor.execute("select opx.role_permissionn.role_id, opx.permissionn.perm_name from opx.role_permissionn inner join opx.permissionn on opx.role_permissionn.permissionn_id = opx.permissionn.perm_id where opx.role_permissionn.role_id = %s", [rolid])
 
         columns = dictfetchall(cursor)
 
@@ -207,10 +210,12 @@ def almacenamientoFuncionRol(request):
 
     rolID = request.POST.get('rolid')
     accionID = request.POST.get('accionid')
-    funcRolEstado = 1
-    funcRolPermiso = 1
+  
+    roles = models.Role.objects.get(role_id = rolID)
+    permmisionn= models.Permissionn.objects.get(perm_id = accionID)
+    #print("AQUÍ", permmisionn.perm_name)
 
-    funcionRol = models.FuncionRol(rolid = rolID, accionid = accionID, funcrolestado = funcRolEstado, funcrolpermiso = funcRolPermiso)
+    funcionRol = models.RolePermissionn(role = roles, permissionn = permmisionn)
 
     try:
         funcionRol.full_clean()

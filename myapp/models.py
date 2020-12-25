@@ -5,8 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.postgres.fields import JSONField
 import uuid
 
-# Create your models here.
-# changos cambiar en diagrama barrio id por un int, no es varchar
+from django.db.models.fields.related import ForeignKey
 
 
 class MyUserManager(BaseUserManager):
@@ -53,14 +52,11 @@ class MyUserManager(BaseUserManager):
         return user
 
 # 1
-
-
 class User(AbstractBaseUser):
     userid = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
     useremail = models.EmailField(
         max_length=100, null=False, blank=False, unique=True)
-    #username = models.CharField(max_length=255)
     password = models.CharField(max_length=255, null=False, blank=False)
     usertoken = models.CharField(max_length=255, null=True, blank=True)
 
@@ -71,8 +67,6 @@ class User(AbstractBaseUser):
         db_table = '"opx"."user"'
 
 # 2
-
-
 class Gender(models.Model):
     gender_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
@@ -83,8 +77,6 @@ class Gender(models.Model):
         db_table = '"opx"."gender"'
 
 # 3
-
-
 class Role(models.Model):
     role_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     role_name = models.CharField(max_length=50)
@@ -95,8 +87,6 @@ class Role(models.Model):
         db_table = '"opx"."role"'
 
 # 4
-
-
 class Permissionn(models.Model):
     perm_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     perm_codename = models.CharField(max_length=100, null=False, blank=False)
@@ -107,10 +97,8 @@ class Permissionn(models.Model):
         db_table = '"opx"."permissionn"'
 
 # 5
-
-
 class RolePermissionn(models.Model):
-    role_permissionn_id = models.AutoField(primary_key=True)
+    role_permissionn_id = models.AutoField(primary_key=True, editable=False)
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
     permissionn = models.ForeignKey(Permissionn, on_delete=models.PROTECT)
 
@@ -118,8 +106,6 @@ class RolePermissionn(models.Model):
         db_table = '"opx"."role_permissionn"'
 
 # 6
-
-
 class City(models.Model):
     city_id = models.CharField(primary_key=True, editable=False, max_length=50)
     city_name = models.CharField(max_length=100)
@@ -128,8 +114,6 @@ class City(models.Model):
         db_table = '"opx"."city"'
 
 # 7
-
-
 class Neighborhood(models.Model):
     neighb_id = models.IntegerField(primary_key=True, editable=False)
     neighb_name = models.CharField(max_length=100)
@@ -139,8 +123,6 @@ class Neighborhood(models.Model):
         db_table = '"opx"."neighborhood"'
 
 # 8
-
-
 class EducationLevel(models.Model):
     educlevel_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -150,9 +132,7 @@ class EducationLevel(models.Model):
     class Meta:
         db_table = '"opx"."education_level"'
 
-# 9
-
-
+# 9 preguntar MSedan sobre conflictividades
 class Person(models.Model):
     pers_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
@@ -179,23 +159,19 @@ class Person(models.Model):
         db_table = '"opx"."person"'
 
 # 10
-
-
 class ProjectType(models.Model):
     projtype_id = models.UUIDField(
-        primary_key=True, default=False, editable=False)
+        primary_key=True, default=uuid4, editable=False)
     projtype_name = models.CharField(max_length=100)
     projtype_description = models.CharField(max_length=500)
 
     class Meta:
         db_table = '"opx"."project_type"'
 
-# 11
-
-
+#11
 class Project(models.Model):
     proj_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    proj_name = models.CharField(max_length=100)
+    proj_name = models.CharField(max_length=100, unique=True)
     proj_description = models.CharField(max_length=500)
     proj_external_id = models.CharField(max_length=500)  # Revisar esta columna
     proj_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
@@ -210,8 +186,6 @@ class Project(models.Model):
         db_table = '"opx"."project"'
 
 # 12
-
-
 class DimensionType(models.Model):
     dim_type_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -223,12 +197,10 @@ class DimensionType(models.Model):
         db_table = '"opx"."dimension_type"'
 
 # 13
-
-
 class TerritorialDimension(models.Model):
     dimension_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
-    dimension_name = models.CharField(max_length=100)
+    dimension_name = models.CharField(max_length=100, unique=True)
     dimension_geojson = JSONField()
     isactive = models.IntegerField(default=1, null=False, blank=False)
     preloaded = models.IntegerField(default=0, null=False, blank=False)
@@ -238,8 +210,6 @@ class TerritorialDimension(models.Model):
         db_table = '"opx"."territorial_dimension"'
 
 # 14
-
-
 class ProjectTerritorialDimension(models.Model):
     proj_dimension_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -251,19 +221,15 @@ class ProjectTerritorialDimension(models.Model):
         db_table = '"opx"."project_dimension"'
 
 # 15
-
-
 class Decision(models.Model):
     decs_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    decs_name = models.CharField(max_length=100)
+    decs_name = models.CharField(max_length=100, unique=True)
     decs_description = models.CharField(max_length=500)
 
     class Meta:
         db_table = '"opx"."decision"'
 
 # 16
-
-
 class ProjectDecision(models.Model):
     proj_decs_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -274,11 +240,9 @@ class ProjectDecision(models.Model):
         db_table = '"opx"."project_decision"'
 
 # 17
-
-
 class Team(models.Model):
     team_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    team_name = models.CharField(max_length=100)
+    team_name = models.CharField(max_length=100, unique=True)
     team_leader = models.ForeignKey(Person, on_delete=models.PROTECT)
     team_effectiveness = models.FloatField(default=0.0)  # agreagr al diagrama - changos
 
@@ -286,10 +250,10 @@ class Team(models.Model):
         db_table = '"opx"."team"'
 
 # 18
-
-
 class TeamPerson(models.Model):
-    participation = models.FloatField()  # new
+    teampers_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    participation = models.FloatField(default=0)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
     team = models.ForeignKey(Team, on_delete=models.PROTECT)
 
@@ -297,9 +261,9 @@ class TeamPerson(models.Model):
         db_table = '"opx"."team_person"'
 
 # 19
-
-
 class ProjectTeam(models.Model):
+    proj_team_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
     team = models.ForeignKey(Team, on_delete=models.PROTECT)
     project = models.ForeignKey(Project, on_delete=models.PROTECT)
 
@@ -307,8 +271,6 @@ class ProjectTeam(models.Model):
         db_table = '"opx"."project_team"'
 
 # 20
-
-
 class Context(models.Model):
     context_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -318,8 +280,6 @@ class Context(models.Model):
         db_table = '"opx"."context"'
 
 # 21
-
-
 class DataContext(models.Model):
     data_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     hdxtag = models.CharField(max_length=100)
@@ -335,8 +295,6 @@ class DataContext(models.Model):
         db_table = '"opx"."data_context"'
 
 # 22
-
-
 class ProjectContext(models.Model):
     proj_context_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -347,8 +305,6 @@ class ProjectContext(models.Model):
         db_table = '"opx"."project_context"'
 
 # 23
-
-
 class TaskPriority(models.Model):
     priority_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -359,11 +315,9 @@ class TaskPriority(models.Model):
         db_table = '"opx"."task_priority"'
 
 # 24
-
-
 class TaskType(models.Model):
-    task_type_id = models.UUIDField(
-        primary_key=True, default=uuid4, editable=False)
+    task_type_id = models.AutoField(
+        primary_key=True, editable=False)
     task_type_name = models.CharField(max_length=100)
     task_type_description = models.CharField(max_length=300)
 
@@ -371,28 +325,6 @@ class TaskType(models.Model):
         db_table = '"opx"."task_type"'
 
 # 25
-
-
-class Task(models.Model):
-    task_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    task_name = models.CharField(max_length=100)
-    task_description = models.CharField(max_length=300)
-    task_observation = models.CharField(max_length=1000)
-    task_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
-    # task_quantity = models.IntegerField(default=0, null=False, blank=False) #para survey (quantity)
-    task_completness = models.FloatField()
-    isactive = models.IntegerField(default=1, null=False, blank=False)
-    task_priority = models.ForeignKey(TaskPriority, on_delete=models.PROTECT)
-    task_type = models.ForeignKey(TaskType, on_delete=models.PROTECT)
-    territorial_dimension = models.ForeignKey(
-        TerritorialDimension, on_delete=models.PROTECT)
-
-    class Meta:
-        db_table = '"opx"."task"'
-
-# 26
-
-
 class TaskRestriction(models.Model):
     restriction_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -401,14 +333,47 @@ class TaskRestriction(models.Model):
     task_unique_date = models.DateField(null=True, blank=True)
     task_start_date = models.DateField(null=True, blank=True)
     task_end_date = models.DateField(null=True, blank=True)
-    task = models.ForeignKey(Task, on_delete=models.PROTECT)
+    # task = models.ForeignKey(Task, on_delete=models.PROTECT) # borrar del Diagram - changos
 
     class Meta:
         db_table = '"opx"."task_restriction"'
 
+# 26
+class Instrument(models.Model):
+    instrument_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    external_id = models.CharField(max_length=255)
+    instrument_type = models.IntegerField()  # 1 KoboInstrument; 2 TM instrument
+    instrument_name = models.CharField(max_length=100)
+    instrument_description = models.CharField(max_length=300)
+    geojson = JSONField()
+
+    class Meta:
+        db_table = '"opx"."instrument"'
+
 # 27
+class Task(models.Model):
+    task_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    task_name = models.CharField(max_length=100, unique=True)
+    task_description = models.CharField(max_length=300)
+    task_observation = models.CharField(max_length=1000)
+    task_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
+    task_quantity = models.IntegerField(default=0, null=False, blank=False)
+    task_completness = models.FloatField()
+    isactive = models.IntegerField(default=1, null=False, blank=False)
+    task_priority = models.ForeignKey(TaskPriority, on_delete=models.PROTECT)
+    task_type = models.ForeignKey(TaskType, on_delete=models.PROTECT)
+    territorial_dimension = models.ForeignKey(
+        TerritorialDimension, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+    task_restriction = models.OneToOneField(
+        TaskRestriction, on_delete=models.PROTECT)  # agregar al Diag - changos
+    instrument = models.ForeignKey(Instrument, on_delete=models.PROTECT)
 
+    class Meta:
+        db_table = '"opx"."task"'
 
+# 28
 class PersonTask(models.Model):
     person_task_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
@@ -419,55 +384,124 @@ class PersonTask(models.Model):
     class Meta:
         db_table = '"opx"."person_task"'
 
-# 28
-
-
+# 29
 class Params(models.Model):
-    params_id = models.UUIDField(
-        primary_key=True, default=uuid4, editable=False)
-    params_value = models.CharField(max_length=100)
+    params_id = models.CharField(
+        primary_key=True, editable=False, max_length=500)
+    params_value = models.CharField(max_length=500)
     params_description = models.CharField(max_length=500)
 
     class Meta:
         db_table = '"opx"."params"'
 
-# 29
-
-
+# 30
 class PeaceInitiative(models.Model):
     peace_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
     peace_name = models.CharField(max_length=100)
     peace_description = models.CharField(max_length=500)
     peace_geojson = JSONField()
+    peace_start_date = models.DateField()
+    peace_end_date = models.DateField(null=True, blank=True)
+    peace_tag = models.CharField(max_length=50)
+    osm_icon_tag = models.CharField(max_length=30)
+    isvalid = models.IntegerField(null=True, blank=True)
+    person = models.ForeignKey(Person, on_delete=models.PROTECT)
 
     class Meta:
         db_table = '"opx"."peace_initiative"'
 
-# 30
-
-
+# 31
 class PeaceSchedule(models.Model):
     peace_shc_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
     peace_shc_day = models.CharField(max_length=50)
     peace_shc_time = models.TimeField(null=True, blank=True)
+    peace_initiative = models.ForeignKey(
+        PeaceInitiative, on_delete=models.PROTECT)
 
     class Meta:
         db_table = '"opx"."peace_schedule"'
 
-# 31
-
-
+# 32
 class Comment(models.Model):
     comment_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
     comment_title = models.CharField(max_length=100)
     comment_description = models.CharField(max_length=500)
     comment_date = models.DateTimeField(auto_now_add=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
 
     class Meta:
         db_table = '"opx"."comment"'
 
-# 30
-# class kobo y eso
+# 33
+class Conflict(models.Model):
+    conflict_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    conflict_name = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = '"opx"."conflict"'
+
+# 34
+class Contextualization(models.Model):
+    contxzn_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    fact_date = models.DateField()
+    fact_hour = models.TimeField()
+    fac_day = models.IntegerField()
+    fact_age = models.IntegerField()
+    #nombre_barrio = models.CharField(max_length=300) como ya está el barrio no es necesario
+    contxzn_quantity = models.IntegerField(null=True)
+    education_level = models.ForeignKey(
+        EducationLevel, on_delete=models.PROTECT, null=True, blank=True)
+    gender = models.ForeignKey(
+        Gender, on_delete=models.PROTECT, null=True, blank=True)
+    neighborhood = models.ForeignKey(
+        Neighborhood, on_delete=models.PROTECT, null=True, blank=True)
+    conflict = models.ForeignKey(Conflict, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = '"opx"."contextualization"'
+
+
+# 35 Corregir en el Diag
+class Survery(models.Model):
+    survery_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    koboid = models.CharField(max_length=255, null=False, blank=True)
+    survery_content = JSONField()
+    survery_state = models.IntegerField()
+    survery_observation = models.CharField(max_length=1000)
+    task = models.ForeignKey(Task, on_delete=models.PROTECT)
+    instrument = models.ForeignKey(Instrument, on_delete=models.PROTECT)
+    person = models.ForeignKey(Person, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = '"opx"."survery"'
+
+# 36
+class OsmElement(models.Model):
+    osmelement_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    osmelement_name = models.CharField(max_length=255)
+    osmkey = models.CharField(max_length=255)
+    losed_way = models.IntegerField()
+
+    class Meta:
+        db_table = '"opx"."osm_element"'
+
+# 37
+class Cartography(models.Model):
+    cartography_id = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False)
+    osmid = models.CharField(max_length=100)
+    cartography_state = models.IntegerField()
+    instrument = models.ForeignKey(Instrument, on_delete=models.PROTECT)
+    task = models.ForeignKey(Task, on_delete=models.PROTECT)
+    person = models.ForeignKey(Person, on_delete=models.PROTECT)
+    osm_elemtent = models.ForeignKey(OsmElement, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = '"opx"."cartography"'
