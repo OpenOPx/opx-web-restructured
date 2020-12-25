@@ -186,7 +186,7 @@ let usuario = new Vue({
 
             axios({
                 method: 'post',
-                url: '/usuarios/' + this.edicionUsuario.userid,
+                url: '/usuarios/' + this.edicionUsuario.user_id,
                 data: queryString,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

@@ -191,15 +191,16 @@ def almacenarUsuario(request):
             )
             user.password = pwd_context.encrypt(user.password)
             user.save()
-            role = models.Role.objects.get(pk = role_id)
-            gender = models.Gender.objects.get(pk = gender_id)
-            neighborhood = models.Neighborhood.objects.get(pk = neighborhood_id)
-            education_level = models.EducationLevel.objects.get(pk = education_level_id)
+            role = models.Role.objects.get(pk=role_id)
+            gender = models.Gender.objects.get(pk=gender_id)
+            neighborhood = models.Neighborhood.objects.get(pk=neighborhood_id)
+            education_level = models.EducationLevel.objects.get(
+                pk=education_level_id)
 
             person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
-                                role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
-                                gender=gender, neighborhood=neighborhood, education_level=education_level,
-                                user = user)
+                                   role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
+                                   gender=gender, neighborhood=neighborhood, education_level=education_level,
+                                   user=user)
             # Asignación de estado "empleado" a usuario en caso tal sea enviado
             if isemployee is not None:
                 if isemployee == "true":
@@ -213,7 +214,8 @@ def almacenarUsuario(request):
 
             data = {
                 'code': 201,
-                'usuario': serializers.serialize('python', [user])[0],#mando user o person?
+                # mando user o person?
+                'usuario': serializers.serialize('python', [person])[0],
                 'status': 'success'
             }
 
@@ -234,3 +236,133 @@ def almacenarUsuario(request):
         }
 
     return JsonResponse(data, safe=False, status=data['code'])
+
+##
+# @brief Recurso de Actualización de usuarios
+# @param request Instancia HttpRequest
+# @param userid Identificación de usuario autenticado
+# @return cadena JSON
+#
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarUsuario(request, userid):
+
+    try:
+        with transaction.atomic():
+            print("updating user", userid)
+            # Obteniendo datos respecto a la ubicacion del usuario
+            latitud = request.POST.get('latitud')
+            longitud = request.POST.get('longitud')
+
+            # Asignando la nueva información al usuario
+            user = models.User.objects.get(pk=userid)
+            print(user.password)
+            person = models.Person.objects.get(user__userid__exact=userid)
+            print(person)
+            role = models.Role.objects.get(pk=request.POST.get('role_id'))
+
+            user.useremail = request.POST.get('useremail')
+            person.role = role
+            person.pers_name = request.POST.get('pers_name')
+            person.pers_lastname = request.POST.get('pers_lastname')
+            person.pers_birthdate = request.POST.get('pers_birthdate')
+            gender = models.Role.objects.get(pk=request.POST.get('gender_id'))
+            person.gender = gender
+            neighborhood = models.Neighborhood.objects.get(
+                pk=request.POST.get('neighborhood_id'))
+            person.neighborhood = neighborhood
+            education_level = models.EducationLevel.objects.get(
+                pk=request.POST.get('education_level_id'))
+            person.education_level = education_level
+            person.pers_telephone = request.POST.get('pers_telephone')
+
+            # Asignando la información de ubicacion al usuario en caso de ser enviada
+            if latitud is not None and longitud is not None:
+                person.pers_latitude = latitud
+                person.pers_longitude = longitud
+                person.hour_location = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # Asignando la nueva contraseña en caso de ser enviada
+            if request.POST.get('password') is not None and len(request.POST.get('password')) > 0:
+
+                # Contexto Passlib
+                pwd_context = CryptContext(
+                    schemes=["pbkdf2_sha256"],
+                    default="pbkdf2_sha256",
+                    pbkdf2_sha256__default_rounds=30000
+                )
+                user.password = pwd_context.encrypt(
+                    request.POST.get('password'))
+
+            # Asignando el estado "empleado" del usuario en tal caso sea enviado
+            if request.POST.get('isemployee') is not None:
+                if request.POST.get('isemployee') == "true":
+                    person.isemployee = 1
+                else:
+                    person.isemployee = 0
+
+            person.full_clean()
+
+            user.save()
+            person.save()
+
+            data = {
+                'code': 200,
+                'usuario': serializers.serialize('python', [person])[0],
+                'status': 'success'
+            }
+            print(data)
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'errors': dict(e),
+            'status': 'error'
+        }
+
+    except IntegrityError as e:
+
+        data = {
+            'code': 500,
+            'errors': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status=data['code'], safe=False)
+
+##
+# @brief Recurso de eliminación de usuarios
+# @param request Instancia HttpRequest
+# @param userid Identificación de usuario autenticado
+# @return cadena JSON
+#
+
+
+@csrf_exempt
+@api_view(["DELETE"])
+@permission_classes((IsAuthenticated,))
+def eliminarUsuario(request, userid):
+
+    try:
+        usuario = models.Usuario.objects.get(userid=userid)
+
+        usuario.delete()
+
+        return JsonResponse({'status': 'success'})
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'El usuario no existe'}, safe=True, status=404)
+
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe=True, status=400)
