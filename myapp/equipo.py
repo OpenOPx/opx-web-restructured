@@ -173,7 +173,8 @@ def actualizarEquipo(request, planid):
     try:
         plantilla = models.Team.objects.get(pk=planid)
 
-        plantilla.team_name = request.POST.get('name')
+        plantilla.team_name = request.POST.get('team_name')
+        #plantilla.team_description = request.POST.get('team_description')
 
         response = {
             'code': 200,

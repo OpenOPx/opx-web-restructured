@@ -20,7 +20,11 @@ let gestionPlantilla = new Vue({
             },
             {
                 label: 'Descripcion',
-                key: ''
+                key: 'team_description'
+            },
+            {
+                label: '',
+                key: 'acciones'
             }
         ]
     },
@@ -145,13 +149,14 @@ let gestionPlantilla = new Vue({
         editarPlantilla(){
 
             queryString =  Object.keys(this.plantillaEdicion).map(key => {
-
                 return key + "=" + this.plantillaEdicion[key];
-            })
-            .join('&');
+            }).join('&');
+
+            console.log(queryString)
+            console.log(this.plantillaEdicion.team_id)
 
             axios({
-                url: '/plantillas-equipo/' + this.plantillaEdicion.planid+'/',
+                url: '/plantillas-equipo/' + this.plantillaEdicion.team_id+'/',
                 method: 'PUT',
                 data: queryString,
                 headers: {
