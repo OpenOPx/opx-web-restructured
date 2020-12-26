@@ -112,7 +112,6 @@ def listadoProyectos(request):
 
         # convirtiendo a lista de diccionarios
         proyectos = list(proyectos.values())
-        print(proyectos)
         listadoProyectos = []
         for p in proyectos:
 
@@ -141,7 +140,7 @@ def listadoProyectos(request):
                     p['dimensiones_territoriales'].append(dim)
 
             # Reportes
-            p['reportes'] = reporteEstadoProyecto(p['proyid'])
+           # p['reportes'] = reporteEstadoProyecto(p['proyid'])
 
             listadoProyectos.append(p)
 
@@ -209,6 +208,10 @@ def listadoProyectos(request):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenamientoProyecto(request):
+    print(request)
+
+    user = usuarioAutenticado(request)
+    person = models.Person.objects.get(user__userid = user.userid)
 
     # Decodificando el access token
     tokenBackend = TokenBackend(settings.SIMPLE_JWT['ALGORITHM'], settings.SIMPLE_JWT['SIGNING_KEY'], settings.SIMPLE_JWT['VERIFYING_KEY'])
@@ -218,6 +221,7 @@ def almacenamientoProyecto(request):
     contextos = request.POST.get('contextos')
     equipos = request.POST.get('plantillas')
     delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
+    tipoP = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
 
     proyecto = models.Project(
         proj_name = request.POST.get('proynombre'),
@@ -227,18 +231,18 @@ def almacenamientoProyecto(request):
         proj_close_date = request.POST.get('proyfechacierre'),
         proj_start_date = request.POST.get('proyfechainicio'),
         proj_completness = 0,
-        isactive = 1,
-        project_type = request.POST.get('tiproid'),
-        proj_owner = tokenDecoded['user_id']
+        project_type = tipoP,
+        proj_owner = person
     )
 
     try:
         proyecto.full_clean()
-
-        if delimitacionGeograficas is None:
-            raise ValidationError({'delitacionesGeograficas': 'Requerido'})
-
         proyecto.save()
+
+        if delimitacionGeograficas is not None:
+            delimitacionGeograficas = json.loads(delimitacionGeograficas)
+            almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
+            raise ValidationError({'delitacionesGeograficas': 'Requerido'})
 
         if decisiones is not None:
             decisiones = json.loads(decisiones)
@@ -247,8 +251,6 @@ def almacenamientoProyecto(request):
         if contextos is not None:
             contextos = json.loads(contextos)
             almacenarContextosProyecto(proyecto, contextos)
-
-        almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
 
         if equipos is not None:
             equipos = json.loads(equipos)
@@ -303,11 +305,14 @@ def almacenarDecisionProyecto(proyecto, decisiones):
     try:
         for decisionI in decisiones:
 
+            desicionP = None
             decisionProyecto = None
+
+            desicionP = models.Decision.objects.get(decs_id__exact = decisionI)
 
             decisionProyecto = models.ProjectDecision(
                 project = proyecto, 
-                decision = decisionI
+                decision = desicionP
             )
 
             decisionProyecto.save()
@@ -317,22 +322,6 @@ def almacenarDecisionProyecto(proyecto, decisiones):
     except ValidationError as e:
         return False
 
-    
-    #    for decision in decisiones:
-    #
-    #        decisionProyecto = None
-#
-    #        decisionProyecto = models.ProjectDecision(
-    #            project = proj_id, 
-    #            decision = decisiones
-    #        )
-#
-    #        decisionProyecto.save()
-#
-    #    return True
-
-    except ValidationError as e:
-        return False
 
         ##
 # @brief Funcion que asigna contexto(s) a un proyecto especifico
@@ -344,15 +333,17 @@ def almacenarContextosProyecto(proyecto, contextos):
 
     try:
         for contexto in contextos:
+            contextoP = None
+            contextoProyecto = None
 
+            contextoP = models.Context.objects.get(context_id__exact = contexto)
             contextoProyecto = models.ProjectContext(
-                project = proyecto.proj_id, 
-                context = contexto
+                project = proyecto, 
+                context = contextoP
             )
 
             contextoProyecto.save()
 
-            del contextoProyecto
 
         return True
 
@@ -366,41 +357,27 @@ def almacenarContextosProyecto(proyecto, contextos):
 # @return Diccionario
 #
 def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
-
     try:
 
-        delimitaciones = json.loads(delimitacionesGeograficas)
-
-        with transaction.atomic():
-
-            for d in delimitaciones:
+            for d in delimitacionesGeograficas:
+                delimitacion = None
                 delimitacion = models.TerritorialDimension(
-                    proyid = proyecto.proyid, 
                     dimension_name = d['nombre'], 
                     dimension_geojson = d['geojson'],
-                    isactive = 1
-                    #preloaded = ???,
-                    #dimension_type = ???
+                    dimension_type = models.DimensionType.objects.get(dim_type_id__exact = '35b0b478-9675-45fe-8da5-02ea9ef88f1b')
                 )
-
-                delimitacion.full_clean()
-
                 delimitacion.save()
-
-                del delimitacion
-
-        data = {
-            'result': True
-        }
+                delimitacionP = models.ProjectTerritorialDimension(
+                    project = proyecto,
+                    territorial_dimension = delimitacion
+                )
+                delimitacionP.save()
+                delimitacionP = None
+        
+            return True
 
     except ValidationError as e:
-
-        data = {
-            'result': False,
-            'message': dict(e)
-        }
-
-    return data
+        return False
 
 ##
 # @brief Funcion que asigna integrantes a un proyecto en base a los integrantes de una plantilla de equipo
@@ -408,19 +385,21 @@ def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
 # @param equipos lista de identificadores de plantillas de equipo
 #
 def asignarEquipos(proyecto, equipos):
+    try:
+            for equipo in equipos:
+                equipoP = None
+                proyectoEquipo = None
 
-    with transaction.atomic():
+                equipoP = models.Team.objects.get(pk=equipo)
 
-        for equipo in equipos:
-
-            plantilla = models.PlantillaEquipo.objects.get(pk=equipo)
-
-            usuarios = models.MiembroPlantilla.objects.filter(planid__exact=equipo)
-
-            for usuario in usuarios:
-#???
-                integrante = models.Team(
-                    userid=usuario.userid, 
-                    proyid=proyecto.proyid
+                proyectoEquipo = models.ProjectTeam(
+                    team = equipoP,
+                    project = proyecto
                 )
-                integrante.save()
+                print(proyectoEquipo)
+                proyectoEquipo.save()
+    
+            return True
+
+    except ValidationError as e:
+        return False
