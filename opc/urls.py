@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
     userview,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
@@ -27,12 +27,12 @@ urlpatterns = [
 
 #los id's los pasan por el path y deberian pasarlos internamente
 
-    #ANTIGUOS PATHS
+
 
     path('admin/', admin.site.urls), 
 
     path('', views.loginView), #OK LEO
-    path('login/', views.login), #OK LEO
+    path('login/', views.login), #OK LEO OK
 
     #path('auth/password-reset/', auth.passwordReset),
     #path('auth/password-reset-verification/', auth.passwordResetVerification),
@@ -72,8 +72,8 @@ urlpatterns = [
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
     path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #JM OK
 
-    path('equipos/', equipo.equiposView),
-    #path('equipos/<str:planid>/miembros/', plantillaEquipo.miembrosPlantillaView),
+    path('equipos/', equipo.equiposView), #JM OK
+    path('equipos/<str:planid>/miembros/', equipo.miembrosEquipoView), #JM OK OK
     #path('equipos/list/<str:proyid>', equipo.equipoProyecto),
     #path('equipos/<str:proyid>/usuarios-disponibles/', equipo.usuariosDisponiblesProyecto),
     #path('equipos/store/', equipo.almacenamientoEquipo),
@@ -81,22 +81,21 @@ urlpatterns = [
     #path('equipos/<str:equid>', equipo.actualizarEquipo),
     #path('equipos/proyecto/<str:proyid>', equipo.equipoProyectoView),
 
-    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK
-    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK
-    path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK
-    path('plantillas-equipo/<str:planid>/', equipo.actualizarEquipo), #JM OK
+    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK OK
+    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK OK
+    path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK OK
+    path('plantillas-equipo/<str:planid>/', equipo.actualizarEquipo), #JM OK OK
+ 
+    path('miembros-plantilla/<str:planid>/list/', equipoMiembros.listadoMiembros), #JM OK OK
+    path('miembros-plantilla/<str:planid>/store/', equipoMiembros.agregarMiembro), #JM OK OK
+    path('miembros-plantilla/<str:miplid>/delete/', equipoMiembros.eliminarMiembro), #JM OK OK
+    path('miembros-plantilla/<str:planid>/usuarios-disponibles/', equipoMiembros.miembrosDisponibles), #JM OK
 
-    #path('miembros-plantilla/<str:planid>/list/', plantillaEquipo.miembrosPlantilla),
-    #path('miembros-plantilla/<str:planid>/store/', plantillaEquipo.agregarMiembro),
-    #path('miembros-plantilla/<str:miplid>/delete/', plantillaEquipo.eliminarMiembro),
-    #path('miembros-plantilla/<str:planid>/usuarios-disponibles/', plantillaEquipo.miembrosDisponibles),
+    path('acciones/list/', rolesview.listadoAcciones), #OK - S OK
 
-    path('acciones/list/', rolesview.listadoAcciones), #OK - S 
-
-    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S
-    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # - S
-    #path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol),
-    #path('funciones-rol/<str:funcrolid>', rolesview.actualizarFuncionRol),
+    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S OK
+    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # OK - S OK
+    path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol), #OK - S OK
 
     #path('instrumentos/', views.listadoInstrumentosView),
     #path('instrumentos/list/', views.listadoInstrumentos),
@@ -125,18 +124,18 @@ urlpatterns = [
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 
-    path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S PROBAR
-    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S 
-    path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S PROBAR
-    path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S PROBAR
-    path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S PROBAR
+    path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S OK
+    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S OK 
+    path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S OK
+    path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S OK
+    path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S OK
 
     path('roles/', rolesview.listadoRolesView), #OK - S OK
     path('roles/list/', rolesview.listadoRoles), #OK - S  OK
-    path('roles/store/', rolesview.almacenamientoRol), #OK - S PROBAR
-    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S PROBAR
-    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S PROBAR
-    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S PROBAR
+    path('roles/store/', rolesview.almacenamientoRol), #OK - S NO APLICA 
+    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S NO APLICA
+    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
+    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S OK
 
     #path('tareas/', tareas.listadoTareasView), #OK S
     #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
@@ -150,7 +149,7 @@ urlpatterns = [
 
     path('generos/list/', utilidades.listadoGeneros), #OK S OK
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S OK
-    #path('elementos-osm/list/', osm.elementosOsm),  # Falta cargarlo en el modelo para seguir
+    path('elementos-osm/list/', osm.elementosOsm),  # OK - S
 
     path('barrios/list/', utilidades.listadoBarrios), #OK S OK
 

@@ -66,9 +66,9 @@
 
                               </a>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" :href="'/equipos/' + data.item.team_id + '/miembros/'"> Miembros </a>
                                 <a @click.prevent="plantillaEdicion = data.item" data-toggle="modal" data-target="#editar-plantilla" class="dropdown-item" href="#"> Edición </a>
-                                <a @click.prevent="eliminarPlantilla(data.item.team_id)" class="dropdown-item" href="#"> Eliminación </a>
+                                <a @click.prevent="eliminarPlantilla(data.item.team_id)" class="dropdown-item" href="#"> Eliminación</a>
+                                <a class="dropdown-item" :href="'/equipos/' + data.item.team_id + '/miembros/'"> Miembros </a>
                               </div>
                             </div>
                         </template>

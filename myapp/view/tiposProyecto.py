@@ -76,7 +76,7 @@ def almacenamientoTiposProyecto(request):
 def edicionTipoProyecto(request, tiproid):
 
     try:
-        tipoProyecto = ProjectType.objects.get(projtype_id=projtype_id)
+        tipoProyecto = ProjectType.objects.get(projtype_id=tiproid)
 
         tipoProyecto.projtype_name = request.POST.get('nombre')
         tipoProyecto.projtype_description = request.POST.get('descripcion')

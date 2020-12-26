@@ -55,8 +55,8 @@ def login(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        if username is None or password is None:
 
+        if username is None or password is None:
             data = {
                 'status': 'error',
                 'message': 'Por favor especifique usuario y contraseña',
@@ -64,7 +64,6 @@ def login(request):
             }
 
         else:
-
             user = models.User.objects.get(useremail__exact=username)
             person = models.Person.objects.get(user__userid__exact=user.userid)
 
@@ -87,22 +86,20 @@ def login(request):
 
                 # Almacenando los permisos del usuario en la sesión
                 request.session['permisos'] = []
-
                 permisos = models.RolePermissionn.objects.filter(role__role_id__exact = person.role.role_id)
                 for i in permisos:
                     request.session['permisos'].append(str(i.permissionn_id))
 
                 # Consultando el nombre del rol del usuario autenticado
-                #rol = models.Rol.objects.get(pk = user.rolid)
-
+                rol = models.Role.objects.get(person__pers_id__exact = person.pers_id)
                 data = {
                     'token': str(refresh.access_token),
                     'user': {
                         'userid':       user.userid,
-                        'userfullname': 'user.userfullname',
+                        'userfullname': person.pers_name+ " " + person.pers_lastname,
                         'useremail':    user.useremail,
-                        'rol':          'rol.rolname',
-                        'puntaje':      'user.puntaje'
+                        'rol':          rol.role_name,
+                        'puntaje':      person.pers_score
                     },
                     'code': 200
                 }

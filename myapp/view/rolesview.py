@@ -192,7 +192,8 @@ def listadoAcciones(request):
 def listadoFuncionesRol(request, rolid):
 
     with connection.cursor() as cursor:
-        cursor.execute("select opx.role_permissionn.role_id, opx.permissionn.perm_name from opx.role_permissionn inner join opx.permissionn on opx.role_permissionn.permissionn_id = opx.permissionn.perm_id where opx.role_permissionn.role_id = %s", [rolid])
+
+        cursor.execute("select opx.role_permissionn.role_id, opx.permissionn.perm_id, opx.permissionn.perm_name from opx.role_permissionn inner join opx.permissionn on opx.role_permissionn.permissionn_id = opx.permissionn.perm_id where opx.role_permissionn.role_id = %s", [rolid])
 
         columns = dictfetchall(cursor)
 
@@ -237,9 +238,10 @@ def almacenamientoFuncionRol(request):
 @api_view(["DELETE"])
 @permission_classes((IsAuthenticated,))
 def eliminarFuncionRol(request, funcrolid):
-
+    roleid = request.data['id']
+    print(roleid)
     try:
-        funcionRol = models.FuncionRol.objects.get(pk = funcrolid)
+        funcionRol = models.RolePermissionn.objects.filter(permissionn_id = funcrolid).filter(role_id = roleid)
 
         funcionRol.delete()
 
@@ -263,7 +265,7 @@ def eliminarFuncionRol(request, funcrolid):
 def actualizarFuncionRol(request, funcrolid):
 
     try:
-        funcionRol = models.FuncionRol.objects.get(pk=funcrolid)
+        funcionRol = models.RolePermissionn.objects.get(pk=funcrolid)
 
         #funcionRol.rolid = request.POST.get('rolid')
         funcionRol.actionid = request.POST.get('actionid')
