@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
     userview,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
@@ -72,8 +72,8 @@ urlpatterns = [
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
     path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #JM OK
 
-    path('equipos/', equipo.equiposView),
-    #path('equipos/<str:planid>/miembros/', plantillaEquipo.miembrosPlantillaView),
+    path('equipos/', equipo.equiposView), #JM OK
+    path('equipos/<str:planid>/miembros/', equipo.miembrosEquipoView), #JM OK OK
     #path('equipos/list/<str:proyid>', equipo.equipoProyecto),
     #path('equipos/<str:proyid>/usuarios-disponibles/', equipo.usuariosDisponiblesProyecto),
     #path('equipos/store/', equipo.almacenamientoEquipo),
@@ -81,15 +81,15 @@ urlpatterns = [
     #path('equipos/<str:equid>', equipo.actualizarEquipo),
     #path('equipos/proyecto/<str:proyid>', equipo.equipoProyectoView),
 
-    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK
-    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK
-    path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK
-    path('plantillas-equipo/<str:planid>/', equipo.actualizarEquipo), #JM OK
-
-    #path('miembros-plantilla/<str:planid>/list/', plantillaEquipo.miembrosPlantilla),
-    #path('miembros-plantilla/<str:planid>/store/', plantillaEquipo.agregarMiembro),
-    #path('miembros-plantilla/<str:miplid>/delete/', plantillaEquipo.eliminarMiembro),
-    #path('miembros-plantilla/<str:planid>/usuarios-disponibles/', plantillaEquipo.miembrosDisponibles),
+    path('plantillas-equipo/list/', equipo.listadoEquipos), #JM OK OK
+    path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #JM OK OK
+    path('plantillas-equipo/store/', equipo.crearEquipo), #JM OK OK
+    path('plantillas-equipo/<str:planid>/', equipo.actualizarEquipo), #JM OK OK
+ 
+    path('miembros-plantilla/<str:planid>/list/', equipoMiembros.listadoMiembros), #JM OK OK
+    path('miembros-plantilla/<str:planid>/store/', equipoMiembros.agregarMiembro), #JM OK OK
+    path('miembros-plantilla/<str:miplid>/delete/', equipoMiembros.eliminarMiembro), #JM OK OK
+    path('miembros-plantilla/<str:planid>/usuarios-disponibles/', equipoMiembros.miembrosDisponibles), #JM OK
 
     path('acciones/list/', rolesview.listadoAcciones), #OK - S 
 

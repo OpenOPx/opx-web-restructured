@@ -199,3 +199,27 @@ def actualizarEquipo(request, planid):
         }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+    ##
+
+
+# @brief Función que provee plantilla HTML para gestión de integrantes de plantillas de equipo
+# @param request Instancia HttpRequest
+# @param planid Identificación de plantilla de equipo
+# @return plantilla HTML
+#
+def miembrosEquipoView(request, planid):
+
+    try:
+
+        plantilla = models.Team.objects.get(pk=planid)
+
+        response = render(request, "proyectos/gestion-miembros-plantilla.html", {'plantilla': plantilla})
+
+    except ObjectDoesNotExist:
+        response = HttpResponse("", status=404)
+
+    except ValidationError:
+        response = HttpResponse("", status=400)
+
+    return response
