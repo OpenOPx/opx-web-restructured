@@ -95,10 +95,12 @@ def login(request):
                 data = {
                     'token': str(refresh.access_token),
                     'user': {
-                        'userid':       user.userid,
+                        'userid':       user.userid, #Para web
+                        'pers_id':       user.userid, #Para movil
                         'userfullname': person.pers_name+ " " + person.pers_lastname,
                         'useremail':    user.useremail,
-                        'rol':          rol.role_name,
+                        'rol':          rol.role_name, #Para web
+                        'role_name':          rol.role_name, #Para movil
                         'puntaje':      person.pers_score
                     },
                     'code': 200
