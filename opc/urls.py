@@ -149,7 +149,7 @@ urlpatterns = [
 
     path('generos/list/', utilidades.listadoGeneros), #OK S OK
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S OK
-    #path('elementos-osm/list/', osm.elementosOsm),  # Falta cargarlo en el modelo para seguir
+    path('elementos-osm/list/', osm.elementosOsm),  # OK - S
 
     path('barrios/list/', utilidades.listadoBarrios), #OK S OK
 
