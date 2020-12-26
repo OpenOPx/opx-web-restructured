@@ -19,6 +19,16 @@
         <div class="card-header">
           <form action="">
             <div class="form-group">
+              <label class="bmd-label-floating">
+                Activos
+                <input v-model="activePersons" type="checkbox" >
+              </label>
+              <label class="bmd-label-floating">
+                Inactivos
+                <input v-model="inactivePersons" type="checkbox" >
+              </label>
+            </div>
+            <div class="form-group">
               <input class="form-control" placeholder="Busqueda ..." type="text" v-model="filter">
             </div>
           </form>
@@ -84,7 +94,7 @@
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a @click.prevent="edicionUsuario = data.item" data-backdrop="static" data-toggle="modal"
                       data-target="#editar-usuario" class="dropdown-item" href="#"> Edición </a>
-                    <a @click="eliminarUsuario(data.item.userid)" class="dropdown-item" href="#"> Eliminación </a>
+                    <a @click="eliminarUsuario(data.item.user_id)" class="dropdown-item" href="#"> Eliminación </a>
                   </div>
                 </div>
               </template>

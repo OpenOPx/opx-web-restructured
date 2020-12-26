@@ -57,22 +57,55 @@ def listadoUsuarios(request):
 
     #users = models.Usuario.objects.all().values()
     # json_res = serializers.serialize('python', users)
-
+    users_to_show = request.GET.get('isactive', 'active')
     with connection.cursor() as cursor:
 
-        query = "SELECT user_id, opx.user.useremail, pers_id, pers_name, \
-                pers_lastname, opx.person.isactive, opx.person.role_id, pers_birthdate, \
-                neighborhood_id, gender_id, education_level_id, pers_telephone, opx.role.role_name, \
-                pers_latitude, pers_longitude, \
-                hour_location, pers_creation_date, isemployee \
-                FROM opx.person \
-                INNER JOIN opx.role ON opx.role.role_id = opx.person.role_id \
-                INNER JOIN opx.user ON opx.user.userid = opx.person.user_id"
+        if(users_to_show == "inactive"):
+            query = "SELECT user_id, opx.user.useremail, pers_id, pers_name, \
+                    pers_lastname, opx.person.isactive, opx.person.role_id, pers_birthdate, \
+                    neighborhood_id, gender_id, education_level_id, pers_telephone, opx.role.role_name, \
+                    pers_latitude, pers_longitude, \
+                    hour_location, pers_creation_date, isemployee \
+                    FROM opx.person \
+                    INNER JOIN opx.role ON opx.role.role_id = opx.person.role_id \
+                    INNER JOIN opx.user ON opx.user.userid = opx.person.user_id WHERE opx.person.isactive = 0"
 
-        cursor.execute(query)
-        users = dictfetchall(cursor)
+            cursor.execute(query)
+            users = dictfetchall(cursor)
 
-        return JsonResponse(users, safe=False)
+            return JsonResponse(users, safe=False)
+        elif(users_to_show == "all"):
+            query = "SELECT user_id, opx.user.useremail, pers_id, pers_name, \
+                    pers_lastname, opx.person.isactive, opx.person.role_id, pers_birthdate, \
+                    neighborhood_id, gender_id, education_level_id, pers_telephone, opx.role.role_name, \
+                    pers_latitude, pers_longitude, \
+                    hour_location, pers_creation_date, isemployee \
+                    FROM opx.person \
+                    INNER JOIN opx.role ON opx.role.role_id = opx.person.role_id \
+                    INNER JOIN opx.user ON opx.user.userid = opx.person.user_id"
+
+            cursor.execute(query)
+            users = dictfetchall(cursor)
+            return JsonResponse(users, safe=False)
+        elif(users_to_show == "none"):
+            return JsonResponse([], safe=False)
+        else:
+            query = "SELECT user_id, opx.user.useremail, pers_id, pers_name, \
+                    pers_lastname, opx.person.isactive, opx.person.role_id, pers_birthdate, \
+                    neighborhood_id, gender_id, education_level_id, pers_telephone, opx.role.role_name, \
+                    pers_latitude, pers_longitude, \
+                    hour_location, pers_creation_date, isemployee \
+                    FROM opx.person \
+                    INNER JOIN opx.role ON opx.role.role_id = opx.person.role_id \
+                    INNER JOIN opx.user ON opx.user.userid = opx.person.user_id WHERE opx.person.isactive = 1"
+
+            cursor.execute(query)
+            users = dictfetchall(cursor)
+
+            return JsonResponse(users, safe=False)
+
+
+
 
 ##
 # @brief Recurso que provee el detalle de un usuario registrado
@@ -259,9 +292,7 @@ def actualizarUsuario(request, userid):
 
             # Asignando la nueva información al usuario
             user = models.User.objects.get(pk=userid)
-            print(user.password)
             person = models.Person.objects.get(user__userid__exact=userid)
-            print(person)
             role = models.Role.objects.get(pk=request.POST.get('role_id'))
 
             user.useremail = request.POST.get('useremail')
@@ -269,7 +300,7 @@ def actualizarUsuario(request, userid):
             person.pers_name = request.POST.get('pers_name')
             person.pers_lastname = request.POST.get('pers_lastname')
             person.pers_birthdate = request.POST.get('pers_birthdate')
-            gender = models.Role.objects.get(pk=request.POST.get('gender_id'))
+            gender = models.Gender.objects.get(pk=request.POST.get('gender_id'))
             person.gender = gender
             neighborhood = models.Neighborhood.objects.get(
                 pk=request.POST.get('neighborhood_id'))
@@ -353,13 +384,16 @@ def actualizarUsuario(request, userid):
 @api_view(["DELETE"])
 @permission_classes((IsAuthenticated,))
 def eliminarUsuario(request, userid):
-
+    #Borrado lógico del usuario (isactive = 0)
     try:
-        usuario = models.Usuario.objects.get(userid=userid)
+        with transaction.atomic():
 
-        usuario.delete()
+            #user = models.User.objects.get(userid=userid)
+            person = models.Person.objects.get(user__userid__exact = userid)
+            person.isactive = 0
+            person.save()
 
-        return JsonResponse({'status': 'success'})
+            return JsonResponse({'status': 'success'})
 
     except ObjectDoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'El usuario no existe'}, safe=True, status=404)

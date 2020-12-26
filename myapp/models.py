@@ -243,6 +243,7 @@ class ProjectDecision(models.Model):
 class Team(models.Model):
     team_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     team_name = models.CharField(max_length=100, unique=True)
+    team_description = models.CharField(max_length=300, unique=True)
     team_leader = models.ForeignKey(Person, on_delete=models.PROTECT)
     team_effectiveness = models.FloatField(default=0.0)  # agreagr al diagrama - changos
 
