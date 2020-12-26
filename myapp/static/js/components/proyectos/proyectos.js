@@ -96,7 +96,7 @@ proyecto = new Vue({
 
                     for(let i = 0; i < this.almacenamientoProyecto.decisiones.length; i++){
 
-                        decisiones.push(this.almacenamientoProyecto.decisiones[i].desiid);
+                        decisiones.push(this.almacenamientoProyecto.decisiones[i].decs_id);
                     }
                     valor = JSON.stringify(decisiones);
 
@@ -107,7 +107,7 @@ proyecto = new Vue({
                     for(let i = 0; i < this.almacenamientoProyecto.contextos.length; i++){
 
 
-                        contextos.push(this.almacenamientoProyecto.contextos[i].contextoid);
+                        contextos.push(this.almacenamientoProyecto.contextos[i].context_id);
                     }
 
                     valor = JSON.stringify(contextos);
@@ -119,7 +119,7 @@ proyecto = new Vue({
                     for(let i = 0; i < this.almacenamientoProyecto.plantillas.length; i++){
 
 
-                        plantillas.push(this.almacenamientoProyecto.plantillas[i].planid);
+                        plantillas.push(this.almacenamientoProyecto.plantillas[i].team_id);
                     }
 
                     valor = JSON.stringify(plantillas);
@@ -135,7 +135,7 @@ proyecto = new Vue({
 
                 return key + '=' + valor
             }).join('&');
-
+            console.log(queryString)
             axios({
                 method: 'post',
                 url: '/proyectos/store/',
