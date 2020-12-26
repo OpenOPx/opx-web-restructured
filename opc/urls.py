@@ -27,12 +27,12 @@ urlpatterns = [
 
 #los id's los pasan por el path y deberian pasarlos internamente
 
-    #ANTIGUOS PATHS
+
 
     path('admin/', admin.site.urls), 
 
     path('', views.loginView), #OK LEO
-    path('login/', views.login), #OK LEO
+    path('login/', views.login), #OK LEO OK
 
     #path('auth/password-reset/', auth.passwordReset),
     #path('auth/password-reset-verification/', auth.passwordResetVerification),
@@ -124,18 +124,18 @@ urlpatterns = [
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 
-    path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S PROBAR
-    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S 
-    path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S PROBAR
-    path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S PROBAR
-    path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S PROBAR
+    path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK - S OK
+    path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK - S OK 
+    path('tipos-proyecto/<str:tiproid>/delete/', tiposProyecto.eliminarTipoProyecto),#OK - S OK
+    path('tipos-proyecto/<str:tiproid>', tiposProyecto.edicionTipoProyecto), #OK - S OK
+    path('tipos-proyecto/store/', tiposProyecto.almacenamientoTiposProyecto), #OK - S OK
 
     path('roles/', rolesview.listadoRolesView), #OK - S OK
     path('roles/list/', rolesview.listadoRoles), #OK - S  OK
-    path('roles/store/', rolesview.almacenamientoRol), #OK - S NO APLICA - VAMOS A TENER NUEVOS ROLES????
-    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S 
+    path('roles/store/', rolesview.almacenamientoRol), #OK - S NO APLICA 
+    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S NO APLICA
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
-    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S NO APLICA
+    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S OK
 
     #path('tareas/', tareas.listadoTareasView), #OK S
     #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
@@ -149,7 +149,7 @@ urlpatterns = [
 
     path('generos/list/', utilidades.listadoGeneros), #OK S OK
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S OK
-    #path('elementos-osm/list/', osm.elementosOsm),  # Falta cargarlo en el modelo para seguir
+    path('elementos-osm/list/', osm.elementosOsm),  # OK - S
 
     path('barrios/list/', utilidades.listadoBarrios), #OK S OK
 

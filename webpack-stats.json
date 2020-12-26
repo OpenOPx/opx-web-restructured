@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"status":"done","chunks":{"main":[{"name":"./styles.css","path":"/home/juanma/Escritorio/OPx_web/NuevoModelo/opx-web-restructured/myapp/static/webpack_bundles/styles.css"},{"name":"main.js","path":"/home/juanma/Escritorio/OPx_web/NuevoModelo/opx-web-restructured/myapp/static/webpack_bundles/main.js"}]}}
+=======
+{"status":"done","chunks":{"main":[{"name":"./styles.css","path":"/home/sebas/distribuidos/opx-web-restructured/myapp/static/webpack_bundles/styles.css"},{"name":"main.js","path":"/home/sebas/distribuidos/opx-web-restructured/myapp/static/webpack_bundles/main.js"}]}}
+>>>>>>> bc6a4e5eebbed5717e6f33ee784fdfa74d832b86

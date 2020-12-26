@@ -92,9 +92,6 @@ def login(request):
 
                 # Consultando el nombre del rol del usuario autenticado
                 rol = models.Role.objects.get(person__pers_id__exact = person.pers_id)
-                print(person.pers_score)
-                print(user.useremail)
-                print(rol.role_name)
                 data = {
                     'token': str(refresh.access_token),
                     'user': {
