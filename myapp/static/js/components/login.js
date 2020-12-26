@@ -35,7 +35,7 @@ let login = new Vue({
                     }
                 })
                 .then(response => {
-
+                    console.log(JSON.stringify(response.data));              
                     sessionStorage.setItem('userinfo', JSON.stringify(response.data));
 
                     this.loader(false);
