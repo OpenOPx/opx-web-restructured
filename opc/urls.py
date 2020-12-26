@@ -91,12 +91,11 @@ urlpatterns = [
     path('miembros-plantilla/<str:miplid>/delete/', equipoMiembros.eliminarMiembro), #JM OK OK
     path('miembros-plantilla/<str:planid>/usuarios-disponibles/', equipoMiembros.miembrosDisponibles), #JM OK
 
-    path('acciones/list/', rolesview.listadoAcciones), #OK - S 
+    path('acciones/list/', rolesview.listadoAcciones), #OK - S OK
 
-    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S
-    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # - S
-    #path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol),
-    #path('funciones-rol/<str:funcrolid>', rolesview.actualizarFuncionRol),
+    path('funciones-rol/list/<str:rolid>', rolesview.listadoFuncionesRol), # OK - S OK
+    path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # OK - S OK
+    path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol), #OK - S OK
 
     #path('instrumentos/', views.listadoInstrumentosView),
     #path('instrumentos/list/', views.listadoInstrumentos),
@@ -133,10 +132,10 @@ urlpatterns = [
 
     path('roles/', rolesview.listadoRolesView), #OK - S OK
     path('roles/list/', rolesview.listadoRoles), #OK - S  OK
-    path('roles/store/', rolesview.almacenamientoRol), #OK - S PROBAR
-    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S PROBAR
-    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S PROBAR
-    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S PROBAR
+    path('roles/store/', rolesview.almacenamientoRol), #OK - S NO APLICA - VAMOS A TENER NUEVOS ROLES????
+    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S 
+    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
+    path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S NO APLICA
 
     #path('tareas/', tareas.listadoTareasView), #OK S
     #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
