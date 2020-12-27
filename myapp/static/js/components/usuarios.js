@@ -5,7 +5,7 @@ let usuario = new Vue({
 
         if(window.location.pathname == '/usuarios/'){
 
-            //this.listadoUsuarios();
+            this.listadoUsuarios();
             this.listadoRoles();
             this.listadoGeneros();
             this.listadoBarrios();
@@ -64,7 +64,7 @@ let usuario = new Vue({
         ]
     },
     methods: {
-        async listadoUsuarios(){
+        listadoUsuarios(){
 
             this.loader(true);
             url_req = '/usuarios/list/';
@@ -78,7 +78,7 @@ let usuario = new Vue({
                 url_req = '/usuarios/list/?isactive=none';
             }
             //let users = []
-            await axios({
+            axios({
                 method: 'GET',
                 url: url_req,
                 headers: {
@@ -86,10 +86,7 @@ let usuario = new Vue({
                 }
             })
             .then(response => {
-                console.log("OME G OME")
-                console.log(users)
                 this.usuarios = response.data;
-                console.log(users)
                 this.loader(false);
             })
             .catch(err => {
@@ -103,8 +100,6 @@ let usuario = new Vue({
                   confirmButtonText: 'Acepto'
                 });
             });
-            console.log(users)
-            return users;
         },
         almacenarUsuario(){
 
@@ -316,7 +311,7 @@ let usuario = new Vue({
         }
     },
     computed: {
-        usuariosS(){
+        usuariosActives(){
             //let foo = this.activePersons
             this.listadoUsuarios()
             return 1;
