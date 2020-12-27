@@ -43,7 +43,6 @@ from myapp.view import(
 #
 @permission_classes((IsAuthenticated,))
 def listadoInstrumentosView(request):
-
     return render(request, "instrumentos/listado.html")
 
 

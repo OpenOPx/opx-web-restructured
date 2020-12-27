@@ -13,7 +13,7 @@ let usuario = new Vue({
         }
     },
     data: {
-        //usuarios: [],
+        usuarios: [],
         edicionUsuario: {},
         almacenamientoUsuario: {},
         roles: [],
@@ -77,7 +77,7 @@ let usuario = new Vue({
             else if(!this.activePersons&&!this.inactivePersons){
                 url_req = '/usuarios/list/?isactive=none';
             }
-            let users = []
+            //let users = []
             await axios({
                 method: 'GET',
                 url: url_req,
@@ -88,17 +88,17 @@ let usuario = new Vue({
             .then(response => {
                 console.log("OME G OME")
                 console.log(users)
-                users = response.data;
+                this.usuarios = response.data;
                 console.log(users)
                 this.loader(false);
             })
-            .catch(response => {
+            .catch(err => {
 
                 this.loader(false);
 
                 Swal.fire({
                   title: 'Error!',
-                  text: 'Ocurrio un error. Por favor intenta de nuevo '+response.data,
+                  text: 'Ocurrio un error. Por favor intenta de nuevo ',
                   type: 'error',
                   confirmButtonText: 'Acepto'
                 });
@@ -138,7 +138,7 @@ let usuario = new Vue({
                   confirmButtonText: 'Acepto'
                 });
             })
-            .catch(response => {
+            .catch(err => {
 
                 $("#agregar-usuario").modal('hide')
                 this.almacenamientoUsuario = {};
@@ -316,9 +316,10 @@ let usuario = new Vue({
         }
     },
     computed: {
-        usuarios(){
+        usuariosS(){
             //let foo = this.activePersons
-            return this.listadoUsuarios()
+            this.listadoUsuarios()
+            return 1;
         },
         filteredUsers(){
 
