@@ -92,9 +92,9 @@
                           </a>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a @click.prevent="edicionProyecto = data.item" data-toggle="modal" data-target="#editar-proyecto" class="dropdown-item" href="#"> Edición </a>
-                        <a @click="eliminarProyecto(data.item.proyid)" class="dropdown-item" href="#"> Eliminación </a>
-                        <a class="dropdown-item" :href="'/equipos/proyecto/' + data.item.proyid"> Equipo </a>
-                        <a class="dropdown-item" :href="'/proyectos/' + data.item.proyid + '/tareas/'"> Tareas </a>
+                        <a @click="eliminarProyecto(data.item.proj_id)" class="dropdown-item" href="#"> Eliminación</a>
+                        <a class="dropdown-item" :href="'/equipos/proyecto/' + data.item.proj_id"> Equipo </a>
+                        <a class="dropdown-item" :href="'/proyectos/' + data.item.proj_id + '/tareas/'"> Tareas </a>
                       </div>
                     </div>
                   </template>
@@ -141,20 +141,7 @@
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">Descripción</label>
-                              <!--<textarea v-model="almacenamientoProyecto.proydescripcion" class="form-control"></textarea>-->
-                              <editor
-                                 api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
-                                 :init="{
-                                   height: 300,
-                                   menubar: false,
-                                   plugins: 'link',
-                                   toolbar:
-                                     'undo redo | formatselect | bold italic backcolor | \
-                                     alignleft aligncenter alignright alignjustify | \
-                                     bullist numlist outdent indent | removeformat | link'
-                                 }"
-                                 v-model="almacenamientoProyecto.proydescripcion"
-                               />
+                              <textarea v-model="almacenamientoProyecto.proydescripcion" class="form-control"></textarea>
                             </div>
                           </div>
                           <div class="col-md-6">
@@ -301,20 +288,7 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Descripción</label>
-                          <!--<textarea v-model="edicionProyecto.proydescripcion" class="form-control"></textarea>-->
-                          <editor
-                             api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
-                             :init="{
-                               height: 300,
-                               menubar: false,
-                               plugins: 'link',
-                               toolbar:
-                                 'undo redo | formatselect | bold italic backcolor | \
-                                 alignleft aligncenter alignright alignjustify | \
-                                 bullist numlist outdent indent | removeformat | link'
-                             }"
-                             v-model="edicionProyecto.proydescripcion"
-                           />
+                          <textarea v-model="edicionProyecto.proydescripcion" class="form-control"></textarea>
                         </div>
                       </div>
                       <div class="col-md-12">
@@ -346,7 +320,7 @@
                           <label for="" class="bmd-label-floating">Tipo</label>
                           <select class="form-control" v-model="edicionProyecto.tiproid">
                             <option value="">Seleccione</option>
-                            <option v-for="tp in tiposProyecto" :value="tp.tiproid"> [[ tp.nombre ]] </option>
+                            <option v-for="tp in tiposProyecto" :value="tp.projtype_id"> [[ tp.projtype_name ]] </option>
                           </select>
                         </div>
                       </div>
