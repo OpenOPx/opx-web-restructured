@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 {"status":"done","chunks":{"main":[{"name":"./styles.css","path":"/home/spitzer/git/pdg/opx-web-restructured/myapp/static/webpack_bundles/styles.css"},{"name":"main.js","path":"/home/spitzer/git/pdg/opx-web-restructured/myapp/static/webpack_bundles/main.js"}]}}
-=======
-{"status":"done","chunks":{"main":[{"name":"./styles.css","path":"/home/juanma/Escritorio/OPx_web/NuevoModelo/opx-web-restructured/myapp/static/webpack_bundles/styles.css"},{"name":"main.js","path":"/home/juanma/Escritorio/OPx_web/NuevoModelo/opx-web-restructured/myapp/static/webpack_bundles/main.js"}]}}
->>>>>>> 5a4be98564907c95118ed8108e9d8596d5443135
