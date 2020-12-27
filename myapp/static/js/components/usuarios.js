@@ -13,7 +13,7 @@ let usuario = new Vue({
         }
     },
     data: {
-        //usuarios: [],
+        usuarios: [],
         edicionUsuario: {},
         almacenamientoUsuario: {},
         roles: [],
@@ -64,7 +64,7 @@ let usuario = new Vue({
         ]
     },
     methods: {
-        listadoUsuarios(){
+        async listadoUsuarios(){
 
             this.loader(true);
             url_req = '/usuarios/list/';
@@ -77,29 +77,8 @@ let usuario = new Vue({
             else if(!this.activePersons&&!this.inactivePersons){
                 url_req = '/usuarios/list/?isactive=none';
             }
-            let users = [
-                {
-                    "user_id": "2e5fcd36-786c-4180-83d5-439a3b420d5d",
-                    "useremail": "hernesto@gmail.com",
-                    "pers_id": "e460f0bd-ae64-422c-b6c3-b5a32031637f",
-                    "pers_name": "GG",
-                    "pers_lastname": "DD",
-                    "isactive": 0,
-                    "role_id": "0be58d4e-6735-481a-8740-739a73c3be86",
-                    "pers_birthdate": "2020-12-08",
-                    "neighborhood_id": 201,
-                    "gender_id": "0634cdce-f7c6-405a-8a14-9a9973ef81a9",
-                    "education_level_id": "b99a2dad-0200-45e5-af06-726ec1dee3c0",
-                    "pers_telephone": "318",
-                    "role_name": "Voluntario",
-                    "pers_latitude": null,
-                    "pers_longitude": null,
-                    "hour_location": null,
-                    "pers_creation_date": "2020-12-25T14:14:16.522Z",
-                    "isemployee": 0
-                }
-            ]
-            axios({
+            //let users = []
+            await axios({
                 method: 'GET',
                 url: url_req,
                 headers: {
@@ -109,17 +88,17 @@ let usuario = new Vue({
             .then(response => {
                 console.log("OME G OME")
                 console.log(users)
-                users = response.data;
+                this.usuarios = response.data;
                 console.log(users)
                 this.loader(false);
             })
-            .catch(response => {
+            .catch(err => {
 
                 this.loader(false);
 
                 Swal.fire({
                   title: 'Error!',
-                  text: 'Ocurrio un error. Por favor intenta de nuevo '+response.data,
+                  text: 'Ocurrio un error. Por favor intenta de nuevo ',
                   type: 'error',
                   confirmButtonText: 'Acepto'
                 });
@@ -159,7 +138,7 @@ let usuario = new Vue({
                   confirmButtonText: 'Acepto'
                 });
             })
-            .catch(response => {
+            .catch(err => {
 
                 $("#agregar-usuario").modal('hide')
                 this.almacenamientoUsuario = {};
@@ -337,10 +316,10 @@ let usuario = new Vue({
         }
     },
     computed: {
-        usuarios(){
-            let foo = this.activePersons
-            return this.listadoUsuarios()
-         //   return this.activePersons
+        usuariosS(){
+            //let foo = this.activePersons
+            this.listadoUsuarios()
+            return 1;
         },
         filteredUsers(){
 

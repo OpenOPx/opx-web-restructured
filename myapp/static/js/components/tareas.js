@@ -51,7 +51,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Tipo',
-                key: 'task_type.task_type_id', //PROBLEM
+                key: 'task_type_name', //PROBLEM
                 sortable: true
             },
             {
@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'task_priority' //PROBLEM
+                key: 'task_priority_name' //PROBLEM
             },
             {
                 label: 'Fecha de Creación',
