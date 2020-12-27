@@ -123,9 +123,9 @@ def detalleUsuario(request, userid):
         usuario = {}
 
         with connection.cursor() as cursor:
-            query = "SELECT p.*, r.role_name from opx.person p \
+            query = "SELECT p.*, r.role_name, u.useremail from opx.person p \
                     INNER JOIN opx.role r ON r.role_id = p.role_id " \
-                    "WHERE p.pers_id = '{}'".format(userid)
+                    "INNER JOIN opx.user u on u.userid = p.user_id WHERE p.user_id = '{}'".format(userid)
             cursor.execute(query)
             queryResult = dictfetchall(cursor)
 
