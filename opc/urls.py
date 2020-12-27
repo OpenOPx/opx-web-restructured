@@ -19,7 +19,7 @@ from django.conf.urls import handler404, handler500
 
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
-    userview,
+    userview, instrumentview, koboclient, 
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
 )
 
@@ -97,17 +97,17 @@ urlpatterns = [
     path('funciones-rol/store/', rolesview.almacenamientoFuncionRol), # OK - S OK
     path('funciones-rol/delete/<str:funcrolid>', rolesview.eliminarFuncionRol), #OK - S OK
 
-    #path('instrumentos/', views.listadoInstrumentosView),
-    #path('instrumentos/list/', views.listadoInstrumentos),
-    #path('instrumentos/store/', views.almacenamientoInstrumento),
-    #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento),
-    #path('instrumentos/<str:instrid>', views.actualizarInstrumento),
+    path('instrumentos/', instrumentview.listadoInstrumentosView), #OK OK LF
+    path('instrumentos/list/', instrumentview.listadoInstrumentos), #OK OK LF
+    path('instrumentos/store/', instrumentview.almacenamientoInstrumento), # OK OK LF
+    #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento), # ESTO ALGUNA VEZ ESTUVO?
+    path('instrumentos/<str:instrid>', instrumentview.actualizarInstrumento), # OK OK LF
     #path('instrumentos/<str:id>/informacion/', views.informacionInstrumento),
-    #path('instrumentos/<str:id>/implementar/', views.implementarFormularioKoboToolbox),
-    #path('instrumentos/<str:id>/verificar-implementacion/', views.verificarImplementaciónFormulario),
+    path('instrumentos/<str:id>/implementar/', koboclient.implementarFormularioKoboToolbox), #OK OK LF
+    path('instrumentos/<str:id>/verificar-implementacion/', koboclient.verificarImplementaciónFormulario), #OK OK LF
     #path('instrumentos/encuesta/crear', views.creacionEncuestaView),
-    #path('instrumentos/formularios-kobotoolbox/list/', views.listadoFormulariosKoboToolbox),
-    #path('instrumentos/enlace-formulario/<str:tareid>', views.enlaceFormularioKoboToolbox),
+    path('instrumentos/formularios-kobotoolbox/list/', koboclient.listadoFormulariosKoboToolbox), # OK OK LF
+    path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OKOK LF
     #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento),
     #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento),
     #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia),
@@ -146,6 +146,7 @@ urlpatterns = [
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
     #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial),
+    path('tareas/tipos/', views.listadoTiposDeTareas),
 
     path('generos/list/', utilidades.listadoGeneros), #OK S OK
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK S OK
@@ -221,4 +222,5 @@ urlpatterns = [
     path('equipo-persona/store/', equipoPersona.crearEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
     path('equipo-persona/<str:teamPersonId>/', equipoPersona.actualizarEquipoPersona), #JM -  pendiente que Leo le agregue Pk para verificar
 
+    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl)
 ]

@@ -1,4 +1,4 @@
-window.kpiUrl = "http://kf.kobo.local/#/forms";
+//window.kpiUrl = "http://kf.kobo.local/#/forms";
 //window.kpiUrl = "https://beycker111.github.io/crud-autenticacion-usuarios-dependencias/#/login";
 // window.kpiUrl = "https://kobo.humanitarianresponse.info/#/forms/";
 
