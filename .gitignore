@@ -6,7 +6,7 @@ myapp/view/__pycache__/
 myapp/tests/__pycache__/
 opxenv/
 node_modules/
-myapp/static/webpack_bundles/
+myapp/static/webpack_bundles/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

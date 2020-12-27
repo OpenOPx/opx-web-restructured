@@ -140,7 +140,7 @@ urlpatterns = [
     path('tareas/', tareas.listadoTareasView), #OK S
     path('tareas/list/', tareas.listadoTareas), # S - 
     #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
-    #path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
     #path('tareas/<str:tareid>', tareas.actualizarTarea),
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
