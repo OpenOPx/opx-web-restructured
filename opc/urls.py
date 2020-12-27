@@ -20,7 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
     userview, instrumentview, koboclient, 
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -137,10 +137,10 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S OK
 
-    #path('tareas/', tareas.listadoTareasView), #OK S
-    #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
+    path('tareas/', tareas.listadoTareasView), #OK S
+    path('tareas/list/', tareas.listadoTareas), # S - 
     #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
-    #path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
     #path('tareas/<str:tareid>', tareas.actualizarTarea),
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
@@ -208,7 +208,7 @@ urlpatterns = [
     #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),  #S - Vistas que se agregan después por nuestra funcionalidad
 
     # =========================== Perfil ===============================================
-    path('mi-perfil/', profileview.perfilView), # UFF TOCA RECONSTRUIR TODA LA CLASE DEL JS PORQUE TRABAJA SOLO LOS ATRIBUTOS DE USER QUE TENÍA ANTES USUARIO QUE PARA NOSOTROS SERÍA PERSON
+    path('mi-perfil/', profileview.perfilView), # SEBAS - LEO DIJO QUE LE HARÍA
 
     #Comment
     path('comentario/<str:proyid>/', comentario.listadoComentarios), #JM 
