@@ -140,3 +140,17 @@ def login(request):
     return JsonResponse(data, status=data['code'])
 
 
+##
+# @brief Recurso de listado de instrumentos
+# @param request Instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def listadoTiposDeTareas(request):
+
+    task_types = models.TaskType.objects.all().values()
+
+    response = JsonResponse(list(task_types), safe=False)
+
+    return response

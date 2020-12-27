@@ -347,7 +347,7 @@ class Instrument(models.Model):
     instrument_type = models.IntegerField()  # 1 KoboInstrument; 2 TM instrument
     instrument_name = models.CharField(max_length=100)
     instrument_description = models.CharField(max_length=300)
-    geojson = JSONField()
+    geojson = JSONField(blank=True, null=True)
 
     class Meta:
         db_table = '"opx"."instrument"'

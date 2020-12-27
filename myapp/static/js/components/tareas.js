@@ -46,34 +46,34 @@ let tarea = new Vue({
         tareasFields: [
             {
                 label: 'Nombre',
-                key: 'tarenombre',
+                key: 'task_name',
                 sortable: true
             },
             {
                 label: 'Tipo',
-                key: 'taretipo',
+                key: 'task_type.task_type_id', //PROBLEM
                 sortable: true
             },
             {
                 label: 'Cantidad',
-                key: 'tarerestriccant',
+                key: 'task_quantity',
                 sortable: true
             },
             {
                 label: 'Instrumento',
-                key: 'instrnombre'
+                key: 'instrument_name'
             },
             {
                 label: 'Proyecto',
-                key: 'proynombre'
+                key: 'proj_name'
             },
             {
                 label: 'Prioridad',
-                key: 'tareprioridad'
+                key: 'task_priority' //PROBLEM
             },
             {
                 label: 'Fecha de Creación',
-                key: 'tarefechacreacion'
+                key: 'task_creation_date'
             },
             {
                 label: '',
@@ -101,7 +101,7 @@ let tarea = new Vue({
                 this.loader(false);
 
                 if(response.data.code == 200 && response.data.status == 'success'){
-
+                    console.log(response.data.tareas)
                     this.tareas = response.data.tareas;
                 }
             });
@@ -122,7 +122,6 @@ let tarea = new Vue({
                 this.loader(false);
 
                 if(response.data.code == 200 && response.data.status == 'success'){
-
                     this.tareas = response.data.detail.tareas;
                 }
             });

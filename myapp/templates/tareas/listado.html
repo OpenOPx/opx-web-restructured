@@ -158,7 +158,7 @@
                           <label class="bmd-label-floating">Proyecto</label>
                           <select v-model="almacenamientoTarea.proyid" @change="obtenerDimensionesTerritoriales(almacenamientoTarea.proyid)" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="proyecto in proyectos" :value="proyecto.proyid"> [[ proyecto.proynombre ]] </option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proj_name"> [[ proyecto.proj_name ]] </option>
                           </select>
                         </div>
                       </div>
@@ -176,7 +176,7 @@
                           <label class="bmd-label-floating">Instrumento</label>
                           <select v-model="almacenamientoTarea.instrid" @change="generarDimensionTerritorialInstrumento(almacenamientoTarea.instrid)" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="instrumento in instrumentos" :value="instrumento"> [[ instrumento.instrnombre ]] </option>
+                            <option v-for="instrumento in instrumentos" :value="instrumento.instrument_name"> [[ instrumento.instrument_name ]] </option>
                           </select>
                         </div>
                       </div>
