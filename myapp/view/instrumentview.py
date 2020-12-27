@@ -41,8 +41,6 @@ from myapp.view import(
 # @param request Instancia HttpRequest
 # @return Plantilla HTML
 #
-
-@api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def listadoInstrumentosView(request):
 
@@ -295,7 +293,6 @@ def informacionInstrumento(request, id):
 # @param id Identificación del instrumento
 # @return Plantilla HTML
 #
-@api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def informacionInstrumentoView(request, id):
 
