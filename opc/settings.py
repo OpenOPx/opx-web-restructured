@@ -26,7 +26,7 @@ SECRET_KEY = '4!2^+$k%9^hc1=6#e8!!(j+nt38hict5#@sn+$xa!b7xql@5$p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] #BEYCKER REVISAR
 
 
 # Application definition
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myapp.middleware.cors.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'opc.urls'

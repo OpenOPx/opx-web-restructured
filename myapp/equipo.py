@@ -92,12 +92,10 @@ def crearEquipo(request):
         user = usuarioAutenticado(request)
         person = models.Person.objects.get(user__userid = user.userid)
 
-        team_description = request.POST.get('team_description')
-
         plantilla = models.Team(
             team_name = request.POST.get('team_name'), 
             team_leader = person,
-            #team_description = request.POST.get('descripcionEquipo')
+            team_description = request.POST.get('team_description')
         )
 
         plantilla.full_clean()
@@ -174,7 +172,7 @@ def actualizarEquipo(request, planid):
         plantilla = models.Team.objects.get(pk=planid)
 
         plantilla.team_name = request.POST.get('team_name')
-        #plantilla.team_description = request.POST.get('team_description')
+        plantilla.team_description = request.POST.get('team_description')
 
         response = {
             'code': 200,

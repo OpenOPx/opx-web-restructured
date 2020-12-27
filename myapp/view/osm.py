@@ -260,7 +260,7 @@ def almacenarCartografia(instrid, wayid, elemosmid, userid, tareid):
 @permission_classes((IsAuthenticated,))
 def elementosOsm(request):
 
-    elementosOsm = models.ElementoOsm.objects.all().values()
+    elementosOsm = models.OsmElement.objects.all().values()
 
     response = {
         'code': 200,
