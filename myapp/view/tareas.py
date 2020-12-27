@@ -76,8 +76,8 @@ def listadoTareas(request):
 
         # Obtener Búsqueda y validación de la misma
         search = request.GET.get('search')
-        #que hago con esa consulta si quitaste instrumentos Leo
-        query = "select t.*, i.instrnombre, p.proj_name from opx.task as t " \ 
+
+        query = "select t.*, i.instrument_name, p.proj_name from opx.task as t " \
                 "inner join opx.project as p on t.projectproject_id = p.proj_id " \
                 "inner join opx.instrumentos  as i on t.instrid = i.instrid"
 
@@ -292,12 +292,21 @@ def almacenamientoTarea(request): #Por aquí iba
     tareprioridad = request.POST.get('tareprioridad')
     isactive = request.POST.get('isactive')
 
+    restriccion = models.TaskRestriction()
+    restriccion.full_clean()
+    restriccion.save()
 
-    tarea = models.Tarea(task_name = tareNombre, task_type_id = tareTipo, tarerestricgeo = tareRestricGeo,
-                         tarerestriccant = tareRestricCant, tarerestrictime = tareRestricTime,
-                         instrid = instrID, proyid = proyID, dimensionid = dimensionid,
-                         geojson_subconjunto = geojson_subconjunto,  task_description = taredescripcion,isactive = isactive
-                         tareprioridad=tareprioridad)
+    territoriodentroproyecto = models.TerritorialDimension()
+    territoriodentroproyecto.full_clean()
+    territoriodentroproyecto.save(geojson_subconjunto)
+
+    instrumento = models.object.get(instrument_id = instrID)
+
+
+
+    tarea = models.Task(task_name = tareNombre, task_type_id = tareTipo, task_restriction = restriccion,
+                         instrument= instrID, project = proyID, territorial_dimension = dimensionid,  task_description = taredescripcion, isactive = isactive,
+                         task_priority=tareprioridad)
 
     try:
         tarea.full_clean()

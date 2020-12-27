@@ -20,7 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
     userview,
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -137,7 +137,7 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK - S OK
 
-    #path('tareas/', tareas.listadoTareasView), #OK S
+    path('tareas/', tareas.listadoTareasView), #OK S
     #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
     #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
     #path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
