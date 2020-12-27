@@ -123,14 +123,16 @@ def obtenerParametroSistema(parametro):
 #
 def obtenerEmailsEquipo(proyid):
 
-    usuarios = models.Equipo.objects.filter(proyid__exact = proyid)
-    emails = []
-
-    for u in usuarios:
-        email = models.Usuario.objects.get(pk = u.userid).useremail
-        emails.append(email)
-
-    return emails
+    with connection.cursor() as cursor:
+        query = "SELECT useremail \
+                FROM opx.project AS pr \
+                INNER JOIN opx.project_team AS pt ON pt.project_id = pr.proj_id \
+                INNER JOIN opx.team_person AS tp ON tp.team_id = pt.team_id \
+                INNER JOIN opx.person AS person ON person.pers_id = tp.person_id \
+                INNER JOIN opx.user AS us ON us.userid = person.user_id"
+        cursor.execute(query)
+        correos = dictfetchall(cursor)
+        return JsonResponse(correos, safe=False)
 
 ##
 # @brief Recurso que provee el correo electrónico de un usuario

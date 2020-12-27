@@ -208,7 +208,6 @@ def listadoProyectos(request):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenamientoProyecto(request):
-    print(request)
 
     user = usuarioAutenticado(request)
     person = models.Person.objects.get(user__userid = user.userid)
@@ -222,50 +221,47 @@ def almacenamientoProyecto(request):
     equipos = request.POST.get('plantillas')
     delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
     tipoP = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
-
-    proyecto = models.Project(
-        proj_name = request.POST.get('proynombre'),
-        proj_description= request.POST.get('proydescripcion'),
-        proj_external_id = 12345,
-        proj_creation_date = datetime.today(),
-        proj_close_date = request.POST.get('proyfechacierre'),
-        proj_start_date = request.POST.get('proyfechainicio'),
-        proj_completness = 0,
-        project_type = tipoP,
-        proj_owner = person
-    )
-
+    
     try:
-        proyecto.full_clean()
-        proyecto.save()
+        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+            proyecto = models.Project(
+                proj_name = request.POST.get('proynombre'),
+                proj_description= request.POST.get('proydescripcion'),
+                proj_external_id = 12345,
+                proj_creation_date = datetime.today(),
+                proj_close_date = request.POST.get('proyfechacierre'),
+                proj_start_date = request.POST.get('proyfechainicio'),
+                proj_completness = 0,
+                project_type = tipoP,
+                proj_owner = person
+            )
 
-        if delimitacionGeograficas is not None:
+            proyecto.full_clean()
+            proyecto.save()
+
             delimitacionGeograficas = json.loads(delimitacionGeograficas)
             almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
-            raise ValidationError({'delitacionesGeograficas': 'Requerido'})
 
-        if decisiones is not None:
             decisiones = json.loads(decisiones)
             almacenarDecisionProyecto(proyecto, decisiones)
 
-        if contextos is not None:
             contextos = json.loads(contextos)
             almacenarContextosProyecto(proyecto, contextos)
 
-        if equipos is not None:
             equipos = json.loads(equipos)
             asignarEquipos(proyecto, equipos)
 
-        data = serializers.serialize('python', [proyecto])[0]
-
-        data = {
-            'code': 201,
-            'proyecto': data,
-            'status': 'success'
-        }
+            data = serializers.serialize('python', [proyecto])[0]
+            data = {
+                'code': 201,
+                'proyecto': data,
+                'status': 'success'
+            }
+        else:
+            raise ValidationError({'Información incompleta'})
 
     except ValidationError as e:
-
+        proyecto.delete()
         try:
             errors = dict(e)
         except ValueError:
@@ -274,6 +270,7 @@ def almacenamientoProyecto(request):
         data = {
             'code': 400,
             'errors': errors,
+            'message': str(e),
             'status': 'error'
         }
 
@@ -291,7 +288,7 @@ def almacenamientoProyecto(request):
             'message': str(e),
             'status': 'error'
         }
-
+        print("10")
     return JsonResponse(data, safe = False, status = data['code'])
 
 ##
@@ -403,3 +400,109 @@ def asignarEquipos(proyecto, equipos):
 
     except ValidationError as e:
         return False
+
+##
+# @brief recurso de actualización de proyectos
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarProyecto(request, proyid):
+    try:
+        proyecto = models.Project.objects.get(pk=proyid)
+        decisiones = request.POST.get('decisiones')
+        contextos = request.POST.get('contextos')
+        equipos = request.POST.get('plantillas')
+        delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
+
+        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+            proyecto.proj_name = request.POST.get('proynombre')
+            proyecto.proj_description = request.POST.get('proydescripcion')
+            proyecto.project_type = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
+            proyecto.proj_start_date = request.POST.get('proyfechainicio')
+            proyecto.proj_close_date = request.POST.get('proyfechacierre')
+            #Actualiza las decisiones
+            decisiones = json.loads(decisiones)
+            if len(decisiones)>0:
+                decisionesP = models.ProjectDecision.objects.filter(project__proj_id__exact = proyecto.proj_id)
+                if decisionesP.exists():
+                    for decisionProj in decisionesP:
+                        decisionProj.delete()
+
+                for decision in decisiones:
+                    descProj = models.ProjectDecision(project = proyecto, decision = models.Decision.objects.get(pk = decision))
+                    descProj.save()
+
+            #Actualiza los contextos
+            contextos = json.loads(contextos)
+            if len(contextos)>0:
+                contextosP = models.ProjectContext.objects.filter(project__proj_id__exact = proyecto.proj_id)
+                if contextosP.exists():
+                    for contextoProj in contextosP:
+                        contextoProj.delete() 
+                
+                for contexto in contextos:
+                    contProj = models.ProjectContext(project = proyecto, context = models.Context.objects.get(pk = contexto))
+                    contProj.save()
+
+            proyecto.full_clean()
+            proyecto.save()
+
+        # ================== Notificación de Gestion de cambios ========================
+#        if request.POST.get('gestionCambio', None) is not None:
+    
+            #obtener usuarios que hacen parte del proyecto:
+#            usuarios = obtenerEmailsEquipo(proyid)
+
+            # Detalle del Cambio
+#            detalle = "<b> Fecha Inicio: </b> {} <br />" \
+#                      "<b> Fecha Fin </b> {}" \
+#                      .format(proyecto.proj_start_date, proyecto.proj_close_date)
+
+            #Enviar notificaciones
+#            gestionCambios(usuarios, 'proyecto', proyecto.proj_name, 2, detalle)
+
+        return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+##
+# @brief recurso de eliminación de proyectos
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["DELETE"])
+@permission_classes((IsAuthenticated,))
+def eliminarProyecto(request, proyid):
+
+    try:
+        print("1")
+        models.ProjectDecision.objects.get(project__proj_id = proyid).delete()
+        print("2")
+        models.ProjectContext.objects.get(project__proj_id = proyid).delete() 
+        print("3")
+        models.ProjectTeam.objects.get(project__proj_id = proyid).delete()
+        print("4")
+        models.TerritorialDimension.filter(dimension_id = (models.ProjectTerritorialDimension.get(project__proj_id = proyid)).dimension_id ).delete()
+        print("5")
+        #borrar las tareas antes de borrar e pj al igual que
+        proyecto = models.Project.objects.get(pk = proyid)
+        proyecto.delete()
+        print("6")
+        return JsonResponse({'status': 'success'})
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'El usuario no existe'}, safe = True, status = 404)
+
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe = True, status = 400)
+

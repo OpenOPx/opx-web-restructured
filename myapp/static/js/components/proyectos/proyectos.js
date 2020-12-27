@@ -21,20 +21,24 @@ proyecto = new Vue({
         edicionProyecto: {},
         proyectos: [],
         proyectosFields: [
-            'estado',
             {
-                key: 'proynombre',
                 label: 'Nombre',
+                key: 'proj_name',
                 sortable: true
             },
             {
-                key: 'proydescripcion',
                 label: 'Descripción',
+                key: 'proj_description',
                 sortable: true
             },
             {
-                key: 'proyfechacreacion',
                 label: 'Fecha de Creación',
+                key: 'proj_creation_date',
+                sortable: true
+            },
+            {
+                label: 'Completitud',
+                key: 'proj_completness',
                 sortable: true
             },
             {
@@ -135,7 +139,6 @@ proyecto = new Vue({
 
                 return key + '=' + valor
             }).join('&');
-            console.log(queryString)
             axios({
                 method: 'post',
                 url: '/proyectos/store/',
@@ -385,7 +388,7 @@ proyecto = new Vue({
 
                     for(let i = 0; i < this.edicionProyecto.decisiones.length; i++){
 
-                        decisiones.push(this.edicionProyecto.decisiones[i].desiid);
+                        decisiones.push(this.edicionProyecto.decisiones[i].decs_id);
                     }
                     valor = JSON.stringify(decisiones);
 
@@ -396,7 +399,7 @@ proyecto = new Vue({
                     for(let i = 0; i < this.edicionProyecto.contextos.length; i++){
 
 
-                        contextos.push(this.edicionProyecto.contextos[i].contextoid);
+                        contextos.push(this.edicionProyecto.contextos[i].context_id);
                     }
 
                     valor = JSON.stringify(contextos);
@@ -411,7 +414,7 @@ proyecto = new Vue({
 
             axios({
                 method: 'post',
-                url: '/proyectos/' + this.edicionProyecto.proyid,
+                url: '/proyectos/' + this.edicionProyecto.proj_id,
                 data: queryString,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
