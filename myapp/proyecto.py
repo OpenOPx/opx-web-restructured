@@ -426,7 +426,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza las decisiones
             decisiones = json.loads(decisiones)
             if len(decisiones)>0:
-                decisionesP = models.ProjectDecision.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                decisionesP = models.ProjectDecision.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if decisionesP.exists():
                     for decisionProj in decisionesP:
                         decisionProj.delete()
@@ -438,7 +438,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza los contextos
             contextos = json.loads(contextos)
             if len(contextos)>0:
-                contextosP = models.ProjectContext.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                contextosP = models.ProjectContext.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if contextosP.exists():
                     for contextoProj in contextosP:
                         contextoProj.delete() 
