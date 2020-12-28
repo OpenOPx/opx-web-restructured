@@ -120,7 +120,7 @@ urlpatterns = [
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
     #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto),
-    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
+    #path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 

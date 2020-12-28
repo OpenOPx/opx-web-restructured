@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import json
 import os
@@ -28,9 +27,20 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
+
 from myapp import models
+from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
+ 
+##
+# @brief Función que provee una plantilla HTML para la gestión de proyectos
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def listadoProyectosView(request):
+    return render(request, 'proyectos/listado.html')
 
 ##
+# @brief Función que provee una plantilla HTML para la gestión de cambios de un proyecto
 # @param request Instancia HttpRequest
 # @return plantilla HTML
 #
@@ -72,12 +82,12 @@ def listadoProyectos(request):
 
             # Consulta de proyectos para proyectista
             elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-                proyectos = models.Project.objects.filter(proj_owner__pers_id__exact = person.pers_id)
+                proyectos = models.Project.objects.filter(proj_owner_pers_id_exact = person.pers_id)
 
             # Consulta de proyectos para voluntarios o validadores
             elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
 
-                proyectosAsignados = models.Team.objects.filter(team_leader__pers_id__exact = person.pers_id)
+                proyectosAsignados = models.Team.objects.filter(team_leader_pers_id_exact = person.pers_id)
                 proyectosAsignadosID = []
 
                 for p in proyectosAsignados:
@@ -278,7 +288,6 @@ def almacenamientoProyecto(request):
             'message': str(e),
             'status': 'error'
         }
-        print("10")
     return JsonResponse(data, safe = False, status = data['code'])
 
 ##
@@ -417,7 +426,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza las decisiones
             decisiones = json.loads(decisiones)
             if len(decisiones)>0:
-                decisionesP = models.ProjectDecision.objects.filter(project__proj_id__exact = proyecto.proj_id)
+                decisionesP = models.ProjectDecision.objects.filter(project_proj_id_exact = proyecto.proj_id)
                 if decisionesP.exists():
                     for decisionProj in decisionesP:
                         decisionProj.delete()
@@ -429,7 +438,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza los contextos
             contextos = json.loads(contextos)
             if len(contextos)>0:
-                contextosP = models.ProjectContext.objects.filter(project__proj_id__exact = proyecto.proj_id)
+                contextosP = models.ProjectContext.objects.filter(project_proj_id_exact = proyecto.proj_id)
                 if contextosP.exists():
                     for contextoProj in contextosP:
                         contextoProj.delete() 
@@ -496,27 +505,122 @@ def eliminarProyecto(request, proyid):
     except ValidationError:
         return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe = True, status = 400)
 
+
+        ##
+
+# @brief Plantilla para la gestión del equipo de un proyecto
+# @param request instancia HttpRequest
+# @param proyid Identificación de un proyecto
+# @return cadena JSON
+#
+def equipoProyectoView(request, proyid):
+
+    try:
+        models.Project.objects.get(pk = proyid)
+        return render(request, "proyectos/equipo.html")
+
+    except ObjectDoesNotExist:
+        return HttpResponse("", status = 404)
+
+    except ValidationError:
+        return HttpResponse("", status = 400)
+
 ##
-# @brief recurso que provee las dimensiones geograficas de un proyecto
+# @brief Recurso que provee los integrantes de un proyecto
 # @param request Instancia HttpRequest
-# @param proyid Identificación del proyecto
+# @param proyid Identificacion del proyecto
 # @return cadena JSON
 #
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
-def dimensionesTerritoriales(request, proyid):
+def equipoProyecto(request, proyid):
 
     try:
-        models.Project.objects.get(pk = proyid)
+        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"';"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)
 
-        dimensionesTerritoriales = models.ProjectTerritorialDimension.objects\
-                                   .filter(project__proj_id__exact=proyid)\
-                                   .values()
-        dimensiones = models.TerritorialDimension.objects\
-                    .filter(territorial_dimension)
+            for n in equipos:
+                n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+
+            data = {
+                'code': 200,
+                'equipo': equipos,
+                'status': 'success'
+            }
+
+    except ValidationError as e:
+
         data = {
-            'code': 200,
-            'dimensionesTerritoriales': list(dimensionesTerritoriales),
+            'code': 400,
+            'equipo': list(e),
+            'status': 'success'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
+
+    ##
+# @brief Recurso que provee los integrantes de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificacion del proyecto
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def equiposDisponiblesProyecto(request, proyid):
+
+    try:
+        query = "select * from opx.team \
+            except(select team1.* from opx.project_team as pt \
+            inner join opx.team as team1 on pt.team_id = team1.team_id \
+            where pt.project_id = '"+proyid+"');"
+            
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)
+
+            for n in equipos:
+                n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+
+            data = {
+                'code': 200,
+                'equipo': equipos,
+                'status': 'success'
+            }
+
+    except ValidationError as e:
+        data = {
+            'code': 400,
+            'equipo': list(e),
+            'status': 'success'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def agregarEquipo(request):
+    
+    try:
+        equipoId = request.POST.get('equipoId')
+        proyectoId = request.POST.get('proyectoId')
+
+        equipoP = models.Team.objects.get(pk=equipoId)
+        proyectoP = models.Project.objects.get(pk=proyectoId)
+
+        proyectoEquipo = models.ProjectTeam(
+                team = equipoP,
+                project = proyectoP
+        )
+    
+        proyectoEquipo.save()
+
+        data = {
+            'code': 201,
+            'integrante': serializers.serialize('python', [proyectoEquipo])[0],
             'status': 'success'
         }
 
@@ -524,15 +628,40 @@ def dimensionesTerritoriales(request, proyid):
 
         data = {
             'code': 400,
+            'errors': dict(e),
             'status': 'error'
         }
 
-    except ObjectDoesNotExist:
+    except IntegrityError as e:
 
         data = {
-            'code': 404,
+            'code': 500,
+            'errors': str(e),
             'status': 'error'
         }
 
     return JsonResponse(data, safe = False, status = data['code'])
 
+@csrf_exempt
+@api_view(["DELETE"])
+@permission_classes((IsAuthenticated,))
+def eliminarEquipo(request,equid):
+        
+    try:
+        proyectoEquipo = models.ProjectTeam.objects.get(pk = equid)
+        proyectoEquipo.delete()
+
+        response = {
+            'code': 200,
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        response = {
+            'code': 400,
+            'errors': list(e)[0],
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
