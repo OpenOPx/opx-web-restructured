@@ -31,7 +31,7 @@ from rest_framework.permissions import (
 
 from myapp import models
 from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
-
+ 
 ##
 # @brief Función que provee una plantilla HTML para la gestión de proyectos
 # @param request Instancia HttpRequest
