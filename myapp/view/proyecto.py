@@ -536,7 +536,7 @@ def equipoProyectoView(request, proyid):
 def equipoProyecto(request, proyid):
 
     try:
-        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"';"
+        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name DESC"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)
@@ -575,7 +575,7 @@ def equiposDisponiblesProyecto(request, proyid):
         query = "select * from opx.team \
             except(select team1.* from opx.project_team as pt \
             inner join opx.team as team1 on pt.team_id = team1.team_id \
-            where pt.project_id = '"+proyid+"');"
+            where pt.project_id = '"+proyid+"') order by opx.team.team_name ASC"
             
         with connection.cursor() as cursor:
             cursor.execute(query)

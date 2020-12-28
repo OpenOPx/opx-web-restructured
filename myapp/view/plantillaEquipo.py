@@ -170,7 +170,7 @@ def miembrosPlantilla(request, planid):
         #miembrosPlantilla = MiembroPlantilla.objects.filter(planid__exact=planid).values()
         with connection.cursor() as cursor:
             query = "select mp.miplid, u.userfullname from v1.miembros_plantilla mp inner join v1.usuarios u on u.userid = mp.userid " \
-                    "where mp.planid = '" + planid + "'"
+                    "where mp.planid = '" + planid + "' order by u.userfullname ASC"
 
             cursor.execute(query)
 
