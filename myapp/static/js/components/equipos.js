@@ -10,11 +10,15 @@ let equipo = new Vue({
         teamFields: [
             {
                 label: 'Nombre',
-                key: 'userfullname'
+                key: 'team_name'
             },
             {
-                label: 'Equipo(s)',
-                key: 'equipos'
+                label: 'Efectividad',
+                key: 'team_effectiveness'
+            },
+            {
+                label: 'Lider',
+                key: 'name_owner'
             },
             {
                 label: '',
@@ -32,11 +36,15 @@ let equipo = new Vue({
         availableUserFields: [
             {
                 label: 'Nombre',
-                key: 'userfullname'
+                key: 'team_name'
             },
             {
-                label: 'Equipo(s)',
-                key: 'equipos'
+                label: 'Efectividad',
+                key: 'team_effectiveness'
+            },
+            {
+                label: 'Lider',
+                key: 'name_owner'
             },
             {
                 label: '',
@@ -45,25 +53,21 @@ let equipo = new Vue({
         ],
         paginationAvailableUsers: {
             currentPage: 1,
-            perPage: 3
+            perPage: 10
         },
         // Busqueda usuarios disponibles
         filterAvailableUsers: ''
     },
     created(){
-
         if(window.location.pathname.substr(1, 16) == "equipos/proyecto"){
-
             this.proyectoID = window.location.pathname.substr(18);
-            this.obtenerEquipo();
+            this.obtenerEquipos();
             this.obtenerUsuariosDisponibles();
         }
     },
     methods: {
-        obtenerEquipo(){
-
+        obtenerEquipos(){
             this.loader(true);
-
             axios({
                 url: '/equipos/list/' + this.proyectoID,
                 method: 'GET',
@@ -72,19 +76,17 @@ let equipo = new Vue({
                 }
             })
             .then(response => {
-
                 this.loader(false);
-
                 if(response.data.code == 200 && response.data.status == 'success'){
-
                     this.equipo = response.data.equipo;
+                    console.log(this.equipo)
                 }
             });
         },
         obtenerUsuariosDisponibles(){
 
             axios({
-                url: '/equipos/' + this.proyectoID + "/usuarios-disponibles/",
+                url: '/equipos/' + this.proyectoID + "/equipos-disponibles/",
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -94,13 +96,14 @@ let equipo = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.usuariosDisponibles = response.data.usuarios;
+                    this.usuariosDisponibles = response.data.equipo;
+                    console.log(response)
                 }
             })
         },
-        addIntegrante(userID){
+        addIntegrante(teamID){
 
-            data = "userid=" + userID + "&proyid=" + this.proyectoID;
+            data = "equipoId=" + teamID + "&proyectoId=" + this.proyectoID;
 
             axios({
                 url: '/equipos/store/',
@@ -115,13 +118,13 @@ let equipo = new Vue({
 
                 if(response.data.code == 201 && response.data.status == 'success'){
 
-                    this.obtenerEquipo();
+                    this.obtenerEquipos();
                     this.obtenerUsuariosDisponibles();
                 }
             });
         },
         eliminarIntegrante(equID){
-
+            console.log(equID)
             axios({
                 url: '/equipos/delete/' + equID,
                 method: 'DELETE',
@@ -133,7 +136,8 @@ let equipo = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.obtenerEquipo();
+                    this.obtenerEquipos();
+                    console.log(response)
                     this.obtenerUsuariosDisponibles();
                 }
             })
@@ -163,16 +167,18 @@ let equipo = new Vue({
             return equipo;
         },
         filteredAvailableUsers(){
-
+            console.log("1")
             var filter = this.filterAvailableUsers && this.filterAvailableUsers.toLowerCase();
+            console.log("2")
             var usuariosDisponibles = this.usuariosDisponibles;
-
+            console.log("3")
+            console.log(filter)
             if(filter){
-
+                console.log("4")
                 usuariosDisponibles = usuariosDisponibles.filter((row) => {
-
+                    console.log("5")
                     return Object.keys(row).some((key) => {
-
+                        console.log("6")
                         return String(row[key]).toLowerCase().indexOf(filter) > -1;
                     });
                 });

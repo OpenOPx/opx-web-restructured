@@ -522,7 +522,8 @@ def dimensionesTerritoriales(request, proyid):
         dimensionesTerritoriales = models.ProjectTerritorialDimension.objects\
                                    .filter(project__proj_id__exact=proyid)\
                                    .values()
-
+        dimensiones = models.TerritorialDimension.objects\
+                    .filter(territorial_dimension)
         data = {
             'code': 200,
             'dimensionesTerritoriales': list(dimensionesTerritoriales),
