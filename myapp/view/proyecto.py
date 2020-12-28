@@ -27,14 +27,28 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
-from myapp import models
-from myapp.view.utilidades import dictfetchall, obtenerEmailsEquipo, usuarioAutenticado, reporteEstadoProyecto
-from myapp.views import detalleFormularioKoboToolbox
-from myapp.view.notificaciones import gestionCambios
 
-# ============================= Proyectos ========================
+from myapp import models
+from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
 
 ##
+# @brief Función que provee una plantilla HTML para la gestión de proyectos
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def listadoProyectosView(request):
+    return render(request, 'proyectos/listado.html')
+
+##
+# @brief Función que provee una plantilla HTML para la gestión de cambios de un proyecto
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def gestionProyectosView(request):
+    return render(request, "proyectos/gestion-proyectos-mapa.html")
+
+    ##
+
 # @brief Recurso de listado de proyectos
 # @param request Instancia HttpRequest
 # @return cadena JSON
@@ -42,13 +56,11 @@ from myapp.view.notificaciones import gestionCambios
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def listadoProyectos(request):
-
     search = request.GET.get('search')
     page = request.GET.get('page')
     all = request.GET.get('all')
 
     try:
-
         if 'HTTP_AUTHORIZATION' in request.META.keys() and request.META['HTTP_AUTHORIZATION'] != 'null':
 
             # # Decodificando el access token
@@ -62,52 +74,56 @@ def listadoProyectos(request):
             # ============================ Consultando proyectos ====================================
 
             #Consulta de proyectos para super administrador
-            if str(user.rolid) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
-                proyectos = models.Proyecto.objects.all()
+
+            person = models.Person.objects.get(user__userid = user.userid)
+                
+            if str(person.role.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+                proyectos = models.Project.objects.all()
 
             # Consulta de proyectos para proyectista
-            elif str(user.rolid) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-                proyectos = models.Proyecto.objects.filter(proypropietario__exact = user.userid)
+            elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+                proyectos = models.Project.objects.filter(proj_owner_pers_id_exact = person.pers_id)
 
             # Consulta de proyectos para voluntarios o validadores
-            elif str(user.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(user.rolid) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
 
-                proyectosAsignados = models.Equipo.objects.filter(userid__exact = user.userid)
+                proyectosAsignados = models.Team.objects.filter(team_leader_pers_id_exact = person.pers_id)
                 proyectosAsignadosID = []
 
                 for p in proyectosAsignados:
-                    proyectosAsignadosID.append(p.proyid)
+                    proyectosAsignadosID.append(p.proj_id)
 
-                proyectos = models.Proyecto.objects.filter(pk__in = proyectosAsignadosID)
+                proyectos = models.Project.objects.filter(pk__in = proyectosAsignadosID)
 
             #Tipo de usuario distinto
             else:
-                proyectos = models.Proyecto.objects.filter(proynombre = 'qwerty')
+                proyectos = models.Project.objects.filter(proj_name = 'qwerty')
 
         # Usuario Invitado
         else:
-            proyectos = models.Proyecto.objects.all()
+            proyectos = models.Project.objects.all()
 
         # ================= Busqueda de proyectos
         if search:
-            proyectos = proyectos.filter(proynombre__icontains = search)
+            proyectos = proyectos.filter(proj_name__icontains = search)
 
         # Especificando orden
-        proyectos = proyectos.order_by('-proyfechacreacion')
+        proyectos = proyectos.order_by('-proj_creation_date')
 
         # convirtiendo a lista de diccionarios
         proyectos = list(proyectos.values())
-
         listadoProyectos = []
         for p in proyectos:
 
             #Consulta del proyectista
-            p['proyectista'] = models.Usuario.objects.get(pk = p['proypropietario']).userfullname
+            persona = models.Person.objects.get(pk = p['proj_owner_id'])
+            p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
-            if 'user' in locals() and str(user.rolid) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            if 'user' in locals() and str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
 
                 p['dimensiones_territoriales'] = []
-                dimensionesTerritoriales = models.DelimitacionGeografica.objects\
+
+                dimensionesTerritoriales = models.TerritorialDimension.objects\
                                            .filter(proyid__exact = p['proyid'])\
                                            .filter(estado=1)\
                                            .values()
@@ -124,7 +140,7 @@ def listadoProyectos(request):
                     p['dimensiones_territoriales'].append(dim)
 
             # Reportes
-            p['reportes'] = reporteEstadoProyecto(p['proyid'])
+           # p['reportes'] = reporteEstadoProyecto(p['proyid'])
 
             listadoProyectos.append(p)
 
@@ -193,61 +209,59 @@ def listadoProyectos(request):
 @permission_classes((IsAuthenticated,))
 def almacenamientoProyecto(request):
 
+    user = usuarioAutenticado(request)
+    person = models.Person.objects.get(user__userid = user.userid)
+
     # Decodificando el access token
     tokenBackend = TokenBackend(settings.SIMPLE_JWT['ALGORITHM'], settings.SIMPLE_JWT['SIGNING_KEY'], settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
 
-    proyNombre = request.POST.get('proynombre')
-    proyDescripcion = request.POST.get('proydescripcion')
-    tipoProyecto = request.POST.get('tiproid')
-    proyIdExterno = 12345
-    proyFechaCreacion = datetime.today()
-    proyfechainicio = request.POST.get('proyfechainicio')
-    proyFechaCierre = request.POST.get('proyfechacierre')
-    proyEstado = 1
     decisiones = request.POST.get('decisiones')
     contextos = request.POST.get('contextos')
     equipos = request.POST.get('plantillas')
-    propietario = tokenDecoded['user_id']
     delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
-
-    proyecto = models.Proyecto(proynombre = proyNombre, proydescripcion = proyDescripcion, proyidexterno = proyIdExterno, \
-                               proyfechacreacion = proyFechaCreacion, proyfechainicio = proyfechainicio, proyfechacierre = proyFechaCierre, \
-                               proyestado = proyEstado, proypropietario = propietario, tiproid=tipoProyecto)
-
+    tipoP = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
+    
     try:
-        proyecto.full_clean()
+        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+            proyecto = models.Project(
+                proj_name = request.POST.get('proynombre'),
+                proj_description= request.POST.get('proydescripcion'),
+                proj_external_id = 12345,
+                proj_creation_date = datetime.today(),
+                proj_close_date = request.POST.get('proyfechacierre'),
+                proj_start_date = request.POST.get('proyfechainicio'),
+                proj_completness = 0,
+                project_type = tipoP,
+                proj_owner = person
+            )
 
-        if delimitacionGeograficas is None:
-            raise ValidationError({'delitacionesGeograficas': 'Requerido'})
+            proyecto.full_clean()
+            proyecto.save()
 
-        proyecto.save()
+            delimitacionGeograficas = json.loads(delimitacionGeograficas)
+            almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
 
-        if decisiones is not None:
             decisiones = json.loads(decisiones)
             almacenarDecisionProyecto(proyecto, decisiones)
 
-        if contextos is not None:
             contextos = json.loads(contextos)
             almacenarContextosProyecto(proyecto, contextos)
 
-
-        almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
-
-        if equipos is not None:
             equipos = json.loads(equipos)
             asignarEquipos(proyecto, equipos)
 
-        data = serializers.serialize('python', [proyecto])[0]
-
-        data = {
-            'code': 201,
-            'proyecto': data,
-            'status': 'success'
-        }
+            data = serializers.serialize('python', [proyecto])[0]
+            data = {
+                'code': 201,
+                'proyecto': data,
+                'status': 'success'
+            }
+        else:
+            raise ValidationError({'Información incompleta'})
 
     except ValidationError as e:
-
+        proyecto.delete()
         try:
             errors = dict(e)
         except ValueError:
@@ -256,6 +270,7 @@ def almacenamientoProyecto(request):
         data = {
             'code': 400,
             'errors': errors,
+            'message': str(e),
             'status': 'error'
         }
 
@@ -273,7 +288,6 @@ def almacenamientoProyecto(request):
             'message': str(e),
             'status': 'error'
         }
-
     return JsonResponse(data, safe = False, status = data['code'])
 
 ##
@@ -283,13 +297,19 @@ def almacenamientoProyecto(request):
 # @return booleano
 #
 def almacenarDecisionProyecto(proyecto, decisiones):
-
+    
     try:
-        for decision in decisiones:
+        for decisionI in decisiones:
 
+            desicionP = None
             decisionProyecto = None
 
-            decisionProyecto = models.DecisionProyecto(proyid = proyecto.proyid, desiid = decision)
+            desicionP = models.Decision.objects.get(decs_id__exact = decisionI)
+
+            decisionProyecto = models.ProjectDecision(
+                project = proyecto, 
+                decision = desicionP
+            )
 
             decisionProyecto.save()
 
@@ -298,7 +318,8 @@ def almacenarDecisionProyecto(proyecto, decisiones):
     except ValidationError as e:
         return False
 
-##
+
+        ##
 # @brief Funcion que asigna contexto(s) a un proyecto especifico
 # @param proyecto instancia del modelo proyecto
 # @param contextos listado de identificadores de contextos
@@ -308,12 +329,17 @@ def almacenarContextosProyecto(proyecto, contextos):
 
     try:
         for contexto in contextos:
+            contextoP = None
+            contextoProyecto = None
 
-            contextoProyecto = models.ContextoProyecto(proyid = proyecto.proyid, contextoid = contexto)
+            contextoP = models.Context.objects.get(context_id__exact = contexto)
+            contextoProyecto = models.ProjectContext(
+                project = proyecto, 
+                context = contextoP
+            )
 
             contextoProyecto.save()
 
-            del contextoProyecto
 
         return True
 
@@ -327,34 +353,27 @@ def almacenarContextosProyecto(proyecto, contextos):
 # @return Diccionario
 #
 def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
-
     try:
 
-        delimitaciones = json.loads(delimitacionesGeograficas)
-
-        with transaction.atomic():
-
-            for d in delimitaciones:
-                delimitacion = models.DelimitacionGeografica(proyid = proyecto.proyid, nombre = d['nombre'], geojson = d['geojson'])
-
-                delimitacion.full_clean()
-
+            for d in delimitacionesGeograficas:
+                delimitacion = None
+                delimitacion = models.TerritorialDimension(
+                    dimension_name = d['nombre'], 
+                    dimension_geojson = d['geojson'],
+                    dimension_type = models.DimensionType.objects.get(dim_type_id__exact = '35b0b478-9675-45fe-8da5-02ea9ef88f1b')
+                )
                 delimitacion.save()
-
-                del delimitacion
-
-        data = {
-            'result': True
-        }
+                delimitacionP = models.ProjectTerritorialDimension(
+                    project = proyecto,
+                    territorial_dimension = delimitacion
+                )
+                delimitacionP.save()
+                delimitacionP = None
+        
+            return True
 
     except ValidationError as e:
-
-        data = {
-            'result': False,
-            'message': dict(e)
-        }
-
-    return data
+        return False
 
 ##
 # @brief Funcion que asigna integrantes a un proyecto en base a los integrantes de una plantilla de equipo
@@ -362,19 +381,96 @@ def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
 # @param equipos lista de identificadores de plantillas de equipo
 #
 def asignarEquipos(proyecto, equipos):
+    try:
+            for equipo in equipos:
+                equipoP = None
+                proyectoEquipo = None
 
-    with transaction.atomic():
+                equipoP = models.Team.objects.get(pk=equipo)
 
-        for equipo in equipos:
+                proyectoEquipo = models.ProjectTeam(
+                    team = equipoP,
+                    project = proyecto
+                )
+                print(proyectoEquipo)
+                proyectoEquipo.save()
+    
+            return True
 
-            plantilla = models.PlantillaEquipo.objects.get(pk=equipo)
+    except ValidationError as e:
+        return False
 
-            usuarios = models.MiembroPlantilla.objects.filter(planid__exact=equipo)
+##
+# @brief recurso de actualización de proyectos
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarProyecto(request, proyid):
+    try:
+        proyecto = models.Project.objects.get(pk=proyid)
+        decisiones = request.POST.get('decisiones')
+        contextos = request.POST.get('contextos')
+        equipos = request.POST.get('plantillas')
+        delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
 
-            for usuario in usuarios:
+        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+            proyecto.proj_name = request.POST.get('proynombre')
+            proyecto.proj_description = request.POST.get('proydescripcion')
+            proyecto.project_type = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
+            proyecto.proj_start_date = request.POST.get('proyfechainicio')
+            proyecto.proj_close_date = request.POST.get('proyfechacierre')
+            #Actualiza las decisiones
+            decisiones = json.loads(decisiones)
+            if len(decisiones)>0:
+                decisionesP = models.ProjectDecision.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                if decisionesP.exists():
+                    for decisionProj in decisionesP:
+                        decisionProj.delete()
 
-                integrante = models.Equipo(userid=usuario.userid, proyid=proyecto.proyid)
-                integrante.save()
+                for decision in decisiones:
+                    descProj = models.ProjectDecision(project = proyecto, decision = models.Decision.objects.get(pk = decision))
+                    descProj.save()
+
+            #Actualiza los contextos
+            contextos = json.loads(contextos)
+            if len(contextos)>0:
+                contextosP = models.ProjectContext.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                if contextosP.exists():
+                    for contextoProj in contextosP:
+                        contextoProj.delete() 
+                
+                for contexto in contextos:
+                    contProj = models.ProjectContext(project = proyecto, context = models.Context.objects.get(pk = contexto))
+                    contProj.save()
+
+            proyecto.full_clean()
+            proyecto.save()
+
+        # ================== Notificación de Gestion de cambios ========================
+#        if request.POST.get('gestionCambio', None) is not None:
+    
+            #obtener usuarios que hacen parte del proyecto:
+#            usuarios = obtenerEmailsEquipo(proyid)
+
+            # Detalle del Cambio
+#            detalle = "<b> Fecha Inicio: </b> {} <br />" \
+#                      "<b> Fecha Fin </b> {}" \
+#                      .format(proyecto.proj_start_date, proyecto.proj_close_date)
+
+            #Enviar notificaciones
+#            gestionCambios(usuarios, 'proyecto', proyecto.proj_name, 2, detalle)
+
+        return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
 
 ##
 # @brief recurso de eliminación de proyectos
@@ -388,10 +484,19 @@ def asignarEquipos(proyecto, equipos):
 def eliminarProyecto(request, proyid):
 
     try:
-        proyecto = models.Proyecto.objects.get(pk = proyid)
-
+        print("1")
+        models.ProjectDecision.objects.get(project__proj_id = proyid).delete()
+        print("2")
+        models.ProjectContext.objects.get(project__proj_id = proyid).delete() 
+        print("3")
+        models.ProjectTeam.objects.get(project__proj_id = proyid).delete()
+        print("4")
+        models.TerritorialDimension.filter(dimension_id = (models.ProjectTerritorialDimension.get(project__proj_id = proyid)).dimension_id ).delete()
+        print("5")
+        #borrar las tareas antes de borrar e pj al igual que
+        proyecto = models.Project.objects.get(pk = proyid)
         proyecto.delete()
-
+        print("6")
         return JsonResponse({'status': 'success'})
 
     except ObjectDoesNotExist:
@@ -400,180 +505,122 @@ def eliminarProyecto(request, proyid):
     except ValidationError:
         return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe = True, status = 400)
 
-##
-# @brief recurso de actualización de proyectos
-# @param request Instancia HttpRequest
-# @param proyid Identificación del proyecto
+
+        ##
+
+# @brief Plantilla para la gestión del equipo de un proyecto
+# @param request instancia HttpRequest
+# @param proyid Identificación de un proyecto
 # @return cadena JSON
 #
-@csrf_exempt
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
-def actualizarProyecto(request, proyid):
-    try:
-        proyecto = models.Proyecto.objects.get(pk=proyid)
-
-        proyecto.proynombre = request.POST.get('proynombre')
-        proyecto.proydescripcion = request.POST.get('proydescripcion')
-        proyecto.tiproid = request.POST.get('tiproid')
-        proyecto.proyfechainicio = request.POST.get('proyfechainicio')
-        proyecto.proyfechacierre = request.POST.get('proyfechacierre')
-
-        proyecto.full_clean()
-        proyecto.save()
-
-        if(request.POST.get('decisiones') is not None  and request.POST.get('contextos') is not None):
-
-            decisiones = json.loads(request.POST.get('decisiones'))
-            contextos = json.loads(request.POST.get('contextos'))
-
-            # ================ Actualizacion de decisiones ===============================
-
-            if len(decisiones) > 0:
-
-                #Eliminando decisiones actuales
-                decisionesProyecto = models.DecisionProyecto.objects.filter(proyid__exact=proyecto.proyid)
-
-                if decisionesProyecto.exists():
-
-                    for decisionProyecto in decisionesProyecto:
-                        decisionProyecto.delete()
-
-                # Añadiendo las nuevas decisiones
-                for decision in decisiones:
-
-                    decisionProyecto = models.DecisionProyecto(proyid = proyecto.proyid, desiid = decision)
-                    decisionProyecto.save()
-
-            # ============== Actualización de contextos ================================
-
-            if len(contextos) > 0:
-
-                # Eliminando contextos actuales
-                contextosProyecto = models.ContextoProyecto.objects.filter(proyid__exact=proyecto.proyid)
-
-                if contextosProyecto.exists():
-
-                    for contextoProyecto in contextosProyecto:
-                        contextoProyecto.delete()
-
-                # Añadiendo las nuevos contextos
-                for contexto in contextos:
-
-                    contextoProyecto = models.ContextoProyecto(proyid = proyecto.proyid, contextoid = contexto)
-                    contextoProyecto.save()
-
-        # ================== Notificación de Gestion de cambios ========================
-        if request.POST.get('gestionCambio', None) is not None:
-
-            #obtener usuarios que hacen parte del proyecto:
-            usuarios = obtenerEmailsEquipo(proyid)
-
-            # Detalle del Cambio
-            detalle = "<b> Fecha Inicio: </b> {} <br />" \
-                      "<b> Fecha Fin </b> {}" \
-                      .format(proyecto.proyfechainicio, proyecto.proyfechacierre)
-
-            #Enviar notificaciones
-            gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 2, detalle)
-
-        return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
-
-    except ObjectDoesNotExist:
-        return JsonResponse({'status': 'error'}, status=404)
-
-    except ValidationError as e:
-
-        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
-
-##
-# @brief recurso que provee el detalle de un proyecto
-# @param request Instancia HttpRequest
-# @param proyid Identificación del proyecto
-# @return cadena JSON
-#
-@api_view(['GET'])
-@permission_classes((AllowAny,))
-def detalleProyecto(request, proyid):
+def equipoProyectoView(request, proyid):
 
     try:
-        query = "select p.proynombre, p.proydescripcion, p.proyfechacreacion, p.proyfechainicio, p.proyfechacierre, p.proyestado, p.tiproid, u.userfullname as proyectista  from v1.proyectos as p inner join v1.usuarios as u on u.userid = p.proypropietario where p.proyid = '" + proyid + "'"
-        with connection.cursor() as cursor:
-
-            cursor.execute(query)
-
-            proyecto = dictfetchall(cursor)
-
-            if(len(proyecto) > 0):
-
-                # Obtención de Tareas
-                #tareas = models.Tarea.objects.filter(proyid__exact = proyid).values()
-                queryTasks = "select t.*, i.instrnombre, p.proynombre from v1.tareas as t inner join v1.proyectos as p on t.proyid = p.proyid inner join v1.instrumentos as i on t.instrid = i.instrid where t.proyid = '" + proyid + "'"
-                cursor.execute(queryTasks)
-                tareas = dictfetchall(cursor)
-
-                for t in tareas:
-                    if(t['taretipo'] == 1):
-
-                        encuestas = models.Encuesta.objects.filter(tareid__exact=t['tareid'])
-                        progreso = (len(encuestas) * 100) / t['tarerestriccant']
-                        t['progreso'] = progreso
-
-                        # instrumento = models.Instrumento.objects.get(pk = t['instrid'])
-                        # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
-                        #
-                        # if detalleFormulario:
-                        #     t['progreso'] = (detalleFormulario['deployment__submission_count'] * 100) / t['tarerestriccant']
-
-                data = {
-                    'code': 200,
-                    'detail':{
-                      'proyecto': proyecto[0],
-                      'tareas': list(tareas)
-                    },
-                    'status': 'success'
-                }
-
-            else:
-                raise ObjectDoesNotExist
+        models.Project.objects.get(pk = proyid)
+        return render(request, "proyectos/equipo.html")
 
     except ObjectDoesNotExist:
+        return HttpResponse("", status = 404)
 
-        data = {
-            'code': 404,
-            'status': "error",
-        }
-
-    except DataError:
-
-        data = {
-            'code': 400,
-            'status': 'error'
-        }
-
-    return JsonResponse(data, status = data['code'], safe = False)
+    except ValidationError:
+        return HttpResponse("", status = 400)
 
 ##
-# @brief recurso que provee las dimensiones geograficas de un proyecto
+# @brief Recurso que provee los integrantes de un proyecto
 # @param request Instancia HttpRequest
-# @param proyid Identificación del proyecto
+# @param proyid Identificacion del proyecto
 # @return cadena JSON
 #
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
-def dimensionesTerritoriales(request, proyid):
+def equipoProyecto(request, proyid):
 
     try:
-        models.Proyecto.objects.get(pk = proyid)
+        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"';"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)
 
-        dimensionesTerritoriales = models.DelimitacionGeografica.objects\
-                                   .filter(proyid__exact=proyid)\
-                                   .filter(estado=1)\
-                                   .values()
+            for n in equipos:
+                n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+
+            data = {
+                'code': 200,
+                'equipo': equipos,
+                'status': 'success'
+            }
+
+    except ValidationError as e:
 
         data = {
-            'code': 200,
-            'dimensionesTerritoriales': list(dimensionesTerritoriales),
+            'code': 400,
+            'equipo': list(e),
+            'status': 'success'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
+
+    ##
+# @brief Recurso que provee los integrantes de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificacion del proyecto
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def equiposDisponiblesProyecto(request, proyid):
+
+    try:
+        query = "select * from opx.team \
+            except(select team1.* from opx.project_team as pt \
+            inner join opx.team as team1 on pt.team_id = team1.team_id \
+            where pt.project_id = '"+proyid+"');"
+            
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)
+
+            for n in equipos:
+                n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+
+            data = {
+                'code': 200,
+                'equipo': equipos,
+                'status': 'success'
+            }
+
+    except ValidationError as e:
+        data = {
+            'code': 400,
+            'equipo': list(e),
+            'status': 'success'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def agregarEquipo(request):
+    
+    try:
+        equipoId = request.POST.get('equipoId')
+        proyectoId = request.POST.get('proyectoId')
+
+        equipoP = models.Team.objects.get(pk=equipoId)
+        proyectoP = models.Project.objects.get(pk=proyectoId)
+
+        proyectoEquipo = models.ProjectTeam(
+                team = equipoP,
+                project = proyectoP
+        )
+    
+        proyectoEquipo.save()
+
+        data = {
+            'code': 201,
+            'integrante': serializers.serialize('python', [proyectoEquipo])[0],
             'status': 'success'
         }
 
@@ -581,122 +628,40 @@ def dimensionesTerritoriales(request, proyid):
 
         data = {
             'code': 400,
+            'errors': dict(e),
             'status': 'error'
         }
 
-    except ObjectDoesNotExist:
+    except IntegrityError as e:
 
         data = {
-            'code': 404,
+            'code': 500,
+            'errors': str(e),
             'status': 'error'
         }
 
     return JsonResponse(data, safe = False, status = data['code'])
 
-##
-# @brief recurso de cambio de territorio de dimensiones geograficas y tareas de un proyecto
-# @param request Instancia HttpRequest
-# @param dimensionid Identificación de la dimensión geografica de un proyecto
-# @return cadena JSON
-#
-@api_view(['POST'])
+@csrf_exempt
+@api_view(["DELETE"])
 @permission_classes((IsAuthenticated,))
-def cambioTerritorio(request, dimensionid):
-
+def eliminarEquipo(request,equid):
+        
     try:
+        proyectoEquipo = models.ProjectTeam.objects.get(pk = equid)
+        proyectoEquipo.delete()
 
-        with transaction.atomic():
-            dimensionTerritorialOld = models.DelimitacionGeografica.objects.get(pk=dimensionid)
-
-            data = json.loads(request.body)
-
-            if 'geojson' in data:
-                dimensionTerritorialNew = models.DelimitacionGeografica(proyid=dimensionTerritorialOld.proyid, nombre=dimensionTerritorialOld.nombre, geojson=data['geojson'])
-                dimensionTerritorialNew.save()
-
-                if 'tareas' in data:
-                    for tarea in data['tareas']:
-
-                        tareaObj = models.Tarea.objects.get(pk=tarea['tareid'])
-
-                        if(tarea['dimensionid'] == str(dimensionTerritorialOld.dimensionid)):
-                            tareaObj.geojson_subconjunto = tarea['geojson_subconjunto']
-                            tareaObj.dimensionid = dimensionTerritorialNew.dimensionid
-                            tareaObj.save()
-
-                        else:
-                            raise ValidationError("La Tarea no pertenece a la dimensión")
-
-                    dimensionTerritorialOld.estado = 0
-                    dimensionTerritorialOld.save()
-
-                    response = {
-                        'code': 200,
-                        'status': 'success'
-                    }
-
-                else:
-                    raise ValidationError("JSON Inválido")
-
-            else:
-                raise ValidationError("JSON Inválido")
-
-        # =============== Notificación de Gestión de Cambios ======================
-        usuarios = obtenerEmailsEquipo(dimensionTerritorialNew.proyid)
-
-        # Obteneniendo información del proyecto
-        proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
-
-        # Envío de Notificaciones
-        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)
-
-    except ObjectDoesNotExist:
         response = {
-            'code': 404,
-            'status': 'error'
+            'code': 200,
+            'status': 'success'
         }
 
     except ValidationError as e:
+
         response = {
             'code': 400,
-            'message': str(e),
+            'errors': list(e)[0],
             'status': 'error'
         }
 
     return JsonResponse(response, safe=False, status=response['code'])
-
-##
-# @brief Función que provee una plantilla HTML para la gestión de proyectos
-# @param request Instancia HttpRequest
-# @return plantilla HTML
-#
-def listadoProyectosView(request):
-
-    return render(request, 'proyectos/listado.html')
-
-##
-# @brief Función que provee una plantilla HTML para la gestión de cambios de un proyecto
-# @param request Instancia HttpRequest
-# @return plantilla HTML
-#
-def gestionProyectosView(request):
-
-    return render(request, "proyectos/gestion-proyectos-mapa.html")
-
-##
-# @brief Función que provee una plantilla HTML para la gestión de tareas de un proyecto especifico
-# @param request Instancia HttpRequest
-# @param proyid Identificación de un proyecto
-# @return plantilla HTML
-#
-def tareasProyectoView(request, proyid):
-
-    try:
-        proyecto = models.Proyecto.objects.get(pk=proyid)
-        data =  render(request, 'tareas/listado.html', {'proyecto':proyecto})
-    except ObjectDoesNotExist:
-        data = HttpResponse("", status=404)
-    except ValidationError:
-        data = HttpResponse("", status=400)
-
-    return data
