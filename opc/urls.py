@@ -19,8 +19,8 @@ from django.conf.urls import handler404, handler500
 
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
-    userview, instrumentview, koboclient, 
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview #,contextualizacion, tareas
+    userview, instrumentview, koboclient, auth,
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -34,10 +34,10 @@ urlpatterns = [
     path('', views.loginView), #OK LEO
     path('login/', views.login), #OK LEO OK
 
-    #path('auth/password-reset/', auth.passwordReset),
-    #path('auth/password-reset-verification/', auth.passwordResetVerification),
-    #path('auth/password-reset/<str:token>', auth.passwordResetConfirmation),
-    #path('auth/password-reset-done/', auth.passwordResetDone),
+    path('auth/password-reset/', auth.passwordReset), #OkOKLF
+    path('auth/password-reset-verification/', auth.passwordResetVerification), #OkOKLF
+    path('auth/password-reset/<str:token>', auth.passwordResetConfirmation), #OkOKLF
+    path('auth/password-reset-done/', auth.passwordResetDone), #OkOKLF
 
     path('usuarios/', userview.listadoUsuariosView), #OK OK LEO
     path('usuarios/list/', userview.listadoUsuarios), #OK OK LEO
@@ -137,10 +137,10 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
-    #path('tareas/', tareas.listadoTareasView), #OK S
-    #path('tareas/list/', tareas.listadoTareas), # S - QUEDO EN LA PARTE DE QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
+    path('tareas/', tareas.listadoTareasView), #OK S
+    path('tareas/list/', tareas.listadoTareas), # S - 
     #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
-    #path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
     #path('tareas/<str:tareid>', tareas.actualizarTarea),
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
@@ -208,7 +208,7 @@ urlpatterns = [
     #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),  #S - Vistas que se agregan después por nuestra funcionalidad
 
     # =========================== Perfil ===============================================
-    path('mi-perfil/', profileview.perfilView), # UFF TOCA RECONSTRUIR TODA LA CLASE DEL JS PORQUE TRABAJA SOLO LOS ATRIBUTOS DE USER QUE TENÍA ANTES USUARIO QUE PARA NOSOTROS SERÍA PERSON
+    path('mi-perfil/', profileview.perfilView), # SEBAS - LEO DIJO QUE LE HARÍA
 
     #Comment
     path('comentario/<str:proyid>/', comentario.listadoComentarios), #JM 

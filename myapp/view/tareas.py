@@ -29,7 +29,7 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
-from myapp.views import detalleFormularioKoboToolbox
+from myapp.view import koboclient
 from myapp.view.utilidades import dictfetchall, obtenerParametroSistema, obtenerEmailsEquipo, usuarioAutenticado
 from myapp.view.notificaciones import gestionCambios
 
@@ -45,28 +45,33 @@ from myapp.view.notificaciones import gestionCambios
 def listadoTareas(request):
 
     try:
-
         # Obtener usuario autenticado
         usuario = usuarioAutenticado(request)
         person = models.Person.objects.get(user__userid = usuario.userid)
-
+        tareasUsuario = []
+        proyectosUsuario = []
+        n = ""
         # Superadministrador
-        if str(person.pers_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
-            proyectosUsuario = []
-
+        if str(person.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+            tareasUsuario = []
+            n = "SELECT tk.* FROM opx.task as tk;"
+            #proyectosUsuario = []
         # Consulta de proyectos para un usuario proyectista
-        elif str(person.pers_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-            proyectosUsuario = list(models.Project.objects.filter(proypropietario=usuario.userid).values('proj_owner'))
+        elif str(person.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            n = "SELECT tk.* FROM opx.person AS person INNER JOIN opx.project AS pj ON person.pers_id = pj.proj_owner_id INNER JOIN opx.task as tk ON pj.proj_id = tk.project_id where person.pers_id = '"+ str(person.pers_id)+"';"
+            
+            #proyectosUsuario = list(models.Project.objects.filter(proj_owner__pers_id=person.pers_id).values())
 
         # Consulta de proyectos para un usuario voluntario o validador
-        elif str(person.pers_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
-            tasksid = list(models.PersonTask.objects.filter(userid = usuario.userid).values('task_id'))
-            proyectosUsuario = []
-            for t in tasksid:
-                proyectosUsuario[i] = models.Task.objects.filter(task_id = tasksid[i]).values('projectproject_id') #QUEDA FALTANDO A QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
+        elif str(person.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            n = "SELECT DISTINCT tk.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
+
+            #for t in z:
+            #    proyectosUsuario[i] = models.Task.objects.filter(task_id = tasksid[i]).values('projectproject_id') #QUEDA FALTANDO A QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
             #proyectosUsuario = list(models.Equipo.objects.filter(userid = usuario.userid).values('proj_owner'))
 
-        # ================ Obtener página validación de la misma ========================
+
+      # ================ Obtener página validación de la misma ========================
         page = request.GET.get('page')
 
         if (page is None):
@@ -76,87 +81,64 @@ def listadoTareas(request):
 
         # Obtener Búsqueda y validación de la misma
         search = request.GET.get('search')
-        #que hago con esa consulta si quitaste instrumentos Leo
-        query = "select t.*, i.instrnombre, p.proj_name from opx.task as t " \ 
-                "inner join opx.project as p on t.projectproject_id = p.proj_id " \
-                "inner join opx.instrumentos  as i on t.instrid = i.instrid"
-
-        if len(proyectosUsuario) > 0 or search is not None:
-
-            query += " where "
-
-            #   Busqueda de tareas por proyecto
-            if len(proyectosUsuario) == 1:
-                query += "t.projectproject_id = '" + str(proyectosUsuario[0]['proj_id']) + "'"
-
-            if len(proyectosUsuario) > 1:
-                firstItemQuery = True
-                for p in proyectosUsuario[:-1]:
-
-                    if firstItemQuery:
-                        query += "("
-                        firstItemQuery = False
-
-                    query += "t.projectproject_id = '" + str(p['proj_id']) + "' or "
-
-                query += "t.projectproject_id = '" + str(proyectosUsuario[-1]['proj_id']) + "')"
-
-            # Busqueda por Nombre
-            if search is not  None:
-                if len(proyectosUsuario) > 0:
-                    query += " and"
-
-                query += " (t.task_name ~* '" + search + "');"
+        if search is not  None:
+            if len(tareasUsuario) > 0:
+                query += " and"
+            query += " (t.task_name ~* '" + search + "');"        
 
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(n)
 
             # formatear respuesta de base de datos
             tareas = dictfetchall(cursor)
+        
+            print(tareas[0]['task_priority_id'])
 
-            # Progreso de las Tareas
-            for t in tareas:
-                # Tipo encuesta
-                if t['task_type_id'] == 1:
+       
 
-                    encuestas = models.Encuesta.objects.filter(tareid__exact=t['tareid']) #Me quedé varado en el survey
-                    progreso = (len(encuestas) * 100) / t['tarerestriccant']
-                    t['progreso'] = progreso
+        # Progreso de las Tareas
+        for t in tareas:
+            t['task_type_name'] = (models.TaskType.objects.get(pk = t['task_type_id'])).task_type_name
+            t['instrument_name']= (models.Instrument.objects.get(pk = t['instrument_id'])).instrument_name
+            t['proj_name']= (models.Project.objects.get(pk = t['project_id'])).proj_name
+            t['task_priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
 
-                    # instrumento = models.Instrumento.objects.get(pk=t['instrid'])
-                    # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
-                    #
-                    # if(detalleFormulario):
-                    #     progreso = (detalleFormulario['deployment__submission_count'] * 100) / t['tarerestriccant']
-                    #     t['progreso'] = progreso
 
-            if all is not None and all == "1":
+            # Tipo encuesta
+            if t['task_type_id'] == 1:
+                encuestas = models.Survery.objects.filter(task_id__exact=t['task_id']) #Me quedé varado en el survey
+                progreso = (len(encuestas) * 100) / t['completness']
+                t['task_quantity'] = progreso
 
-                data = {
-                    'code': 200,
-                    'tareas': tareas,
-                    'status': 'success'
-                }
-
-            else:
-
-                # Obtener Página
-                paginator = Paginator(tareas, 10)
-
-                # Obtener lista de tareas
-                tareas = paginator.page(page).object_list
-
-                data = {
-                    'code': 200,
-                    'paginator': {
-                        'currentPage': page,
-                        'perPage': paginator.per_page,
-                        'lastPage': paginator.num_pages,
-                        'total': paginator.count
-                    },
-                    'tareas': tareas,
-                    'status': 'success'
-                }
+                # instrumento = models.Instrumento.objects.get(pk=t['instrid'])
+                # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
+                #
+                # if(detalleFormulario):
+                #     progreso = (detalleFormulario['deployment__submission_count'] * 100) / t['tarerestriccant']
+                #     t['progreso'] = progreso
+        print(tareas)
+        if all is not None and all == "1":
+            data = {
+                'code': 200,
+                'tareas': tareas,
+                'status': 'success'
+            }
+        else:
+            # Obtener Página
+            paginator = Paginator(tareas, 10)
+            # Obtener lista de tareas
+            tareas = paginator.page(page).object_list
+            data = {
+                'code': 200,
+                'paginator': {
+                    'currentPage': page,
+                    'perPage': paginator.per_page,
+                    'lastPage': paginator.num_pages,
+                    'total': paginator.count
+                },
+                'tareas': tareas,
+                'status': 'success'
+            }
 
     except EmptyPage:
 
@@ -292,12 +274,21 @@ def almacenamientoTarea(request): #Por aquí iba
     tareprioridad = request.POST.get('tareprioridad')
     isactive = request.POST.get('isactive')
 
+    restriccion = models.TaskRestriction()
+    restriccion.full_clean()
+    restriccion.save()
 
-    tarea = models.Tarea(task_name = tareNombre, task_type_id = tareTipo, tarerestricgeo = tareRestricGeo,
-                         tarerestriccant = tareRestricCant, tarerestrictime = tareRestricTime,
-                         instrid = instrID, proyid = proyID, dimensionid = dimensionid,
-                         geojson_subconjunto = geojson_subconjunto,  task_description = taredescripcion,isactive = isactive
-                         tareprioridad=tareprioridad)
+    territoriodentroproyecto = models.TerritorialDimension()
+    territoriodentroproyecto.full_clean()
+    territoriodentroproyecto.save(geojson_subconjunto)
+
+    instrumento = models.object.get(instrument_id = instrID)
+
+
+
+    tarea = models.Task(task_name = tareNombre, task_type_id = tareTipo, task_restriction = restriccion,
+                         instrument= instrID, project = proyID, territorial_dimension = dimensionid,  task_description = taredescripcion, isactive = isactive,
+                         task_priority=tareprioridad)
 
     try:
         tarea.full_clean()
@@ -340,7 +331,7 @@ def eliminarTarea(request, tareid):
 
     try:
         tarea = models.Tarea.objects.get(pk = tareid)
-
+        task_type 
         tarea.delete()
 
         return JsonResponse({'status': 'success'})

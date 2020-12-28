@@ -123,7 +123,6 @@ def revisarEncuesta(request, encuestaid):
 # @param request Instancia HttpRequest
 # @return Plantilla HTML
 #
-@api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def creacionEncuestaView(request):
 

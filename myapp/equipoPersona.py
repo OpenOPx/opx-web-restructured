@@ -67,7 +67,6 @@ def listadoEquiposPersona(request):
 
     user = usuarioAutenticado(request)
     person = models.Person.objects.get(user__userid = user.userid)
-
     equiposPersona = models.TeamPerson.objects.filter(person__pers_id__exact = person.pers_id)
     equiposPersona = list(equiposPersona.values())
 
