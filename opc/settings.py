@@ -168,14 +168,14 @@ SIMPLE_JWT = {
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 # SMTP CONFIGURATION
-
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = "587"
-EMAIL_HOST_USER = "inge4neuromedia@gmail.com"
-EMAIL_HOST_PASSWORD = "neuromedia2018"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'develop.opx@gmail.com'
+EMAIL_HOST_PASSWORD = 'Opxcali2020'
 EMAIL_USE_TLS = True
 
-URL_APP = "http://localhost:7000/"
+URL_APP = "http://localhost:8000/"
 
 # X_FRAME_OPTIONS = 'ALLOW-FROM http://localhost:7000/'
 

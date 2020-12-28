@@ -19,7 +19,7 @@ from django.conf.urls import handler404, handler500
 
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
-    userview, instrumentview, koboclient, 
+    userview, instrumentview, koboclient, auth,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
@@ -34,10 +34,10 @@ urlpatterns = [
     path('', views.loginView), #OK LEO
     path('login/', views.login), #OK LEO OK
 
-    #path('auth/password-reset/', auth.passwordReset),
-    #path('auth/password-reset-verification/', auth.passwordResetVerification),
-    #path('auth/password-reset/<str:token>', auth.passwordResetConfirmation),
-    #path('auth/password-reset-done/', auth.passwordResetDone),
+    path('auth/password-reset/', auth.passwordReset), #OkOKLF
+    path('auth/password-reset-verification/', auth.passwordResetVerification), #OkOKLF
+    path('auth/password-reset/<str:token>', auth.passwordResetConfirmation), #OkOKLF
+    path('auth/password-reset-done/', auth.passwordResetDone), #OkOKLF
 
     path('usuarios/', userview.listadoUsuariosView), #OK K.O LEO
     path('usuarios/list/', userview.listadoUsuarios), #OK K.O LEO

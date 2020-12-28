@@ -58,7 +58,7 @@ def passwordResetVerification(request):
         else:
 
             # Consulta de Usuario
-            usuario = models.Usuario.objects.get(useremail__exact = email)
+            usuario = models.User.objects.get(useremail__exact = email)
 
             # Asunto
             subject = "Recuperación de contraseña"
@@ -74,6 +74,7 @@ def passwordResetVerification(request):
             message = "<p> Cambia tu clave <a href='" + settings.URL_APP + "auth/password-reset/" + token + "'> Aquí </a> </p>"
 
             # Envío de correo electrónico
+            print(settings.EMAIL_HOST_USER)
             send_mail(
                 subject,
                 message,
@@ -107,7 +108,7 @@ def passwordResetVerification(request):
 def passwordResetConfirmation(request, token):
 
     try:
-        usuario = models.Usuario.objects.get(usertoken__exact = token)
+        usuario = models.User.objects.get(usertoken__exact = token)
 
         status = True
 
@@ -147,7 +148,7 @@ def passwordResetDone(request):
         else:
 
             # Eliminación de token y modificación de contraseña
-            usuario = models.Usuario.objects.get(usertoken__exact=token)
+            usuario = models.User.objects.get(usertoken__exact=token)
 
             # Contexto Passlib
             pwd_context = CryptContext(
