@@ -29,18 +29,8 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto
 
 ##
-# @brief Función que provee una plantilla HTML para la gestión de proyectos
-# @param request Instancia HttpRequest
-# @return plantilla HTML
-#
-def listadoProyectosView(request):
-    return render(request, 'proyectos/listado.html')
-
-##
-# @brief Función que provee una plantilla HTML para la gestión de cambios de un proyecto
 # @param request Instancia HttpRequest
 # @return plantilla HTML
 #
