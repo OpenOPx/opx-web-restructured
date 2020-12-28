@@ -55,21 +55,14 @@ def listadoTareas(request):
         if str(person.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
             tareasUsuario = []
             n = "SELECT tk.* FROM opx.task as tk;"
-            #proyectosUsuario = []
+
         # Consulta de proyectos para un usuario proyectista
         elif str(person.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
             n = "SELECT tk.* FROM opx.person AS person INNER JOIN opx.project AS pj ON person.pers_id = pj.proj_owner_id INNER JOIN opx.task as tk ON pj.proj_id = tk.project_id where person.pers_id = '"+ str(person.pers_id)+"';"
-            
-            #proyectosUsuario = list(models.Project.objects.filter(proj_owner__pers_id=person.pers_id).values())
 
         # Consulta de proyectos para un usuario voluntario o validador
         elif str(person.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
             n = "SELECT DISTINCT tk.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
-
-            #for t in z:
-            #    proyectosUsuario[i] = models.Task.objects.filter(task_id = tasksid[i]).values('projectproject_id') #QUEDA FALTANDO A QUE LEO ANEXE LA COLUMNA DEL PROJECT ID
-            #proyectosUsuario = list(models.Equipo.objects.filter(userid = usuario.userid).values('proj_owner'))
-
 
       # ================ Obtener página validación de la misma ========================
         page = request.GET.get('page')
@@ -91,11 +84,7 @@ def listadoTareas(request):
 
             # formatear respuesta de base de datos
             tareas = dictfetchall(cursor)
-        
-            print(tareas[0]['task_priority_id'])
-
        
-
         # Progreso de las Tareas
         for t in tareas:
             t['task_type_name'] = (models.TaskType.objects.get(pk = t['task_type_id'])).task_type_name
@@ -103,20 +92,12 @@ def listadoTareas(request):
             t['proj_name']= (models.Project.objects.get(pk = t['project_id'])).proj_name
             t['task_priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
 
-
             # Tipo encuesta
             if t['task_type_id'] == 1:
                 encuestas = models.Survery.objects.filter(task_id__exact=t['task_id']) #Me quedé varado en el survey
                 progreso = (len(encuestas) * 100) / t['completness']
                 t['task_quantity'] = progreso
 
-                # instrumento = models.Instrumento.objects.get(pk=t['instrid'])
-                # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
-                #
-                # if(detalleFormulario):
-                #     progreso = (detalleFormulario['deployment__submission_count'] * 100) / t['tarerestriccant']
-                #     t['progreso'] = progreso
-        print(tareas)
         if all is not None and all == "1":
             data = {
                 'code': 200,

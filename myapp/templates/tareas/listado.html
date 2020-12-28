@@ -158,7 +158,7 @@
                           <label class="bmd-label-floating">Proyecto</label>
                           <select v-model="almacenamientoTarea.proyid" @change="obtenerDimensionesTerritoriales(almacenamientoTarea.proyid)" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="proyecto in proyectos" :value="proyecto.proj_name"> [[ proyecto.proj_name ]] </option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proj_id"> [[ proyecto.proj_name ]] </option>
                           </select>
                         </div>
                       </div>

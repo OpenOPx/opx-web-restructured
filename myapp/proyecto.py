@@ -506,3 +506,42 @@ def eliminarProyecto(request, proyid):
     except ValidationError:
         return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe = True, status = 400)
 
+##
+# @brief recurso que provee las dimensiones geograficas de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def dimensionesTerritoriales(request, proyid):
+
+    try:
+        models.Project.objects.get(pk = proyid)
+
+        dimensionesTerritoriales = models.ProjectTerritorialDimension.objects\
+                                   .filter(project__proj_id__exact=proyid)\
+                                   .values()
+
+        data = {
+            'code': 200,
+            'dimensionesTerritoriales': list(dimensionesTerritoriales),
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
