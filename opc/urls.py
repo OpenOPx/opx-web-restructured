@@ -114,10 +114,11 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #???
-    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #?JM
-    #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #???
-    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #???
+    path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
+    path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
+    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #??? ESTO NECESITA ESTAR ENTRE LOS PATHS
+
+    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO PENDIENTE
 
     path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #OK JM #???
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM #???
@@ -145,7 +146,7 @@ urlpatterns = [
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea), #S #???
     #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView), #S #???
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #???
-    path('tareas/tipos/', views.listadoTiposDeTareas), #???
+    path('tareas/tipos/', views.listadoTiposDeTareas), #S
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
@@ -159,10 +160,10 @@ urlpatterns = [
     #path('contextualizacion/semana/', contextualizacion.semanal), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/dia/', contextualizacion.dia), # Falta cargarlo en el modelo para seguir
 
-    path('comentario/list/', comentario.listadoComentarios), #OK - JM #??? check
-    path('comentario/delete/', comentario.eliminarComentario), #OK - JM #???
-    path('comentario/store/', comentario.crearComentario), #OK - JM #??? check
-    path('comentario/update/', comentario.actualizarComentario), #OK - JM #??? check
+    path('comentario/list/', comentario.listadoComentarios), #OK - JM 
+    path('comentario/delete/', comentario.eliminarComentario), #OK - JM 
+    path('comentario/store/', comentario.crearComentario), #OK - JM 
+    path('comentario/update/', comentario.actualizarComentario), #OK - JM 
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR

@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'task_priority_name' //PROBLEM
+                key: 'priority_name' //PROBLEM
             },
             {
                 label: 'Fecha de Creación',
@@ -123,6 +123,7 @@ let tarea = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.tareas = response.data.detail.tareas;
+                    console.log(this.tareas)
                 }
             });
         },
