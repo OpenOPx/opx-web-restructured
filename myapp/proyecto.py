@@ -426,7 +426,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza las decisiones
             decisiones = json.loads(decisiones)
             if len(decisiones)>0:
-                decisionesP = models.ProjectDecision.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                decisionesP = models.ProjectDecision.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if decisionesP.exists():
                     for decisionProj in decisionesP:
                         decisionProj.delete()
@@ -438,7 +438,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza los contextos
             contextos = json.loads(contextos)
             if len(contextos)>0:
-                contextosP = models.ProjectContext.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                contextosP = models.ProjectContext.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if contextosP.exists():
                     for contextoProj in contextosP:
                         contextoProj.delete() 
@@ -484,19 +484,46 @@ def actualizarProyecto(request, proyid):
 def eliminarProyecto(request, proyid):
 
     try:
-        print("1")
-        models.ProjectDecision.objects.get(project__proj_id = proyid).delete()
-        print("2")
-        models.ProjectContext.objects.get(project__proj_id = proyid).delete() 
+        projDeci = models.ProjectDecision.objects.filter(project__proj_id = proyid)
+
+        for p in projDeci:
+            p.delete()
+
+        projContx = models.ProjectContext.objects.filter(project__proj_id = proyid)
+
+        for p in projContx:
+            p.delete()
+
         print("3")
-        models.ProjectTeam.objects.get(project__proj_id = proyid).delete()
-        print("4")
-        models.TerritorialDimension.filter(dimension_id = (models.ProjectTerritorialDimension.get(project__proj_id = proyid)).dimension_id ).delete()
-        print("5")
+        projTeam = models.ProjectTeam.objects.filter(project__proj_id = proyid)
+        for p in projTeam:
+            p.delete()
+
+        projTerr = models.ProjectTerritorialDimension.objects.filter(project__proj_id = proyid)
+        for p in projTerr:
+            p.delete()
+
+        query="select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id where pd.project_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            territorios = dictfetchall(cursor)
+            for p in territorios:
+                models.TerritorialDimension.objects.get(pk = p['dimension_id']).delete()
+            
+        
+        projComentario = models.Comment.objects.filter(project__proj_id = proyid)
+        for p in projComentario:
+            p.delete()
+
+        projTask = models.Task.objects.filter(project__proj_id = proyid)
+        for p in projTask:
+            p.delete()
+
         #borrar las tareas antes de borrar e pj al igual que
         proyecto = models.Project.objects.get(pk = proyid)
         proyecto.delete()
-        print("6")
+
         return JsonResponse({'status': 'success'})
 
     except ObjectDoesNotExist:
@@ -536,7 +563,7 @@ def equipoProyectoView(request, proyid):
 def equipoProyecto(request, proyid):
 
     try:
-        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"';"
+        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)
@@ -572,10 +599,10 @@ def equipoProyecto(request, proyid):
 def equiposDisponiblesProyecto(request, proyid):
 
     try:
-        query = "select * from opx.team \
+        query = "select * from opx.team as team2\
             except(select team1.* from opx.project_team as pt \
             inner join opx.team as team1 on pt.team_id = team1.team_id \
-            where pt.project_id = '"+proyid+"');"
+            where pt.project_id = '"+proyid+"')"
             
         with connection.cursor() as cursor:
             cursor.execute(query)

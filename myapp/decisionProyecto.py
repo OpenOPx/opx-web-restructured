@@ -36,9 +36,8 @@ from myapp.view.utilidades import usuarioAutenticado
 # @param request Instancia HttpRequest
 # @return cadena JSON
 #
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def listadoDecisionesProyecto(request,proyid):
+
+def listadoDecisionesProyecto(proyid):
      decisionesProyecto = models.ProjectDecision.objects.filter(project__proj_id__exact = proyid)
      decisionesProyecto = list(decisionesProyecto.values())
      return JsonResponse(decisionesProyecto, safe = False)
@@ -74,9 +73,6 @@ def almacenarDecisionProyecto(proyecto, decisiones):
 # @param desproid Identificación de la decisión-proyecto
 # @return cadena JSON
 #
-@csrf_exempt
-@api_view(["DELETE"])
-@permission_classes((IsAuthenticated,))
 def eliminarDecisionProyecto(request, desproid):
 
     try:

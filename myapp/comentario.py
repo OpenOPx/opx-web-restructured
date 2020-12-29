@@ -40,24 +40,25 @@ from myapp.view.utilidades import usuarioAutenticado
 #
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def listadoComentarios(request,proyid):
-     comentarios = models.Comment.objects.filter(project__proj_id__exact = proyid)
-     comentarios = list(comentarios.values())
-     return JsonResponse(list(comentario), safe = False)
+def listadoComentarios(request):
+    comentarios = models.Comment.objects.filter(project__proj_id__exact = request.POST.get('pjId'))
+    comentarios = list(comentarios.values())
+    return JsonResponse(list(comentarios), safe = False)
 
 ##
 # @brief Recurso de creación de plantilla de equipo
 # @param request Instancia HttpRequest
 # @return cadena JSON
 #
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def crearComentario(request):
     user = usuarioAutenticado(request)
-
     comentario = models.Comment(
         comment_title = request.POST.get('tituloComentario'), 
-        comment_description = request.POST.get('descripcionComentario')
+        comment_description = request.POST.get('descripcionComentario'),
+        project = models.Project.objects.get(pk = (request.POST.get('idPj')))
     )
 
     try:
@@ -88,9 +89,9 @@ def crearComentario(request):
 #
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
-def eliminarComentario(request, commentid):
+def eliminarComentario(request):
     try:
-        comentario = models.Comment.objects.get(pk=commentid)
+        comentario = models.Comment.objects.get(pk=request.POST.get('commentid'))
         
         comentario.delete()
 
@@ -122,12 +123,9 @@ def eliminarComentario(request, commentid):
 #
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-def actualizarComentario(request, commentid):
-
+def actualizarComentario(request):
     try:
-        comentario = models.Comment.objects.get(pk=commentid)
-
-        comentario.team_name = request.POST.get('name')
+        comentario = models.Comment.objects.get(pk=request.POST.get('commentid'))
         
         comentario.comment_title = request.POST.get('titulo')
         comentario.comment_description = request.POST.get('descripcion')

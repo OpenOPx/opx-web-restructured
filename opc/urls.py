@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros, tareasjm
 from myapp.view import (
     userview, instrumentview, koboclient, auth,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
@@ -27,24 +27,22 @@ urlpatterns = [
 
 #los id's los pasan por el path y deberian pasarlos internamente
 
-
-
     path('admin/', admin.site.urls), 
 
-    path('', views.loginView), #OK LEO
-    path('login/', views.login), #OK LEO OK
+    path('', views.loginView), #OK OK LEO
+    path('login/', views.login), #OK OK LEO
 
-    path('auth/password-reset/', auth.passwordReset), #OkOKLF
-    path('auth/password-reset-verification/', auth.passwordResetVerification), #OkOKLF
-    path('auth/password-reset/<str:token>', auth.passwordResetConfirmation), #OkOKLF
-    path('auth/password-reset-done/', auth.passwordResetDone), #OkOKLF
+    path('auth/password-reset/', auth.passwordReset), #OK OK LEO
+    path('auth/password-reset-verification/', auth.passwordResetVerification), #O OK LEO
+    path('auth/password-reset/<str:token>', auth.passwordResetConfirmation), #OK OK LEO
+    path('auth/password-reset-done/', auth.passwordResetDone), #Ok OK LEO 
 
-    path('usuarios/', userview.listadoUsuariosView), #OK OK LEO
+    path('usuarios/', userview.listadoUsuariosView), #OK OK LEO 
     path('usuarios/list/', userview.listadoUsuarios), #OK OK LEO
     path('usuarios/store/', userview.almacenarUsuario), #OK OK LEO
     path('usuarios/detail/<str:userid>', userview.detalleUsuario), #OK LEO
-    path('usuarios/delete/<str:userid>', userview.eliminarUsuario),
-    path('usuarios/<str:userid>', userview.actualizarUsuario),
+    path('usuarios/delete/<str:userid>', userview.eliminarUsuario), #???
+    path('usuarios/<str:userid>', userview.actualizarUsuario), #OK OK LEO
 
     path('contextos/', contextoview.listadoContextosView), #OK OK 
     path('contextos/list/', contextoview.listadoContextos), #OK OK S
@@ -60,17 +58,11 @@ urlpatterns = [
     path('datos-contexto/delete/<str:dataid>', contextoview.eliminarDatoContexto), #OK OK S
     path('datos-contexto/<str:dataid>', contextoview.actualizarDatoContexto), #OK OK S
 
-    #path('decisiones/<str:proyid>/list/', views.listDecisionesProyecto),
-
     path('decisiones/', decision.listadoDecisionesView), #OK OK JM
     path('decisiones/list/', decision.listadoDecisiones), #OK OK JM
     path('decisiones/store/', decision.almacenarDecision), #OK OK JM
     path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #OK OK JM
     path('decisiones/<str:desiid>', decision.actualizarDecision), #OK OK JM
-
-    path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #OK JM
-    path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM ???
-    path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #OK JM
 
     path('equipos/', equipo.equiposView), #OK OK JM
     path('equipos/<str:planid>/miembros/', equipo.miembrosEquipoView), #OK OK JM
@@ -78,7 +70,6 @@ urlpatterns = [
     path('equipos/<str:proyid>/equipos-disponibles/', proyecto.equiposDisponiblesProyecto), #OK OK JM
     path('equipos/store/', proyecto.agregarEquipo), #OK OK JM
     path('equipos/delete/<str:equid>', proyecto.eliminarEquipo), #OK OK JM
-    #path('equipos/<str:equid>', equipo.actualizarEquipo),
     path('equipos/proyecto/<str:proyid>', proyecto.equipoProyectoView), #OK OK JM
 
     path('plantillas-equipo/list/', equipo.listadoEquipos), #OK OK JM
@@ -99,32 +90,54 @@ urlpatterns = [
 
     path('instrumentos/', instrumentview.listadoInstrumentosView), #OK OK LEO
     path('instrumentos/list/', instrumentview.listadoInstrumentos), #OK OK LEO
-    path('instrumentos/store/', instrumentview.almacenamientoInstrumento), # OK OK LEO
-    #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento), # ESTO ALGUNA VEZ ESTUVO?
-    path('instrumentos/<str:instrid>', instrumentview.actualizarInstrumento), # OK OK LEO
-    #path('instrumentos/<str:id>/informacion/', views.informacionInstrumento),
+    path('instrumentos/store/', instrumentview.almacenamientoInstrumento), #OK OK LEO
+    path('instrumentos/<str:instrid>', instrumentview.actualizarInstrumento), #OK OK LEO
     path('instrumentos/<str:id>/implementar/', koboclient.implementarFormularioKoboToolbox), #OK OK LEO
     path('instrumentos/<str:id>/verificar-implementacion/', koboclient.verificarImplementaciónFormulario), #OK OK LEO
-    #path('instrumentos/encuesta/crear', views.creacionEncuestaView),
+
+    #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento), #??? ESTO ALGUNA VEZ ESTUVO? - El back de NM tiene eliminar instrumento
+    #path('instrumentos/<str:id>/informacion/', views.informacionInstrumento), #??? - El back de NM tiene esto instrumento
+
+    #path('instrumentos/encuesta/crear', views.creacionEncuestaView), #???
+
     path('instrumentos/formularios-kobotoolbox/list/', koboclient.listadoFormulariosKoboToolbox), #OK OK LEO
     path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OK OK LEO
+<<<<<<< HEAD
     #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento),
     #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento),
     #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia),
     #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta),
     #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
 
+=======
+
+    #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento), #???
+    #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), #???
+    #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), #???
+    #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta), #???
+>>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
     path('proyectos/list/', proyecto.listadoProyectos), #OK OK JM
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
-    path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #JM
+    path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
+<<<<<<< HEAD
     #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto),
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
+=======
+    #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #???
+    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #?JM
+    #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #???
+    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #???
+
+    path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #OK JM #???
+    path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM #???
+    path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #OK JM #???
+>>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK OK S
     path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK OK S 
@@ -139,6 +152,7 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
+<<<<<<< HEAD
     path('tareas/', tareas.listadoTareasView), #OK S OK
     path('tareas/list/', tareas.listadoTareas), # OK S OK 
     path('tareas/store/', tareas.almacenamientoTarea), # S 
@@ -148,18 +162,35 @@ urlpatterns = [
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial),
     path('tareas/tipos/', views.listadoTiposDeTareas), #OK S OK
+=======
+    path('tareas/', tareas.listadoTareasView), #OK S
+    path('tareas/list/', tareas.listadoTareas), #S #???
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #S #???
+    #path('tareas/store/', tareas.almacenamientoTarea), #S #???
+    #path('tareas/<str:tareid>', tareas.actualizarTarea), #S #???
+    #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
+    #path('tareas/detail/<str:tareid>', tareas.detalleTarea), #S #???
+    #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView), #S #???
+    #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #???
+    path('tareas/tipos/', views.listadoTiposDeTareas), #???
+>>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
-    path('elementos-osm/list/', osm.elementosOsm),  #OK - S
+    path('elementos-osm/list/', osm.elementosOsm),  #OK - S #???
 
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
-
+    path('tareas/store/', tareasjm.almacenamientoTarea), #JM PRUEBA
     #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/todo/', contextualizacion.todo), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/mes/', contextualizacion.mensual), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/semana/', contextualizacion.semanal), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/dia/', contextualizacion.dia), # Falta cargarlo en el modelo para seguir
+
+    path('comentario/list/', comentario.listadoComentarios), #OK - JM #??? check
+    path('comentario/delete/', comentario.eliminarComentario), #OK - JM #???
+    path('comentario/store/', comentario.crearComentario), #OK - JM #??? check
+    path('comentario/update/', comentario.actualizarComentario), #OK - JM #??? check
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR
@@ -211,17 +242,6 @@ urlpatterns = [
     # =========================== Perfil ===============================================
     path('mi-perfil/', profileview.perfilView), # SEBAS - LEO DIJO QUE LE HARÍA
 
-    #Comment
-    path('comentario/<str:proyid>/', comentario.listadoComentarios), #JM 
-    path('comentario/<str:commentid>/delete/', comentario.eliminarComentario), #JM ???
-    path('comentario/store/', comentario.crearComentario), #JM ???
-    path('comentario/<str:commentid>/', comentario.actualizarComentario), #JM ???
-
-    #TeamPerson
-    path('equipo-persona/list/', equipoPersona.listadoEquiposPersona), #OK JM
-    path('equipo-persona/<str:teamPersonId>/delete/', equipoPersona.eliminarEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
-    path('equipo-persona/store/', equipoPersona.crearEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
-    path('equipo-persona/<str:teamPersonId>/', equipoPersona.actualizarEquipoPersona), #JM -  pendiente que Leo le agregue Pk para verificar
 
     path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl)
 ]

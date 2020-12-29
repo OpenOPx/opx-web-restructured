@@ -48,7 +48,7 @@ def listadoDecisionesView(request):
 @permission_classes((IsAuthenticated,))
 def listadoDecisiones(request):
     with connection.cursor() as cursor:
-        cursor.execute("select opx.decision.decs_id, opx.decision.decs_description, opx.decision.decs_name from opx.decision")
+        cursor.execute("select opx.decision.decs_id, opx.decision.decs_description, opx.decision.decs_name from opx.decision order by opx.decision.decs_name ASC")
         columns = dictfetchall(cursor)
         return JsonResponse(columns, safe = False)
 
