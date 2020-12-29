@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
+from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros, tareasjm
 from myapp.view import (
     userview, instrumentview, koboclient, auth,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
@@ -115,7 +115,7 @@ urlpatterns = [
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
     #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #???
-    #path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #???
+    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #?JM
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #???
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #???
 
@@ -152,7 +152,7 @@ urlpatterns = [
     path('elementos-osm/list/', osm.elementosOsm),  #OK - S #???
 
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
-
+    path('tareas/store/', tareasjm.almacenamientoTarea), #JM PRUEBA
     #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/todo/', contextualizacion.todo), # Falta cargarlo en el modelo para seguir
     #path('contextualizacion/mes/', contextualizacion.mensual), # Falta cargarlo en el modelo para seguir

@@ -692,3 +692,49 @@ def eliminarEquipo(request,equid):
         }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+
+##
+# @brief recurso que provee las dimensiones geograficas de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def dimensionesTerritoriales(request, proyid):
+
+    try:
+
+        query= "select td.* from opx.territorial_dimension as td \
+                inner join opx.project_dimension as pt on td.dimension_id = pt.territorial_dimension_id \
+                inner join opx.project as pj on pj.proj_id = pt.project_id \
+                where pj.proj_id = '"+proyid+"';"
+       
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            dimensionesTerritoriales = dictfetchall(cursor)
+
+    
+        data = {
+            'code': 200,
+            'dimensionesTerritoriales': list(dimensionesTerritoriales),
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])

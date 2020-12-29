@@ -134,11 +134,11 @@ let tarea = new Vue({
 
                 if(key == 'dimensionid' && this.almacenamientoTarea.taretipo == "1"){
 
-                    valor = this.almacenamientoTarea['dimensionid'].dimensionid;
+                    valor = (this.almacenamientoTarea.dimensionid).dimension_id;
 
                 } else if(key == 'instrid'){
 
-                    valor = this.almacenamientoTarea['instrid'] = this.almacenamientoTarea['instrid'].instrid;
+                    valor = this.almacenamientoTarea.instrid
 
                 } else{
 
@@ -420,7 +420,7 @@ let tarea = new Vue({
 
                 if(dimension){
 
-                    this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.geojson)).addTo(taskMap);
+                    this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.dimension_geojson)).addTo(taskMap);
 
                     //L.marker([3.45000, -76.535000]).addTo(taskMap);
 
