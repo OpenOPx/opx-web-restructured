@@ -165,9 +165,9 @@
                       <div v-if="almacenamientoTarea.taretipo == '1'" class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Dimension Territorial</label>
-                          <select @change="generarDimensionTerritorial(almacenamientoTarea.dimensionid)" v-model="almacenamientoTarea.dimensionid" class="form-control">
+                          <select @change="generarDimensionTerritorial(dimension)" v-model="dimension" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="dimension in dimensionesTerritoriales" :value="dimension"> [[ dimension.nombre ]] </option>
+                            <option v-for="dimension in dimensionesTerritoriales" :value="dimension.dimension_name"> [[ dimension.dimension_name]] </option>
                           </select>
                         </div>
                       </div>

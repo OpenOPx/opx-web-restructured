@@ -419,8 +419,8 @@ let tarea = new Vue({
                 }).addTo(taskMap);
 
                 if(dimension){
-
-                    this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.geojson)).addTo(taskMap);
+                    console.log(dimension)
+                    this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension)).addTo(taskMap);
 
                     //L.marker([3.45000, -76.535000]).addTo(taskMap);
 
@@ -501,9 +501,9 @@ let tarea = new Vue({
             return coordenadas;
         },
         generarDimensionTerritorial(dimension){
-
+            console.log(dimension)
             if(this.almacenamientoTarea.taretipo == "1"){
-
+                console.log("ENTROOOOOOO")
                 this.taskMap.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);

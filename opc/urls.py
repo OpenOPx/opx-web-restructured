@@ -112,6 +112,8 @@ urlpatterns = [
     #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento),
     #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia),
     #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta),
+    #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
+
 
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
@@ -120,7 +122,7 @@ urlpatterns = [
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
     #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto),
-    #path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
+    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
 
@@ -137,16 +139,15 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
-    path('tareas/', tareas.listadoTareasView), #OK S
-    path('tareas/list/', tareas.listadoTareas), # S - 
-    #path('tareas/store/', tareas.almacenamientoTarea), S - Me dio sueño
-    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea),
+    path('tareas/', tareas.listadoTareasView), #OK S OK
+    path('tareas/list/', tareas.listadoTareas), # OK S OK 
+    path('tareas/store/', tareas.almacenamientoTarea), # S 
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #
     #path('tareas/<str:tareid>', tareas.actualizarTarea),
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
     #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
-    #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial),
-    path('tareas/tipos/', views.listadoTiposDeTareas),
+    path('tareas/tipos/', views.listadoTiposDeTareas), #OK S OK
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
