@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'fcm_django',
     'myapp',
 ]
 
@@ -69,6 +70,11 @@ TEMPLATES = [
         },
     },
 ]
+
+FCM_DJANGO_SETTINGS = {
+    'FCM_SERVER_KEY': 'AAAAy4QMhig:APA91bFyFxmlwa-xD3J82mV_9di5xYrWuPEj2FuvNZyB5LJU0HMgOlWkVUBVVbY_wmYFT09lo8Xhq1MZZlyh9m4BMUCHrgun9ZXsh86g8vtTv6DClMcbWWu5cB43lD_OSCZZGxY6mf14',
+    'ONE_DEVICE_PER_USER': True,
+}
 
 WSGI_APPLICATION = 'opc.wsgi.application'
 

@@ -7,6 +7,7 @@ import shapely.geometry
 import geopandas
 
 from myapp import models
+from fcm_django.models import FCMDevice
 
 from django.conf import settings
 from django.core import serializers
@@ -198,7 +199,7 @@ def almacenarUsuario(request):
 
     useremail = request.POST.get('useremail')
     fcm_token = request.POST.get('fcm_token')
-    #userfullname = request.POST.get('userfullname')
+    type_device = request.POST.get('type_device')
     pers_name = request.POST.get('pers_name')
     pers_lastname = request.POST.get('pers_lastname')
     password = request.POST.get('password')
@@ -230,7 +231,7 @@ def almacenarUsuario(request):
             education_level = models.EducationLevel.objects.get(
                 pk=education_level_id)
 
-            person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname, fcm_token=fcm_token,
+            person = models.Person(pers_name=pers_name, pers_lastname=pers_lastname,
                                    role=role, pers_birthdate=pers_birthdate, pers_telephone=pers_telephone,
                                    gender=gender, neighborhood=neighborhood, education_level=education_level,
                                    user=user)
@@ -244,6 +245,15 @@ def almacenarUsuario(request):
             # Validación de campos
             person.full_clean()
             person.save()
+
+            if fcm_token is not None and type_device is not None:
+
+                device = FCMDevice(
+                    user=user,
+                    registration_id=fcm_token,
+                    type=type_device
+                )
+                device.save()
 
             data = {
                 'code': 201,

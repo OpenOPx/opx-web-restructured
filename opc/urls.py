@@ -20,7 +20,7 @@ from django.conf.urls import handler404, handler500
 from myapp import views
 
 from myapp.view import (
-    userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros,
+    userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros, notificaciones,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
@@ -208,5 +208,6 @@ urlpatterns = [
     # =========================== Perfil ===============================================
     path('mi-perfil/', profileview.perfilView), #OK OK LEO
 
-    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl) #OK OK LEO
+    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl), #OK OK LEO
+    path('notificaciones/list/', notificaciones.getPersonNotifications) # LF Gestion de cambios
 ]
