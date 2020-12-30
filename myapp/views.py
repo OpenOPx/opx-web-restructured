@@ -8,6 +8,7 @@ import shapely.geometry
 import geopandas
 
 from myapp import models
+from fcm_django.models import FCMDevice
 
 from django.conf import settings
 from django.core import serializers
@@ -54,7 +55,8 @@ def login(request):
 
         username = request.POST.get("username")
         password = request.POST.get("password")
-
+        fcm_token = request.POST.get('fcm_token')
+        type_device = request.POST.get('type_device')
 
         if username is None or password is None:
             data = {
@@ -105,6 +107,20 @@ def login(request):
                     },
                     'code': 200
                 }
+                if FCMDevice.objects.get(user_id__exact = user.userid).exists():
+                    device = FCMDevice.objects.get(user_id__exact = user.userid)
+                    current_fcmtkn = device.registration_id
+                    if current_fcmtkn != fcm_token:
+                        device.registration_id = fcm_token
+                        device.save()
+                        #verificar sesiones activas y cerrarlas
+                else:
+                    device = FCMDevice(
+                        user=user,
+                        registration_id=fcm_token,
+                        type=type_device
+                    )
+                    device.save()
 
                 # Puntaje esperado para llegar a rol proximo
                 # Voluntario
