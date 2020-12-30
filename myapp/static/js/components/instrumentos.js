@@ -388,9 +388,10 @@ let instrumento = new Vue({
             })
         },
         async informacionEncuesta(id){
+            console.log("id")
 
-            this.loader(true);
-
+            //this.loader(true);
+            console.log("1")
             await this.verificarImplementacionEncuesta(id)
             .then(response => {
 

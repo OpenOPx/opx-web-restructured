@@ -51,7 +51,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Tipo',
-                key: 'task_type_name', //PROBLEM
+                key: 'task_type_name',
                 sortable: true
             },
             {
@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'priority_name' //PROBLEM
+                key: 'priority_name'
             },
             {
                 label: 'Fecha de Creación',
@@ -293,10 +293,10 @@ let tarea = new Vue({
                 return key + '=' + valor;
 
             }).join('&');
-
+            console.log(this.edicionTarea)
             axios({
                 method: 'post',
-                url: '/tareas/' + this.edicionTarea.tareid,
+                url: '/tareas/' + this.edicionTarea.task_id,
                 data: queryString,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -502,9 +502,9 @@ let tarea = new Vue({
             return coordenadas;
         },
         generarDimensionTerritorial(dimension){
-
+            console.log(dimension)
             if(this.almacenamientoTarea.taretipo == "1"){
-
+                console.log("ENTROOOOOOO")
                 this.taskMap.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);

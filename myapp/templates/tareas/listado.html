@@ -97,8 +97,8 @@
                           </a>
                           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a @click.prevent="edicionTarea = data.item; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
-                            <a @click.prevent="eliminarTarea(data.item.tareid)" class="dropdown-item" href="#"> Eliminación </a>
-                            <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrid"> Validar </a>
+                            <a @click.prevent="eliminarTarea(data.item.task_id)" class="dropdown-item" href="#"> Eliminación</a>
+                            <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrument_id"> Validar </a>
                           </div>
                         </div>
                       </template>
@@ -165,7 +165,7 @@
                       <div v-if="almacenamientoTarea.taretipo == '1'" class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Dimension Territorial</label>
-                          <select @change="generarDimensionTerritorial(almacenamientoTarea.dimensionid)" v-model="almacenamientoTarea.dimensionid" class="form-control">
+                          <select @change="generarDimensionTerritorial(dimension)" v-model="dimension" class="form-control">
                             <option value="">Seleccione</option>
                             <option v-for="dimension in dimensionesTerritoriales" :value="dimension"> [[ dimension.dimension_name ]] </option>
                           </select>
@@ -241,13 +241,13 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Nombre</label>
-                          <input v-model="edicionTarea.tarenombre" type="text" class="form-control">
+                          <input v-model="edicionTarea.task_name" type="text" class="form-control">
                         </div>
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Tipo</label>
-                          <select @change="listadoInstrumentos(edicionTarea.taretipo)" v-model="edicionTarea.taretipo" class="form-control">
+                          <select @change="listadoInstrumentos(edicionTarea.task_type_id)" v-model="edicionTarea.task_type_id" class="form-control">
                             <option value="">Seleccione un tipo</option>
                             <option value="1">Encuesta</option>
                             <option value="2">Cartografia</option>
@@ -257,26 +257,26 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Cantidad</label>
-                          <input v-model="edicionTarea.tarerestriccant" type="number" class="form-control">
+                          <input v-model="edicionTarea.task_quantity" type="number" class="form-control">
                         </div>
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Proyecto</label>
-                          <select v-model="edicionTarea.proyid" class="form-control">
+                          <select v-model="edicionTarea.project_id" class="form-control">
                             <option value="">Seleccione</option>
-                            <option v-for="proyecto in proyectos" :value="proyecto.proyid"> [[ proyecto.proynombre ]] </option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proj_id"> [[ proyecto.proj_name ]] </option>
                           </select>
                         </div>
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Prioridad</label>
-                          <select v-model="edicionTarea.tareprioridad" class="form-control">
+                          <select v-model="edicionTarea.task_priority_id" class="form-control">
                             <option value="">Seleccione</option>
-                            <option value="1"> Alta </option>
-                            <option value="2"> Media </option>
-                            <option value="3"> Baja </option>
+                            <option value="e89daf26-7135-4635-bcf7-08c943f767ff"> Alta </option>
+                            <option value="1e1a92df-c40f-4d01-97ed-d145d19d4036"> Media </option>
+                            <option value="bf508e5d-6bbf-460e-988c-4d66fee4cedb"> Baja </option>
                           </select>
                         </div>
                       </div>
@@ -310,7 +310,7 @@
                       </div>
                       <div align="center" class="col-md-12">
                         <div class="form-group">
-                          <button :disabled="!edicionTarea.tarenombre || !edicionTarea.taretipo || !edicionTarea.tarerestriccant || !edicionTarea.instrid || !edicionTarea.proyid" class="btn" @click="editarTarea()" type="button">Editar</button>
+                          <button class="btn" @click="editarTarea()" type="button">Editar</button>
                         </div>
                       </div>
                     </div>
