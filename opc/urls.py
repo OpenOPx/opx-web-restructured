@@ -19,7 +19,7 @@ from django.conf.urls import handler404, handler500
 
 from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros
 from myapp.view import (
-    userview, instrumentview, koboclient, auth,
+    userview, instrumentview, koboclient, auth, notificaciones,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
@@ -222,5 +222,6 @@ urlpatterns = [
     path('equipo-persona/store/', equipoPersona.crearEquipoPersona), #JM - pendiente que Leo le agregue Pk para verificar
     path('equipo-persona/<str:teamPersonId>/', equipoPersona.actualizarEquipoPersona), #JM -  pendiente que Leo le agregue Pk para verificar
 
-    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl)
+    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl),
+    path('notificaciones/list/', notificaciones.getPersonNotifications) # LF Gestion de cambios
 ]

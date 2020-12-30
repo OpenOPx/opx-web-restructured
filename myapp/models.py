@@ -4,6 +4,7 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.postgres.fields import JSONField
 import uuid
+from django.db.models.fields import NullBooleanField
 
 from django.db.models.fields.related import ForeignKey
 
@@ -145,7 +146,7 @@ class Person(models.Model):
     hour_location = models.CharField(blank=True, null=True, max_length=100)
     pers_score = models.IntegerField(null=True, blank=True, default=0)
     pers_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
-    fcm_token = models.CharField(max_length=255, null=True, blank=True)
+    #fcm_token = models.CharField(max_length=255, null=True, blank=True)
     isactive = models.IntegerField(default=1, null=False, blank=False)
     isemployee = models.IntegerField(default=0, null=False, blank=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -506,3 +507,17 @@ class Cartography(models.Model):
 
     class Meta:
         db_table = '"opx"."cartography"'
+
+#38
+class Notification(models.Model):
+    notification_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    notification_type = models.IntegerField()
+    description = JSONField()
+    project_name = models.CharField(max_length=100, null=True, blank=True)
+    task_name = models.CharField(max_length=100, null=True, blank=True)
+    notification_date = models.DateTimeField(auto_now_add=True)
+    person = models.ForeignKey(Person, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = '"opx"."notification"'
+        
