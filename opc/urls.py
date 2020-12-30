@@ -17,9 +17,10 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import handler404, handler500
 
-from myapp import views, proyecto, decision, equipo, comentario, decisionProyecto, equipoPersona, equipoMiembros, tareasjm
+from myapp import views
+
 from myapp.view import (
-    userview, instrumentview, koboclient, auth,
+    userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros,
     utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas #,contextualizacion, tareas
 )
 
@@ -40,8 +41,8 @@ urlpatterns = [
     path('usuarios/', userview.listadoUsuariosView), #OK OK LEO 
     path('usuarios/list/', userview.listadoUsuarios), #OK OK LEO
     path('usuarios/store/', userview.almacenarUsuario), #OK OK LEO
-    path('usuarios/detail/<str:userid>', userview.detalleUsuario), #OK LEO
-    path('usuarios/delete/<str:userid>', userview.eliminarUsuario), #???
+    path('usuarios/detail/<str:userid>', userview.detalleUsuario), #OK OK LEO
+    path('usuarios/delete/<str:userid>', userview.eliminarUsuario), #OK OK LEO
     path('usuarios/<str:userid>', userview.actualizarUsuario), #OK OK LEO
 
     path('contextos/', contextoview.listadoContextosView), #OK OK 
@@ -98,8 +99,6 @@ urlpatterns = [
     #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento), #??? ESTO ALGUNA VEZ ESTUVO? - El back de NM tiene eliminar instrumento
     #path('instrumentos/<str:id>/informacion/', views.informacionInstrumento), #??? - El back de NM tiene esto instrumento
 
-    #path('instrumentos/encuesta/crear', views.creacionEncuestaView), #???
-
     path('instrumentos/formularios-kobotoolbox/list/', koboclient.listadoFormulariosKoboToolbox), #OK OK LEO
     path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OK OK LEO
 
@@ -114,15 +113,11 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
-    #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
-    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #??? ESTO NECESITA ESTAR ENTRE LOS PATHS
+    path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
+    path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
+    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #OK OK JM
 
-    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO PENDIENTE
-
-    path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #OK JM #???
-    path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM #???
-    path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #OK JM #???
+    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO
 
     path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK OK S
     path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK OK S 
@@ -132,9 +127,7 @@ urlpatterns = [
 
     path('roles/', rolesview.listadoRolesView), #OK OK S
     path('roles/list/', rolesview.listadoRoles), #OK OK S
-    path('roles/store/', rolesview.almacenamientoRol), #OK - S NO APLICA 
-    path('roles/delete/<str:rolid>', rolesview.eliminarRol), #OK - S NO APLICA
-    path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
+
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
     path('tareas/', tareas.listadoTareasView), #OK S
@@ -150,15 +143,15 @@ urlpatterns = [
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
-    path('elementos-osm/list/', osm.elementosOsm),  #OK - S #???
+    path('elementos-osm/list/', osm.elementosOsm),  #S JM LEO
 
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
-    path('tareas/store/', tareasjm.almacenamientoTarea), #JM PRUEBA
-    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Falta cargarlo en el modelo para seguir
-    #path('contextualizacion/todo/', contextualizacion.todo), # Falta cargarlo en el modelo para seguir
-    #path('contextualizacion/mes/', contextualizacion.mensual), # Falta cargarlo en el modelo para seguir
-    #path('contextualizacion/semana/', contextualizacion.semanal), # Falta cargarlo en el modelo para seguir
-    #path('contextualizacion/dia/', contextualizacion.dia), # Falta cargarlo en el modelo para seguir
+    path('tareas/store/', tareas.almacenamientoTarea), #OK - JM
+    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), #LEO
+    #path('contextualizacion/todo/', contextualizacion.todo), #LEO
+    #path('contextualizacion/mes/', contextualizacion.mensual), #LEO
+    #path('contextualizacion/semana/', contextualizacion.semanal), #LEO
+    #path('contextualizacion/dia/', contextualizacion.dia), #LEO
 
     path('comentario/list/', comentario.listadoComentarios), #OK - JM 
     path('comentario/delete/', comentario.eliminarComentario), #OK - JM 
@@ -213,8 +206,7 @@ urlpatterns = [
     #path('reportes/proyectos/', estadisticas.reportesProyectosGeneralesView),  #S - Vistas que se agregan después por nuestra funcionalidad
 
     # =========================== Perfil ===============================================
-    path('mi-perfil/', profileview.perfilView), # SEBAS - LEO DIJO QUE LE HARÍA
+    path('mi-perfil/', profileview.perfilView), #OK OK LEO
 
-
-    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl)
+    path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl) #OK OK LEO
 ]

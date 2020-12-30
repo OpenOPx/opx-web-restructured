@@ -36,6 +36,98 @@ from myapp.view.notificaciones import gestionCambios
 # =========================== Tareas ==============================
 
 ##
+# @brief recurso de almacenamiento de Tareas
+# @param request Instancia HttpRequest
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def almacenamientoTarea(request):
+    print("1")
+    print(request.data)
+    restricciones = models.TaskRestriction(
+        start_time = request.POST.get('???'),
+        end_time = request.POST.get('???'),
+        task_unique_date = request.POST.get('???'),
+        task_start_date = request.POST.get('???'),
+        task_end_date = request.POST.get('???')
+    )
+    print("2")
+
+    territorioSubconjunto = models.TerritorialDimension(
+        dimension_name = request.POST.get('nombreSubconjunto'),
+        dimension_geojson = request.POST.get('getgeojsonsubconjunto'),
+        dimension_type = models.DimensionType.objects.get(dim_type_id = request.POST.get('tipoDimension'))
+    )
+    print("3")
+
+    territorioSubconjunto.full_clean()
+    territorioSubconjunto.save()
+
+    restricciones.full_clean()
+    restricciones.save()
+
+    print("4")
+    tarea = models.Task(
+        task_name = request.POST.get('tarenombre'),
+        task_type = models.TaskType.objects.get(pk = request.POST.get('taretipo')),
+        task_quantity = request.POST.get('tarerestriccant'),
+        task_priority = models.TaskPriority.objects.get(priority_number = request.POST.get('tareprioridad')),
+        task_description = request.POST.get('taredescripcion'),
+        project = models.Project.objects.get(pk = request.POST.get('proyid')),
+        task_observation = request.POST.get('task_observation'),
+        
+        #dimensionid = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionid')), # el id de la dimension mayor debe estar presente acá
+        instrument = models.Instrument.objects.get(pk = request.POST.get('instrid')),
+
+
+        territorial_dimension = territorioSubconjunto,
+        task_restriction = restricciones,
+
+        task_completness = request.POST.get('completitud'),
+    )
+
+    print("5")
+
+    try:
+        print("6")
+
+        tarea.full_clean()
+        tarea.save()
+        print("7")
+
+        data = serializers.serialize('python', [tarea])
+        print("8")
+
+        response = {
+            'code':     201,
+            'tarea':    data,
+            'status':   'success'
+        }
+
+    except ValidationError as e:
+        territorioSubconjunto.delete()
+        restricciones.delete()
+        response = {
+            'code':     400,
+            'errors':   dict(e),
+            'status':   'error'
+        }
+
+    except IntegrityError as e:
+        territorioSubconjunto.delete()
+        restricciones.delete()
+        response = {
+            'code':     400,
+            'message':  str(e),
+            'status':   'success'
+        }
+    print("9")
+
+    return JsonResponse(response, safe=False, status=response['code'])##
+
+  ##
 # @brief recurso que provee el listado de tareas
 # @param request Instancia HttpRequest
 # @return cadena JSON
@@ -131,6 +223,7 @@ def listadoTareas(request):
         }
 
     return JsonResponse(data, safe = False, status = data['code'])
+
 
 ##
 # @brief recurso que provee las tareas asociadas a las dimensiónes geograficas del sistema
@@ -233,79 +326,7 @@ def detalleTarea(request, tareid):
 
     return JsonResponse(data, status = data['code'], safe = False)
 
-##
-# @brief recurso de almacenamiento de Tareas
-# @param request Instancia HttpRequest
-# @return cadena JSON
-#
-@csrf_exempt
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
-def almacenamientoTarea(request): #Por aquí iba
-
-    print(request.data)
-    geojson_subconjunto = request.POST.get('geojsonsubconjunto')
-
-    tareTipo = request.POST.get('taretipo')
-
-
-    tareNombre = request.POST.get('tarenombre')
-    tareRestricGeo = "{}"
-    tareRestricCant = request.POST.get('tarerestriccant')
-    tareRestricTime = "{}"
-    instrID = request.POST.get('instrid')
-    proyID = request.POST.get('proj_id')
-    dimensionid = request.POST.get('dimensionid')
-    taredescripcion = request.POST.get('taredescripcion')
-    tareprioridad = request.POST.get('tareprioridad')
-    isactive = request.POST.get('isactive')
-
-    restriccion = models.TaskRestriction()
-    restriccion.full_clean()
-    restriccion.save()
-
-    territoriodentroproyecto = models.TerritorialDimension(geojson_subconjunto)
-    territoriodentroproyecto.full_clean()
-    territoriodentroproyecto.save()
-
-    instrumento = models.object.get(instrument_id = instrID)
-
-
-
-    tarea = models.Task(task_name = tareNombre, task_type_id = tareTipo, task_restriction = restriccion,
-                         instrument= instrID, project = proyID, territorial_dimension = dimensionid,  task_description = taredescripcion, isactive = isactive,
-                         task_priority=tareprioridad)
-
-    try:
-        tarea.full_clean()
-
-        tarea.save()
-        data = serializers.serialize('python', [tarea])
-
-        response = {
-            'code':     201,
-            'tarea':    data,
-            'status':   'success'
-        }
-
-    except ValidationError as e:
-        response = {
-            'code':     400,
-            'errors':   dict(e),
-            'status':   'error'
-        }
-
-    except IntegrityError as e:
-        response = {
-            'code':     400,
-            'message':  str(e),
-            'status':   'success'
-        }
-
-    return JsonResponse(response, safe=False, status=response['code'])
-
-##
-# @brief recurso de eliminación de tareas
+# # @brief recurso de eliminación de tareas
 # @param request Instancia HttpRequest
 # @param tareid Identificación de una tarea
 # @return cadena JSON
