@@ -97,7 +97,6 @@ let equipo = new Vue({
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.usuariosDisponibles = response.data.equipo;
-                    console.log(response)
                 }
             })
         },

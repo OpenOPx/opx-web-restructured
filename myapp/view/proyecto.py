@@ -30,7 +30,7 @@ from rest_framework.permissions import (
 
 from myapp import models
 from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
-
+ 
 ##
 # @brief Función que provee una plantilla HTML para la gestión de proyectos
 # @param request Instancia HttpRequest
@@ -426,7 +426,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza las decisiones
             decisiones = json.loads(decisiones)
             if len(decisiones)>0:
-                decisionesP = models.ProjectDecision.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                decisionesP = models.ProjectDecision.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if decisionesP.exists():
                     for decisionProj in decisionesP:
                         decisionProj.delete()
@@ -438,7 +438,7 @@ def actualizarProyecto(request, proyid):
             #Actualiza los contextos
             contextos = json.loads(contextos)
             if len(contextos)>0:
-                contextosP = models.ProjectContext.objects.filter(project_proj_id_exact = proyecto.proj_id)
+                contextosP = models.ProjectContext.objects.filter(project__proj_id__exact = proyecto.proj_id)
                 if contextosP.exists():
                     for contextoProj in contextosP:
                         contextoProj.delete() 
@@ -484,19 +484,46 @@ def actualizarProyecto(request, proyid):
 def eliminarProyecto(request, proyid):
 
     try:
-        print("1")
-        models.ProjectDecision.objects.get(project__proj_id = proyid).delete()
-        print("2")
-        models.ProjectContext.objects.get(project__proj_id = proyid).delete() 
+        projDeci = models.ProjectDecision.objects.filter(project__proj_id = proyid)
+
+        for p in projDeci:
+            p.delete()
+
+        projContx = models.ProjectContext.objects.filter(project__proj_id = proyid)
+
+        for p in projContx:
+            p.delete()
+
         print("3")
-        models.ProjectTeam.objects.get(project__proj_id = proyid).delete()
-        print("4")
-        models.TerritorialDimension.filter(dimension_id = (models.ProjectTerritorialDimension.get(project__proj_id = proyid)).dimension_id ).delete()
-        print("5")
+        projTeam = models.ProjectTeam.objects.filter(project__proj_id = proyid)
+        for p in projTeam:
+            p.delete()
+
+        projTerr = models.ProjectTerritorialDimension.objects.filter(project__proj_id = proyid)
+        for p in projTerr:
+            p.delete()
+
+        query="select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id where pd.project_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            territorios = dictfetchall(cursor)
+            for p in territorios:
+                models.TerritorialDimension.objects.get(pk = p['dimension_id']).delete()
+            
+        
+        projComentario = models.Comment.objects.filter(project__proj_id = proyid)
+        for p in projComentario:
+            p.delete()
+
+        projTask = models.Task.objects.filter(project__proj_id = proyid)
+        for p in projTask:
+            p.delete()
+
         #borrar las tareas antes de borrar e pj al igual que
         proyecto = models.Project.objects.get(pk = proyid)
         proyecto.delete()
-        print("6")
+
         return JsonResponse({'status': 'success'})
 
     except ObjectDoesNotExist:
@@ -536,7 +563,7 @@ def equipoProyectoView(request, proyid):
 def equipoProyecto(request, proyid):
 
     try:
-        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"';"
+        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)
@@ -572,10 +599,10 @@ def equipoProyecto(request, proyid):
 def equiposDisponiblesProyecto(request, proyid):
 
     try:
-        query = "select * from opx.team \
+        query = "select * from opx.team as team2\
             except(select team1.* from opx.project_team as pt \
             inner join opx.team as team1 on pt.team_id = team1.team_id \
-            where pt.project_id = '"+proyid+"');"
+            where pt.project_id = '"+proyid+"')"
             
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -665,3 +692,117 @@ def eliminarEquipo(request,equid):
         }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+
+##
+# @brief recurso que provee las dimensiones geograficas de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def dimensionesTerritoriales(request, proyid):
+
+    try:
+
+        query= "select td.* from opx.territorial_dimension as td \
+                inner join opx.project_dimension as pt on td.dimension_id = pt.territorial_dimension_id \
+                inner join opx.project as pj on pj.proj_id = pt.project_id \
+                where pj.proj_id = '"+proyid+"';"
+       
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            dimensionesTerritoriales = dictfetchall(cursor)
+
+    
+        data = {
+            'code': 200,
+            'dimensionesTerritoriales': list(dimensionesTerritoriales),
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
+
+
+    ##
+
+# @brief Función que provee una plantilla HTML para la gestión de tareas de un proyecto especifico
+# @param request Instancia HttpRequest
+# @param proyid Identificación de un proyecto
+# @return plantilla HTML
+#
+def tareasProyectoView(request, proyid):
+
+    try:
+        proyecto = models.Project.objects.get(pk=proyid)
+        data =  render(request, 'tareas/listado.html', {'proyecto':proyecto})
+    except ObjectDoesNotExist:
+        data = HttpResponse("", status=404)
+    except ValidationError:
+        data = HttpResponse("", status=400)
+
+    return data
+
+    ##
+# @brief recurso que provee el detalle de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def detalleProyecto(request, proyid):
+
+    try:
+        query = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, proyecto.proj_name, prioridad.priority_name \
+                from opx.project as proyecto \
+                inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
+                inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
+                inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
+                inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
+                where proyecto.proj_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            listaTareas = dictfetchall(cursor)
+
+        data = {
+            'code': 200,
+            'detail':{
+              #'proyecto': proyecto[0],
+              'tareas': list(listaTareas)
+            },
+            'status': 'success'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': "error",
+        }
+
+    except DataError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status = data['code'], safe = False)

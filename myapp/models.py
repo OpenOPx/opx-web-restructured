@@ -361,12 +361,14 @@ class Task(models.Model):
     task_observation = models.CharField(max_length=1000)
     task_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
     task_quantity = models.IntegerField(default=0, null=False, blank=False)
-    task_completness = models.FloatField()
+    task_completness = models.FloatField(default=0)
     isactive = models.IntegerField(default=1, null=False, blank=False)
     task_priority = models.ForeignKey(TaskPriority, on_delete=models.PROTECT)
     task_type = models.ForeignKey(TaskType, on_delete=models.PROTECT)
+    proj_dimension = models.ForeignKey(
+        TerritorialDimension, related_name='proj_dimension',on_delete=models.PROTECT)
     territorial_dimension = models.ForeignKey(
-        TerritorialDimension, on_delete=models.PROTECT)
+        TerritorialDimension, related_name='territorial_dimension',on_delete=models.PROTECT)
     project = models.ForeignKey(Project, on_delete=models.PROTECT)
     task_restriction = models.OneToOneField(
         TaskRestriction, on_delete=models.PROTECT)  # agregar al Diag - changos
