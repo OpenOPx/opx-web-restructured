@@ -95,8 +95,9 @@ def listadoTareas(request):
             # Tipo encuesta
             if t['task_type_id'] == 1:
                 encuestas = models.Survery.objects.filter(task_id__exact=t['task_id']) #Me quedé varado en el survey
-                progreso = (len(encuestas) * 100) / t['completness']
-                t['task_quantity'] = progreso
+                if t['task_completness'] != 0:
+                    progreso = (len(encuestas) * 100) / t['task_completness']
+                    t['task_quantity'] = progreso
 
         if all is not None and all == "1":
             data = {
@@ -242,15 +243,19 @@ def detalleTarea(request, tareid):
 @permission_classes((IsAuthenticated,))
 def almacenamientoTarea(request): #Por aquí iba
 
-    tareNombre = request.POST.get('tarenombre')
+    print(request.data)
+    geojson_subconjunto = request.POST.get('geojsonsubconjunto')
+
     tareTipo = request.POST.get('taretipo')
+
+
+    tareNombre = request.POST.get('tarenombre')
     tareRestricGeo = "{}"
     tareRestricCant = request.POST.get('tarerestriccant')
     tareRestricTime = "{}"
     instrID = request.POST.get('instrid')
     proyID = request.POST.get('proj_id')
     dimensionid = request.POST.get('dimensionid')
-    geojson_subconjunto = request.POST.get('geojsonsubconjunto')
     taredescripcion = request.POST.get('taredescripcion')
     tareprioridad = request.POST.get('tareprioridad')
     isactive = request.POST.get('isactive')
@@ -259,9 +264,9 @@ def almacenamientoTarea(request): #Por aquí iba
     restriccion.full_clean()
     restriccion.save()
 
-    territoriodentroproyecto = models.TerritorialDimension()
+    territoriodentroproyecto = models.TerritorialDimension(geojson_subconjunto)
     territoriodentroproyecto.full_clean()
-    territoriodentroproyecto.save(geojson_subconjunto)
+    territoriodentroproyecto.save()
 
     instrumento = models.object.get(instrument_id = instrID)
 
@@ -311,9 +316,18 @@ def almacenamientoTarea(request): #Por aquí iba
 def eliminarTarea(request, tareid):
 
     try:
-        tarea = models.Tarea.objects.get(pk = tareid)
-        task_type 
+        tarea = models.Task.objects.get(pk = tareid)
+        print(tarea.task_restriction.restriction_id)
+        restriccion = models.TaskRestriction.objects.get(pk = tarea.task_restriction.restriction_id)
+
+        subterritorio = models.TerritorialDimension.objects.get(pk = tarea.territorial_dimension.dimension_id)
+
+        
         tarea.delete()
+        restriccion.delete()
+        subterritorio.delete()
+
+
 
         return JsonResponse({'status': 'success'})
 
@@ -334,16 +348,20 @@ def eliminarTarea(request, tareid):
 @permission_classes((IsAuthenticated,))
 def actualizarTarea(request, tareid):
     try:
-        tarea = models.Tarea.objects.get(pk=tareid)
 
-        estado = int(request.POST.get('tareestado'))
-
-        tarea.tarenombre = request.POST.get('tarenombre')
-        #tarea.taretipo = request.POST.get('taretipo')
-        tarea.tarerestriccant = request.POST.get('tarerestriccant')
-        tarea.proyid = request.POST.get('proj_id')
-        tarea.taredescripcion = request.POST.get('taredescripcion')
-        tarea.tareprioridad = request.POST.get('tareprioridad');
+        estado = 0
+        tarea = models.Task.objects.get(pk=tareid)
+        print(request.data)
+        print(tareid)
+        taskpriority = models.TaskPriority.objects.get(pk = request.POST.get('task_priority_id'))
+        tasktipe = models.TaskType.objects.get(pk = request.POST.get('task_type_id'))
+        projecto = models.Project.objects.get(pk = request.POST.get('project_id'))
+        tarea.task_name = request.POST.get('task_name')
+        tarea.task_type = tasktipe
+        tarea.task_quantity = request.POST.get('task_quantity')
+        tarea.project = projecto
+        tarea.task_description = request.POST.get('task_description')
+        tarea.task_priority = taskpriority
 
         tarea.full_clean()
 

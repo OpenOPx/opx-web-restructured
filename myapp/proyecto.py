@@ -737,3 +737,4 @@ def dimensionesTerritoriales(request, proyid):
         }
 
     return JsonResponse(data, safe = False, status = data['code'])
+ 
