@@ -102,20 +102,11 @@ urlpatterns = [
 
     path('instrumentos/formularios-kobotoolbox/list/', koboclient.listadoFormulariosKoboToolbox), #OK OK LEO
     path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OK OK LEO
-<<<<<<< HEAD
-    #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento),
-    #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento),
-    #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia),
-    #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta),
-    #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView),
-
-=======
 
     #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento), #???
     #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), #???
     #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), #???
     #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta), #???
->>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
@@ -123,12 +114,6 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-<<<<<<< HEAD
-    #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto),
-    path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales),
-    #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView),
-    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio),
-=======
     #path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #???
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #?JM
     #path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #???
@@ -137,7 +122,6 @@ urlpatterns = [
     path('decisiones-proyecto/<str:proyid>/', decisionProyecto.listadoDecisionesProyecto), #OK JM #???
     path('decisiones-proyecto/store/', decisionProyecto.almacenarDecisionProyecto), #JM #???
     path('decisiones-proyecto/delete/<str:desproid>/', decisionProyecto.eliminarDecisionProyecto), #OK JM #???
->>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK OK S
     path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK OK S 
@@ -152,17 +136,6 @@ urlpatterns = [
     path('roles/<str:rolid>', rolesview.actualizarRol), #OK - S NO APLICA
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
-<<<<<<< HEAD
-    path('tareas/', tareas.listadoTareasView), #OK S OK
-    path('tareas/list/', tareas.listadoTareas), # OK S OK 
-    path('tareas/store/', tareas.almacenamientoTarea), # S 
-    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #
-    #path('tareas/<str:tareid>', tareas.actualizarTarea),
-    #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa),
-    #path('tareas/detail/<str:tareid>', tareas.detalleTarea),
-    #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial),
-    path('tareas/tipos/', views.listadoTiposDeTareas), #OK S OK
-=======
     path('tareas/', tareas.listadoTareasView), #OK S
     path('tareas/list/', tareas.listadoTareas), #S #???
     path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #S #???
@@ -173,7 +146,6 @@ urlpatterns = [
     #path('instrumentos/informacion/<str:id>', views.informacionInstrumentoView), #S #???
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #???
     path('tareas/tipos/', views.listadoTiposDeTareas), #???
->>>>>>> 83f1d25eebb0ff1699d7013a4af581e8207b5c18
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
