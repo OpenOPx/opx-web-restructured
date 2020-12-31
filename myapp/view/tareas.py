@@ -44,21 +44,18 @@ from myapp.view.notificaciones import gestionCambios
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenamientoTarea(request):
-    print("1")
-    print(request.data)
     restricciones = models.TaskRestriction(
         start_time = request.POST.get('HoraInicio'),
         end_time = request.POST.get('HoraCierre'),
         task_start_date = request.POST.get('tarfechainicio'),
         task_end_date = request.POST.get('tarfechacierre')
     )
-    print("2")
+
     territorioSubconjunto = models.TerritorialDimension(
         dimension_name = request.POST.get('nombreSubconjunto'),
         dimension_geojson = request.POST.get('geojsonsubconjunto'),
         dimension_type = models.DimensionType.objects.get(pk = "35b0b478-9675-45fe-8da5-02ea9ef88f1b")
     )
-    print("3")
 
     territorioSubconjunto.full_clean()
     territorioSubconjunto.save()
@@ -66,69 +63,60 @@ def almacenamientoTarea(request):
     restricciones.full_clean()
     restricciones.save()
     proyid = request.POST.get('proyid')
-    query="select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id where pd.project_id = '"+proyid+"';"
 
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        territorios = dictfetchall(cursor)
-    print(territorios[0])
-    dimen = models.TerritorialDimension.objects.get(pk = territorios[0]['dimension_id'])
-    print("4")
-    tarea = models.Task(
-        task_name = request.POST.get('tarenombre'),
-        task_type = models.TaskType.objects.get(pk = request.POST.get('taretipo')),
-        task_quantity = request.POST.get('tarerestriccant'),
-        task_priority = models.TaskPriority.objects.get(priority_number = request.POST.get('tareprioridad')),
-        task_description = request.POST.get('taredescripcion'),
-        project = models.Project.objects.get(pk = proyid),
-        task_observation = request.POST.get('task_observation'),
-        proj_dimension = dimen,
-        
-        #dimensionid = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionid')), # el id de la dimension mayor debe estar presente acá
-        instrument = models.Instrument.objects.get(pk = request.POST.get('instrid')),
+    dimen = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionIDparaTerritorialD'))
+
+    with transaction.atomic():
+        tarea = models.Task(
+            task_name = request.POST.get('tarenombre'),
+            task_type = models.TaskType.objects.get(pk = request.POST.get('taretipo')),
+            task_quantity = request.POST.get('tarerestriccant'),
+            task_priority = models.TaskPriority.objects.get(priority_number = request.POST.get('tareprioridad')),
+            task_description = request.POST.get('taredescripcion'),
+            project = models.Project.objects.get(pk = proyid),
+            task_observation = "esto es para reportes",
+            proj_dimension = dimen,
+
+            #dimensionid = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionid')), # el id de la dimension mayor debe estar presente acá
+            instrument = models.Instrument.objects.get(pk = request.POST.get('instrid')),
 
 
-        territorial_dimension = territorioSubconjunto,
-        task_restriction = restricciones,
-    )
+            territorial_dimension = territorioSubconjunto,
+            task_restriction = restricciones,
+        )
 
-    print("5")
 
-    try:
-        print("6")
+        try:
 
-        tarea.full_clean()
-        tarea.save()
-        print("7")
 
-        data = serializers.serialize('python', [tarea])
-        print("8")
+            tarea.full_clean()
+            tarea.save()
+            data = serializers.serialize('python', [tarea])
 
-        response = {
-            'code':     201,
-            'tarea':    data,
-            'status':   'success'
-        }
+            response = {
+                'code':     201,
+                'tarea':    data,
+                'status':   'success'
+            }
 
-    except ValidationError as e:
-        territorioSubconjunto.delete()
-        restricciones.delete()
-        response = {
-            'code':     400,
-            'errors':   dict(e),
-            'status':   'error'
-        }
+        except ValidationError as e:
+            territorioSubconjunto.delete()
+            restricciones.delete()
+            response = {
+                'code':     400,
+                'errors':   dict(e),
+                'status':   'error'
+            }
 
-    except IntegrityError as e:
-        territorioSubconjunto.delete()
-        restricciones.delete()
-        response = {
-            'code':     400,
-            'message':  str(e),
-            'status':   'success'
-        }
-    print("9")
-
+        except IntegrityError as e:
+            territorioSubconjunto.delete()
+            restricciones.delete()
+            response = {
+                'code':     400,
+                'message':  str(e),
+                'status':   'success'
+            }
+            
     return JsonResponse(response, safe=False, status=response['code'])##
 
   ##
