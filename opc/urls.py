@@ -103,7 +103,7 @@ urlpatterns = [
     path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OK OK LEO
 
     #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento), #???
-    #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), #???
+    path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), # OK LF
     #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), #???
     #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta), #???
 

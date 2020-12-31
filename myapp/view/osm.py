@@ -98,13 +98,13 @@ def cerrarChangeset(changeset):
 def AgregarElemento(request, tareid):
 
     try:
-        tarea = models.Tarea.objects.get(pk=tareid)
-        instrumento = models.Instrumento.objects.get(pk = tarea.instrid)
-
-        if instrumento.instrtipo == 2:
+        tarea = models.Task.objects.get(pk=tareid)
+        #instrumento = models.Instrument.objects.get(pk = tarea.instrument.instrument_id)
+        instrumento = tarea.instrument
+        if instrumento.instrument_type == 2:
 
             data = json.loads(request.body)
-            osmelement = models.ElementoOsm.objects.get(pk = data['osmelement'])
+            osmelement = models.OsmElement.objects.get(pk = data['osmelement'])
 
             if osmelement.closed_way == 1:
                 coordinates = data['coordinates']
@@ -153,8 +153,8 @@ def AgregarElemento(request, tareid):
 
             #Etiqueta de Elemento tipo Way
             tag = SubElement(way, 'tag')
-            tag.set('k', osmelement.llaveosm)
-            tag.set('v', osmelement.valorosm)
+            tag.set('k', osmelement.osm_key)
+            tag.set('v', osmelement.osm_value)
 
             # Obteniendo cadena XML a enviar a OSM
             xmlRequest = str(tostring(root), 'utf-8')
@@ -177,7 +177,8 @@ def AgregarElemento(request, tareid):
 
                 #Almacenando Cartografia
                 user = usuarioAutenticado(request)
-                cartografia = almacenarCartografia(instrumento.instrid, wayElement.get('new_id'), osmelement.elemosmid, user.userid, tarea.tareid)
+                person = models.Person.objects.get(user__userid__exact = user.userid)
+                cartografia = almacenarCartografia(instrumento, wayElement.get('new_id'), osmelement, person, tarea)
 
                 response = {
                     'code': 200,
@@ -244,12 +245,19 @@ def AgregarElemento(request, tareid):
 # @param tareid Identificación de la tarea
 # @return Diccionario con la información de la cartografia realizada
 #
-def almacenarCartografia(instrid, wayid, elemosmid, userid, tareid):
+def almacenarCartografia(instrument, wayid, osmelement, person, task):
+    try:
 
-    cartografia = models.Cartografia(instrid=instrid, osmid=wayid, elemosmid=elemosmid, userid=userid, tareid=tareid)
-    cartografia.save()
+        cartografia = models.Cartography(instrument=instrument, osmid=wayid, osm_elemtent=osmelement, person=person, task=task)
+        cartografia.save()
 
-    return serializers.serialize('python', [cartografia])[0]
+        return serializers.serialize('python', [cartografia])[0]
+    except ObjectDoesNotExist as e:
+        response = {
+            'code': 404,
+            'message': str(e),
+            'status': 'error'
+        }
 
 ##
 # @brief Recurso que provee los tipos de elementos de Open Street Maps Disponibles
@@ -278,15 +286,15 @@ def elementosOsm(request):
 def detalleCartografia(tareid):
 
     try:
-        tarea = models.Tarea.objects.get(pk=tareid)
-        instrumento = models.Instrumento.objects.get(pk = tarea.instrid)
-
-        if instrumento.instrtipo == 2:
-
-            query = "SELECT c.*, eo.nombre as tipo_elemento_osm, eo.closed_way FROM v1.cartografias as c " \
-                    "INNER JOIN v1.elementos_osm as eo ON c.elemosmid = eo.elemosmid " \
-                    "WHERE c.tareid = '" + tareid + "' " \
-                    "AND c.estado <> 1"
+        tarea = models.Task.objects.get(pk=tareid)
+        #instrumento = models.Instrument.objects.get(pk = tarea.instrument.instrument_id)
+        instrumento = tarea.instrument
+        if instrumento.instrument_type == 2:
+             
+            query = "SELECT c.*, eo.osmelement_name as tipo_elemento_osm, eo.closed_way FROM opx.cartography as c " \
+                    "INNER JOIN opx.osm_element as eo ON c.osm_elemtent_id = eo.osmelement_id " \
+                    "WHERE c.task_id = '" + tareid + "' " \
+                    "AND c.cartography_state <> 0"
 
             with connection.cursor() as cursor:
                 cursor.execute(query)
@@ -347,7 +355,7 @@ def detalleCartografia(tareid):
                 # Agregando propiedades a cada uno de los Features del GEOJSON
                 for index, item in enumerate(geojson['features']):
                     properties = {
-                        'id': str(cartografias[index]['cartografiaid']),
+                        'id': str(cartografias[index]['cartography_id']),
                         'tipo': cartografias[index]['tipo_elemento_osm']
                     }
 
@@ -423,8 +431,8 @@ def cartografiasInstrumento(request, tareid):
 def eliminarCartografia(request, cartografiaid):
 
     try:
-        cartografia = models.Cartografia.objects.get(pk = cartografiaid)
-        cartografia.estado = 1
+        cartografia = models.Cartography.objects.get(pk = cartografiaid)
+        cartografia.estado = 0
         cartografia.save()
 
         #cartografia.delete()
