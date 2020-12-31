@@ -130,16 +130,16 @@ urlpatterns = [
 
     path('roles/permisos/<str:rolid>', rolesview.permisosRolView), #OK OK S
 
-    path('tareas/', tareas.listadoTareasView), #OK S
-    path('tareas/list/', tareas.listadoTareas), #S #???
-    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #S #???
-    path('tareas/store/', tareas.almacenamientoTarea), #S #???
-    path('tareas/<str:tareid>', tareas.actualizarTarea), #S #???
+    path('tareas/', tareas.listadoTareasView), #OK S OK
+    path('tareas/list/', tareas.listadoTareas), #OK S
+    path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #OK S OK
+    path('tareas/store/', tareas.almacenamientoTarea), #OK S
+    path('tareas/<str:tareid>', tareas.actualizarTarea), #OK S OK
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
-    path('tareas/detail/<str:tareid>', tareas.detalleTarea), #S #???
+    path('tareas/detail/<str:tareid>', tareas.detalleTarea), #OK S OK
     path('instrumentos/informacion/<str:id>', instrumentview.informacionInstrumentoView), #S #???
     #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #???
-    path('tareas/tipos/', views.listadoTiposDeTareas), #S
+    path('tareas/tipos/', views.listadoTiposDeTareas), #OK S
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
