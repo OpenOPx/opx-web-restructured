@@ -208,57 +208,73 @@ def listadoProyectos(request):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenamientoProyecto(request):
-
+    print(request.data)
+    print("1")
     user = usuarioAutenticado(request)
     person = models.Person.objects.get(user__userid = user.userid)
-
+    print("2")
     # Decodificando el access token
     tokenBackend = TokenBackend(settings.SIMPLE_JWT['ALGORITHM'], settings.SIMPLE_JWT['SIGNING_KEY'], settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
 
+    print("3")
     decisiones = request.POST.get('decisiones')
+    print("4")
     contextos = request.POST.get('contextos')
+    print("5")
     equipos = request.POST.get('plantillas')
+    print("6")
     delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
+    print("7")
     tipoP = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
     
     try:
-        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
-            proyecto = models.Project(
-                proj_name = request.POST.get('proynombre'),
-                proj_description= request.POST.get('proydescripcion'),
-                proj_external_id = 12345,
-                proj_creation_date = datetime.today(),
-                proj_close_date = request.POST.get('proyfechacierre'),
-                proj_start_date = request.POST.get('proyfechainicio'),
-                proj_completness = 0,
-                project_type = tipoP,
-                proj_owner = person
-            )
+        with transaction.atomic():
+            print("8")
+            if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+                print("9")
+                proyecto = models.Project(
+                    proj_name = request.POST.get('proynombre'),
+                    proj_description= request.POST.get('proydescripcion'),
+                    proj_external_id = 12345,
+                    proj_close_date = request.POST.get('proyfechacierre'),
+                    proj_start_date = request.POST.get('proyfechainicio'),
+                    proj_completness = 0,
+                    project_type = tipoP,
+                    proj_owner = person
+                )
+                print("10")
+                proyecto.full_clean()
+                print("11")
+                proyecto.save()
+                print("12")
 
-            proyecto.full_clean()
-            proyecto.save()
+                delimitacionGeograficas = json.loads(delimitacionGeograficas)
+                almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
 
-            delimitacionGeograficas = json.loads(delimitacionGeograficas)
-            almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
+                print("13")
+                decisiones = json.loads(decisiones)
+                almacenarDecisionProyecto(proyecto, decisiones)
 
-            decisiones = json.loads(decisiones)
-            almacenarDecisionProyecto(proyecto, decisiones)
+                print("14")
+                contextos = json.loads(contextos)
+                almacenarContextosProyecto(proyecto, contextos)
 
-            contextos = json.loads(contextos)
-            almacenarContextosProyecto(proyecto, contextos)
+                print("15")
+                equipos = json.loads(equipos)
+                asignarEquipos(proyecto, equipos)
 
-            equipos = json.loads(equipos)
-            asignarEquipos(proyecto, equipos)
+                print("16")
+                data = serializers.serialize('python', [proyecto])[0]
 
-            data = serializers.serialize('python', [proyecto])[0]
-            data = {
-                'code': 201,
-                'proyecto': data,
-                'status': 'success'
-            }
-        else:
-            raise ValidationError({'Información incompleta'})
+                print("17")
+                data = {
+                    'code': 201,
+                    'proyecto': data,
+                    'status': 'success'
+                }
+            else:
+                raise ValidationError({'Información incompleta'})
 
     except ValidationError as e:
         proyecto.delete()
@@ -288,6 +304,7 @@ def almacenamientoProyecto(request):
             'message': str(e),
             'status': 'error'
         }
+    print("18")
     return JsonResponse(data, safe = False, status = data['code'])
 
 ##
@@ -297,10 +314,11 @@ def almacenamientoProyecto(request):
 # @return booleano
 #
 def almacenarDecisionProyecto(proyecto, decisiones):
-    
+    print(decisiones)
     try:
         for decisionI in decisiones:
-
+            print("acáaaaaaaaaaaaaaaaaaa")
+            print(decisionI+ "ESTO FUE")
             desicionP = None
             decisionProyecto = None
 
@@ -351,7 +369,7 @@ def almacenarContextosProyecto(proyecto, contextos):
 # @param proyecto instancia del modelo proyecto
 # @param delimitacionesGeograficas delimitaciones geograficas generadas por el mapa
 # @return Diccionario
-#
+# 
 def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
     try:
 

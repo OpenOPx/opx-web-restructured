@@ -53,11 +53,11 @@ def listadoMiembros(request, planid):
 
             miembrosPlantilla = dictfetchall(cursor)
         
-        response = {
-            'code': 200,
-            'data': miembrosPlantilla,
-            'status': 'success'
-        }
+            response = {
+                'code': 200,
+                'data': miembrosPlantilla,
+                'status': 'success'
+            }
     except ValidationError as e:
 
         response = {
@@ -80,34 +80,35 @@ def listadoMiembros(request, planid):
 def agregarMiembro(request, planid):
 
     try:
-        personaId = request.POST.get('usuarioId')
+        with transaction.atomic():
+            personaId = request.POST.get('usuarioId')
 
-        persona = models.Person.objects.get(user__userid = personaId)
-        print(persona)
+            persona = models.Person.objects.get(user__userid = personaId)
+            print(persona)
 
-        equipo = models.Team.objects.get(pk=planid)
+            equipo = models.Team.objects.get(pk=planid)
 
-        equipoPersona = models.TeamPerson.objects.filter(person__pers_id__exact = persona.pers_id).filter(team__team_id__exact = equipo.team_id)
+            equipoPersona = models.TeamPerson.objects.filter(person__pers_id__exact = persona.pers_id).filter(team__team_id__exact = equipo.team_id)
 
-        if len(equipoPersona) == 0:
-            equipoMiembro = models.TeamPerson(
-            person = persona,
-            team = equipo
-            )
-            equipoMiembro.full_clean()
-            equipoMiembro.save()
-            response = {
-                'code': 201,
-                'data': model_to_dict(equipoMiembro),
-                'status': 'success'
-            }
-        
-        else:
-            response = {
-            'code': 403,
-            'message': 'El usuario ya está registrado en el equipo',
-            'status': 'error'
-            }
+            if len(equipoPersona) == 0:
+                equipoMiembro = models.TeamPerson(
+                person = persona,
+                team = equipo
+                )
+                equipoMiembro.full_clean()
+                equipoMiembro.save()
+                response = {
+                    'code': 201,
+                    'data': model_to_dict(equipoMiembro),
+                    'status': 'success'
+                }
+            
+            else:
+                response = {
+                'code': 403,
+                'message': 'El usuario ya está registrado en el equipo',
+                'status': 'error'
+                }
         
     except ObjectDoesNotExist:
         response = {
@@ -195,14 +196,15 @@ def miembrosDisponibles(request, planid):
 def eliminarMiembro(request, miplid):
 
     try:
-        miembroPlantilla = models.TeamPerson.objects.get(pk=miplid)
+        with transaction.atomic():
+            miembroPlantilla = models.TeamPerson.objects.get(pk=miplid)
 
-        miembroPlantilla.delete()
+            miembroPlantilla.delete()
 
-        response = {
-            'code': 200,
-            'status': 'success'
-        }
+            response = {
+                'code': 200,
+                'status': 'success'
+            }
 
     except ObjectDoesNotExist:
         response = {
