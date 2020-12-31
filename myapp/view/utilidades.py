@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.http.response import JsonResponse
 from django.shortcuts import render
-
+from django.db import (connection, transaction)
 from myapp import models
 
 from rest_framework.decorators import api_view, permission_classes
@@ -174,19 +174,19 @@ def serverErrorPage(request, exception=None):
 # @return Diccionario
 #
 def reporteEstadoProyecto(proyid):
-    progresoProyecto = 0
-    tareas = models.Tarea.objects.filter(proyid__exact = proyid)
-    tareasValidadas = 0
+    progresoProyecto = (models.Project.objects.get(pk = proyid)).proj_completness
+    tareas = models.Task.objects.filter(project_id__exact = proyid)
+    tareasValidadas = 0 #pendiente
 
     for tarea in tareas:
 
-        if tarea.taretipo == 1:
-            encuestas = models.Encuesta.objects.filter(tareid__exact=tarea.tareid)
-            progreso = (len(encuestas) * 100) / tarea.tarerestriccant
+        if tarea.task_type_id == 1:
+            encuestas = models.Survery.objects.filter(task__task_id__exact = tarea.task_id)
+            progreso = (len(encuestas) * 100) / tarea.task_quantity
 
             progresoProyecto = progresoProyecto + progreso
 
-        if tarea.tareestado == 2:
+        if tarea.task_type_id == 2:
             tareasValidadas += 1
 
     if progresoProyecto > 0:
@@ -197,10 +197,16 @@ def reporteEstadoProyecto(proyid):
     else:
         estadoValidacion = 0
 
+
+    query = "select count(distinct tp.person_id) from opx.team_person as tp inner join opx.project_team as pt on tp.team_id = pt.team_id where pt.project_id = '"+proyid+"';"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        cantidadMiembros = dictfetchall(cursor)
+
     return {
         'progreso-proyecto':    progresoProyecto,
         'estado-validacion':    estadoValidacion,
-        'cantidad-integrantes': len(models.Equipo.objects.filter(proyid__exact=proyid))
+        'cantidad-integrantes': cantidadMiembros
     }
 
 def reporteEstadoTarea(tarea):
