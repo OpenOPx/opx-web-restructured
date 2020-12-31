@@ -178,7 +178,7 @@ class Project(models.Model):
     proj_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
     proj_close_date = models.DateTimeField(null=True, blank=True)
     proj_start_date = models.DateTimeField(null=True, blank=True)
-    proj_completness = models.FloatField()
+    proj_completness = models.FloatField(default=0.0)
     isactive = models.IntegerField(default=1, null=False, blank=False)
     project_type = models.ForeignKey(ProjectType, on_delete=models.PROTECT)
     proj_owner = models.ForeignKey(Person, on_delete=models.PROTECT)
@@ -332,7 +332,6 @@ class TaskRestriction(models.Model):
         primary_key=True, default=uuid4, editable=False)
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
-    task_unique_date = models.DateField(null=True, blank=True)
     task_start_date = models.DateField(null=True, blank=True)
     task_end_date = models.DateField(null=True, blank=True)
     # task = models.ForeignKey(Task, on_delete=models.PROTECT) # borrar del Diagram - changos

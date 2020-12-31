@@ -211,7 +211,7 @@
                         </div>
                       </div>
                       <div class="offset-md-3 col-md-6">
-                        <input v-model="almacenamientoTarea.nombre" type="text" class="form-control" placeholder="Nombre de dimension"> <br />
+                        <input v-model="almacenamientoTarea.nombreSubconjunto" type="text" class="form-control" placeholder="Nombre de dimension"> <br />
                       </div>
                       <div class="col-md-12">
                         <div id="taskmap"></div>
@@ -242,9 +242,9 @@
                         </div>
                       </div>
                       <div class="col-md-12">
-                        <input type="time" id="appt" name="appt" min="09:00" max="18:00" required>
+                        <input v-model="almacenamientoTarea.HoraInicio" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de inicio</small>
-                        <input type="time" id="appt" name="appt" min="09:00" max="18:00" required>
+                        <input v-model="almacenamientoTarea.HoraCierre" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de cierre</small>
                       </div>
                       <div align="center" class="col-md-12">

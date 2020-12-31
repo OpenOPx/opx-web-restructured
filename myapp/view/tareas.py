@@ -47,18 +47,16 @@ def almacenamientoTarea(request):
     print("1")
     print(request.data)
     restricciones = models.TaskRestriction(
-        start_time = request.POST.get('???'),
-        end_time = request.POST.get('???'),
-        task_unique_date = request.POST.get('???'),
-        task_start_date = request.POST.get('???'),
-        task_end_date = request.POST.get('???')
+        start_time = request.POST.get('HoraInicio'),
+        end_time = request.POST.get('HoraCierre'),
+        task_start_date = request.POST.get('tarfechainicio'),
+        task_end_date = request.POST.get('tarfechacierre')
     )
     print("2")
-
     territorioSubconjunto = models.TerritorialDimension(
         dimension_name = request.POST.get('nombreSubconjunto'),
-        dimension_geojson = request.POST.get('getgeojsonsubconjunto'),
-        dimension_type = models.DimensionType.objects.get(dim_type_id = request.POST.get('tipoDimension'))
+        dimension_geojson = request.POST.get('geojsonsubconjunto'),
+        dimension_type = models.DimensionType.objects.get(pk = "35b0b478-9675-45fe-8da5-02ea9ef88f1b")
     )
     print("3")
 
@@ -67,7 +65,14 @@ def almacenamientoTarea(request):
 
     restricciones.full_clean()
     restricciones.save()
+    proyid = request.POST.get('proyid')
+    query="select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id where pd.project_id = '"+proyid+"';"
 
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        territorios = dictfetchall(cursor)
+    print(territorios[0])
+    dimen = models.TerritorialDimension.objects.get(pk = territorios[0]['dimension_id'])
     print("4")
     tarea = models.Task(
         task_name = request.POST.get('tarenombre'),
@@ -75,8 +80,9 @@ def almacenamientoTarea(request):
         task_quantity = request.POST.get('tarerestriccant'),
         task_priority = models.TaskPriority.objects.get(priority_number = request.POST.get('tareprioridad')),
         task_description = request.POST.get('taredescripcion'),
-        project = models.Project.objects.get(pk = request.POST.get('proyid')),
+        project = models.Project.objects.get(pk = proyid),
         task_observation = request.POST.get('task_observation'),
+        proj_dimension = dimen,
         
         #dimensionid = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionid')), # el id de la dimension mayor debe estar presente acá
         instrument = models.Instrument.objects.get(pk = request.POST.get('instrid')),
@@ -84,8 +90,6 @@ def almacenamientoTarea(request):
 
         territorial_dimension = territorioSubconjunto,
         task_restriction = restricciones,
-
-        task_completness = request.POST.get('completitud'),
     )
 
     print("5")
@@ -286,16 +290,16 @@ def listadoTareasMapa(request):
 def detalleTarea(request, tareid):
 
     try:
-        tarea = models.Tarea.objects.get(pk = tareid)
+        tarea = models.Task.objects.get(pk = tareid)
 
         tareaDict = model_to_dict(tarea)
         
         # Tipo encuesta
-        if tareaDict['task_type_id'] == 1:
+        if tareaDict['task_type'] == 1:
 
-            encuestas = models.Encuesta.objects.filter(tareid__exact=tarea.tareid)
-            progreso = (len(encuestas) * 100) / tareaDict['tarerestriccant']
-            tareaDict['progreso'] = progreso
+            encuestas = models.Survery.objects.filter(task_id__exact=tarea.task_id)
+            progreso = (len(encuestas) * 100) / tareaDict['task_quantity']
+            tareaDict['task_completness'] = progreso
 
             # instrumento = models.Instrumento.objects.get(pk=tareaDict['instrid'])
             # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)

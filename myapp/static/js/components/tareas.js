@@ -101,7 +101,6 @@ let tarea = new Vue({
                 this.loader(false);
 
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    console.log(response.data.tareas)
                     this.tareas = response.data.tareas;
                 }
             });
@@ -123,7 +122,6 @@ let tarea = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.tareas = response.data.detail.tareas;
-                    console.log(this.tareas)
                 }
             });
         },
@@ -131,6 +129,7 @@ let tarea = new Vue({
 
             this.loader(true);
 
+            console.log(this.almacenamientoTarea)
             var queryString = Object.keys(this.almacenamientoTarea).map(key => {
 
                 if(key == 'dimensionid' && this.almacenamientoTarea.taretipo == "1"){
@@ -293,7 +292,6 @@ let tarea = new Vue({
                 return key + '=' + valor;
 
             }).join('&');
-            console.log(this.edicionTarea)
             axios({
                 method: 'post',
                 url: '/tareas/' + this.edicionTarea.task_id,
@@ -502,9 +500,7 @@ let tarea = new Vue({
             return coordenadas;
         },
         generarDimensionTerritorial(dimension){
-            console.log(dimension)
             if(this.almacenamientoTarea.taretipo == "1"){
-                console.log("ENTROOOOOOO")
                 this.taskMap.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);
@@ -553,6 +549,12 @@ let tarea = new Vue({
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, instrumento);
             }
+        },
+        formateoFechaInicio(date){
+            this.almacenamientoTarea.tarfechainicio = moment(date).format('YYYY-MM-DD');
+        },
+        formateoFechaFin(date){
+            this.almacenamientoTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
         }
     },
     filters: {
