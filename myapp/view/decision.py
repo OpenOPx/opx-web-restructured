@@ -73,10 +73,11 @@ def almacenarDecision(request):
     )
 
     try:
-        decision.full_clean()
-        decision.save()
+        with transaction.atomic():
+            decision.full_clean()
+            decision.save()
         
-        data = serializers.serialize('python', [decision])
+            data = serializers.serialize('python', [decision])
         return JsonResponse(data, safe = False, status = 201)
 
     except ValidationError as e:
@@ -122,14 +123,15 @@ def eliminarDecision(request, desiid):
 def actualizarDecision(request, desiid):
 
     try:
-        decision = models.Decision.objects.get(pk=desiid)
+        with transaction.atomic():
+            decision = models.Decision.objects.get(pk=desiid)
 
-        decision.decs_description = request.POST.get('decs_description')
-        decision.decs_name = request.POST.get('decs_name')
+            decision.decs_description = request.POST.get('decs_description')
+            decision.decs_name = request.POST.get('decs_name')
 
-        decision.full_clean()
+            decision.full_clean()
 
-        decision.save()
+            decision.save()
 
         return JsonResponse(serializers.serialize('python', [decision]), safe=False)
 

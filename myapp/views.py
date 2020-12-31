@@ -107,22 +107,22 @@ def login(request):
                     },
                     'code': 200
                 }
-                """
-                if FCMDevice.objects.get(user_id__exact = user.userid).exists():
-                    device = FCMDevice.objects.get(user_id__exact = user.userid)
-                    current_fcmtkn = device.registration_id
-                    if current_fcmtkn != fcm_token:
-                        device.registration_id = fcm_token
+                if fcm_token is not None and type_device is not None:
+                    device = FCMDevice.objects.filter(user_id__exact = user.userid).first()
+                    if device is not None:
+                        current_fcmtkn = device.registration_id
+                        if current_fcmtkn != fcm_token:
+                            device.registration_id = fcm_token
+                            device.save()
+                            #verificar sesiones activas y cerrarlas
+                    else:
+                        device = FCMDevice(
+                            user=user,
+                            registration_id=fcm_token,
+                            type=type_device
+                        )
                         device.save()
-                        #verificar sesiones activas y cerrarlas
-                else:
-                    device = FCMDevice(
-                        user=user,
-                        registration_id=fcm_token,
-                        type=type_device
-                    )
-                    device.save()
-                """
+
                 # Puntaje esperado para llegar a rol proximo
                 # Voluntario
                 # if str(rol.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86':

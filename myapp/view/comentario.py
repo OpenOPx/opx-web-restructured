@@ -54,6 +54,7 @@ def listadoComentarios(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def crearComentario(request):
+
     user = usuarioAutenticado(request)
     comentario = models.Comment(
         comment_title = request.POST.get('tituloComentario'), 
@@ -62,9 +63,9 @@ def crearComentario(request):
     )
 
     try:
-
-        comentario.full_clean()
-        comentario.save()
+        with transaction.atomic():
+            comentario.full_clean()
+            comentario.save()
 
         response = {
             'code': 201,
@@ -125,19 +126,20 @@ def eliminarComentario(request):
 @permission_classes((IsAuthenticated,))
 def actualizarComentario(request):
     try:
-        comentario = models.Comment.objects.get(pk=request.POST.get('commentid'))
-        
-        comentario.comment_title = request.POST.get('titulo')
-        comentario.comment_description = request.POST.get('descripcion')
+        with transaction.atomic():
+            comentario = models.Comment.objects.get(pk=request.POST.get('commentid'))
+            
+            comentario.comment_title = request.POST.get('titulo')
+            comentario.comment_description = request.POST.get('descripcion')
 
-        response = {
-            'code': 200,
-            'data': model_to_dict(comentario),
-            'status': 'success'
-        }
+            response = {
+                'code': 200,
+                'data': model_to_dict(comentario),
+                'status': 'success'
+            }
 
-        comentario.full_clean()
-        comentario.save()
+            comentario.full_clean()
+            comentario.save()
 
     except ObjectDoesNotExist:
         response = {
