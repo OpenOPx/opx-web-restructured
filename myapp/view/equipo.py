@@ -89,23 +89,24 @@ def listadoEquipos(request):
 def crearEquipo(request):
 
     try:
-        user = usuarioAutenticado(request)
-        person = models.Person.objects.get(user__userid = user.userid)
+        with transaction.atomic():
+            user = usuarioAutenticado(request)
+            person = models.Person.objects.get(user__userid = user.userid)
 
-        plantilla = models.Team(
-            team_name = request.POST.get('team_name'), 
-            team_leader = person,
-            team_description = request.POST.get('team_description')
-        )
+            plantilla = models.Team(
+                team_name = request.POST.get('team_name'), 
+                team_leader = person,
+                team_description = request.POST.get('team_description')
+            )
 
-        plantilla.full_clean()
-        plantilla.save()
+            plantilla.full_clean()
+            plantilla.save()
 
-        response = {
-            'code': 201,
-            'data': model_to_dict(plantilla),
-            'status': 'success'
-        }
+            response = {
+                'code': 201,
+                'data': model_to_dict(plantilla),
+                'status': 'success'
+            }
 
     except ValidationError as e:
 
@@ -169,19 +170,20 @@ def eliminarEquipo(request, planid):
 def actualizarEquipo(request, planid):
 
     try:
-        plantilla = models.Team.objects.get(pk=planid)
+        with transaction.atomic():
+            plantilla = models.Team.objects.get(pk=planid)
 
-        plantilla.team_name = request.POST.get('team_name')
-        plantilla.team_description = request.POST.get('team_description')
+            plantilla.team_name = request.POST.get('team_name')
+            plantilla.team_description = request.POST.get('team_description')
 
-        response = {
-            'code': 200,
-            'data': model_to_dict(plantilla),
-            'status': 'success'
-        }
+            response = {
+                'code': 200,
+                'data': model_to_dict(plantilla),
+                'status': 'success'
+            }
 
-        plantilla.full_clean()
-        plantilla.save()
+            plantilla.full_clean()
+            plantilla.save()
 
     except ObjectDoesNotExist:
         response = {
