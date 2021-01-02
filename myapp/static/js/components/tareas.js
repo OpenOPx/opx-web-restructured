@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'priority_name'
+                key: 'task_priority_name'
             },
             {
                 label: 'Fecha de Creación',
@@ -501,6 +501,8 @@ let tarea = new Vue({
         },
         generarDimensionTerritorial(dimension){
             if(this.almacenamientoTarea.taretipo == "1"){
+
+                this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
                 this.taskMap.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);
