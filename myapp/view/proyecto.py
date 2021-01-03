@@ -836,22 +836,32 @@ def detalleProyecto(request, proyid):
 def detalleProyectoMovil(request, proyid):
 
     try:
-        query = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, proyecto.*, prioridad.priority_name \
-                from opx.project as proyecto \
-                inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
-                inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
-                inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
-                inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
-                where proyecto.proj_id = '"+proyid+"';"
+        queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
+
+        queryTareas = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, prioridad.priority_name, td.dimension_geojson, tr.* \
+                    from opx.project as proyecto \
+                    inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
+                    inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
+                    inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
+                    inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
+                    inner join opx.territorial_dimension as td on td.dimension_id = tarea.territorial_dimension_id    \
+                    inner join opx.task_restriction as tr on tr.restriction_id = tarea.task_restriction_id \
+                    where proyecto.proj_id = '"+proyid+"';"
 
         with connection.cursor() as cursor:
-            cursor.execute(query)
-            listaTareas = dictfetchall(cursor)
+            cursor.execute(queryProyecto)
+            infoPj = dictfetchall(cursor)
+            print(infoPj)      
+            
+        with connection.cursor() as cursor:
+            cursor.execute(queryTareas)
+            listaTareas = dictfetchall(cursor)   
+            print(listaTareas)   
 
         data = {
             'code': 200,
             'detail':{
-              #'proyecto': proyecto[0],
+              'proyecto': infoPj[0],
               'tareas': list(listaTareas)
             },
             'status': 'success'
