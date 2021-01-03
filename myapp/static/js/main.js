@@ -205,6 +205,9 @@ require('./components/reportes/durante').estadisticas;
 require('./components/reportes/despues').estadisticas;
 require('./components/reportes/detalle').estadisticas;
 
+require('./components/reportes/reportePlantilla').reportePlantilla;
+require('./components/reportes/reporteEquipo').reporteEquipo;
+
 // Gestión de Plantillas de Equipo
 require('./components/plantillas/plantillasEquipo').gestionPlantilla;
 

@@ -49,6 +49,7 @@ let gestionPlantilla = new Vue({
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.plantillas = response.data.data;
+                    console.log(this.plantillas)
                 }
 
             })
