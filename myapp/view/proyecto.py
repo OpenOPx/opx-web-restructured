@@ -74,26 +74,33 @@ def listadoProyectos(request):
             # ============================ Consultando proyectos ====================================
 
             #Consulta de proyectos para super administrador
-
             person = models.Person.objects.get(user__userid = user.userid)
                 
             if str(person.role.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
                 proyectos = models.Project.objects.all()
+                # Especificando orden
+                proyectos = proyectos.order_by('-proj_creation_date')
+                # convirtiendo a lista de diccionarios
+                proyectos = list(proyectos.values())
 
             # Consulta de proyectos para proyectista
             elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-                proyectos = models.Project.objects.filter(proj_owner_pers_id_exact = person.pers_id)
+                proyectos = models.Project.objects.filter(proj_owner__pers_id__exact = person.pers_id)
+                # Especificando orden
+                proyectos = proyectos.order_by('-proj_creation_date')
+                # convirtiendo a lista de diccionarios
+                proyectos = list(proyectos.values())
 
             # Consulta de proyectos para voluntarios o validadores
             elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
 
-                proyectosAsignados = models.Team.objects.filter(team_leader_pers_id_exact = person.pers_id)
-                proyectosAsignadosID = []
+                #consultar los proyectos a los que está asociado el voluntario o validador
+                query = "select distinct pj.* from opx.team_person as tp inner join opx.project_team as pt on pt.team_id = tp.team_id inner join opx.project as pj on pt.project_id = pj.proj_id where tp.person_id = '"+str(person.pers_id)+"' order by pj.proj_creation_date DESC;"
 
-                for p in proyectosAsignados:
-                    proyectosAsignadosID.append(p.proj_id)
-
-                proyectos = models.Project.objects.filter(pk__in = proyectosAsignadosID)
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
+                    PJ = dictfetchall(cursor)
+                    proyectos = list(PJ)
 
             #Tipo de usuario distinto
             else:
@@ -107,11 +114,7 @@ def listadoProyectos(request):
         if search:
             proyectos = proyectos.filter(proj_name__icontains = search)
 
-        # Especificando orden
-        proyectos = proyectos.order_by('-proj_creation_date')
 
-        # convirtiendo a lista de diccionarios
-        proyectos = list(proyectos.values())
         listadoProyectos = []
         for p in proyectos:
 
@@ -123,24 +126,21 @@ def listadoProyectos(request):
 
                 p['dimensiones_territoriales'] = []
 
-                dimensionesTerritoriales = models.TerritorialDimension.objects\
-                                           .filter(proyid__exact = p['proyid'])\
-                                           .filter(estado=1)\
-                                           .values()
+                query = "select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on pd.territorial_dimension_id = dim.dimension_id where pd.project_id = '"+ str(p['proj_id']) +"';"
 
-                dimensionesTerritoriales = list(dimensionesTerritoriales)
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
+                    territorios = dictfetchall(cursor)
+                    p['dimensiones_territoriales'] = list(territorios)
 
-                for dim in dimensionesTerritoriales:
-                    tareas = list(models.Tarea.objects.filter(dimensionid__exact=dim['dimensionid'])\
-                                                      .filter(proyid = p['proyid'])\
-                                                      .values())
+                query1 = "select tarea.* from opx.task as tarea where tarea.project_id = '"+str(p['proj_id'])+"';"
+                with connection.cursor() as cursor:
+                    cursor.execute(query1)
+                    tareas = dictfetchall(cursor)
+                    p['tareas'] = list(tareas)
 
-                    dim['tareas'] = tareas
-
-                    p['dimensiones_territoriales'].append(dim)
-
-            # Reportes
-           # p['reportes'] = reporteEstadoProyecto(p['proyid'])
+            #Reportes
+            p['reportes'] = reporteEstadoProyecto(str(p['proj_id']))
 
             listadoProyectos.append(p)
 
@@ -777,7 +777,7 @@ def tareasProyectoView(request, proyid):
 
     return data
 
-    ##
+##
 # @brief recurso que provee el detalle de un proyecto
 # @param request Instancia HttpRequest
 # @param proyid Identificación del proyecto
@@ -804,6 +804,64 @@ def detalleProyecto(request, proyid):
             'code': 200,
             'detail':{
               #'proyecto': proyecto[0],
+              'tareas': list(listaTareas)
+            },
+            'status': 'success'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': "error",
+        }
+
+    except DataError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status = data['code'], safe = False)
+
+    ##
+# @brief recurso que provee el detalle de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def detalleProyectoMovil(request, proyid):
+
+    try:
+        queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
+
+        queryTareas = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, prioridad.priority_name, td.dimension_geojson, tr.* \
+                    from opx.project as proyecto \
+                    inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
+                    inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
+                    inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
+                    inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
+                    inner join opx.territorial_dimension as td on td.dimension_id = tarea.territorial_dimension_id    \
+                    inner join opx.task_restriction as tr on tr.restriction_id = tarea.task_restriction_id \
+                    where proyecto.proj_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(queryProyecto)
+            infoPj = dictfetchall(cursor)
+            print(infoPj)      
+            
+        with connection.cursor() as cursor:
+            cursor.execute(queryTareas)
+            listaTareas = dictfetchall(cursor)   
+            print(listaTareas)   
+
+        data = {
+            'code': 200,
+            'detail':{
+              'proyecto': infoPj[0],
               'tareas': list(listaTareas)
             },
             'status': 'success'

@@ -21,7 +21,7 @@ from myapp import views
 
 from myapp.view import (
     userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros, notificaciones,
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, encuestaview #,contextualizacion,
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -113,7 +113,7 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
+    path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #OK OK JM
 
@@ -157,6 +157,15 @@ urlpatterns = [
     path('comentario/delete/', comentario.eliminarComentario), #OK - JM 
     path('comentario/store/', comentario.crearComentario), #OK - JM 
     path('comentario/update/', comentario.actualizarComentario), #OK - JM 
+
+    #pendiente
+    path('reportes/equipos/', reporte.reporteEquiposView), #JM
+    path('reportes/equipos/miembro/<str:id>/', reporte.reporteIndividualMiembroView), #JM
+    path('reportes/equipos/estadisticas/1/', reporte.canva1), #JM
+    path('reportes/equipos/estadisticas/2/', reporte.canva2), #JM
+    path('reportes/equipos/estadisticas/3/', reporte.canva3), #JM    
+    path('reportes/equipos/estadisticas/generales/', reporte.generales), #JM      
+    path('reportes/equipos/<str:planid>/miembros/', reporte.miembrosEquipoView), #JM
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR

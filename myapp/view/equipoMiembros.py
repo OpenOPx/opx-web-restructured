@@ -46,7 +46,7 @@ def listadoMiembros(request, planid):
     try:
         #miembrosPlantilla = MiembroPlantilla.objects.filter(planid__exact=planid).values()
         with connection.cursor() as cursor:
-            query = "select mp.teampers_id, u.pers_name, u.pers_lastname from opx.team_person mp inner join opx.person u on u.pers_id = mp.person_id " \
+            query = "select mp.teampers_id, u.* from opx.team_person mp inner join opx.person u on u.pers_id = mp.person_id " \
                     "where mp.team_id = '" + planid + "' order by u.pers_name ASC"
 
             cursor.execute(query)

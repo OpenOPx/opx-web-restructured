@@ -31,7 +31,7 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado
+from myapp.view.utilidades import usuarioAutenticado, dictfetchall
 
 
 ##
@@ -55,8 +55,16 @@ def listadoEquipos(request):
     person = models.Person.objects.get(user__userid = user.userid)
     rol = str(person.role.role_id)
     
+
     if (rol == '8945979e-8ca5-481e-92a2-219dd42ae9fc'):
-        equipos = models.Team.objects.all().values()
+        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo inner join opx.person as persona on equipo.team_leader_id = persona.pers_id;"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)
+
+        for e in equipos:
+            e['team_miembros'] = len(models.TeamPerson.objects.filter(team__team_id__exact = e['team_id'])) 
+
         response = {
             'code': 200,
             'data': list(equipos),
@@ -64,12 +72,20 @@ def listadoEquipos(request):
         }
 
     elif (rol == '628acd70-f86f-4449-af06-ab36144d9d6a'):
-        equipos = models.Team.objects.filter(team_leader__pers_id__exact = person.pers_id).values()
+        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo inner join opx.person as persona on equipo.team_leader_id = '"+person.pers_id+"';"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            equipos = dictfetchall(cursor)     
+
+        for e in equipos:
+            e['team_miembros'] = len(models.TeamPerson.objects.filter(team__team_id__exact = e['team_id']))  
+
         response = {
             'code': 200,
             'data': list(equipos),
             'status': 'success'
         }
+
 
     else:
         response = {
@@ -78,6 +94,7 @@ def listadoEquipos(request):
             'status': 'error'
         }
 
+    print(response)
     return JsonResponse(response, safe=False, status=response['code'])
 ##
 # @brief Recurso de creación de plantilla de equipo
