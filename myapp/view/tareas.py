@@ -76,19 +76,12 @@ def almacenamientoTarea(request):
             project = models.Project.objects.get(pk = proyid),
             task_observation = "esto es para reportes",
             proj_dimension = dimen,
-
-            #dimensionid = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionid')), # el id de la dimension mayor debe estar presente acá
             instrument = models.Instrument.objects.get(pk = request.POST.get('instrid')),
-
-
             territorial_dimension = territorioSubconjunto,
             task_restriction = restricciones,
         )
 
-
         try:
-
-
             tarea.full_clean()
             tarea.save()
             data = serializers.serialize('python', [tarea])
@@ -116,10 +109,10 @@ def almacenamientoTarea(request):
                 'message':  str(e),
                 'status':   'success'
             }
-            
+
     return JsonResponse(response, safe=False, status=response['code'])##
 
-  ##
+##
 # @brief recurso que provee el listado de tareas
 # @param request Instancia HttpRequest
 # @return cadena JSON

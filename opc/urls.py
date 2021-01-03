@@ -145,6 +145,8 @@ urlpatterns = [
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
     path('elementos-osm/list/', osm.elementosOsm),  #S JM LEO
 
+
+
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
     path('tareas/store/', tareas.almacenamientoTarea), #OK - JM
     #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Reportes?
@@ -179,6 +181,7 @@ urlpatterns = [
     # ======================== Estadisticas Durante ===================================
 
     path('estadisticas/proyectos-tareas/', estadisticas.proyectosTareas), # QUEDÉ EN LA PARTE DE ENCUESTAS Y PROGRESO - S
+
     #path('estadisticas/estado-proyectos/', estadisticas.estadoActualProyectos), # AHORA QUE ME ACUERDO ESTO NO SE VA A USAR 
 
     # ======================== Estadisticas Después ===================================
@@ -209,6 +212,9 @@ urlpatterns = [
     path('reportes/durante/', estadisticas.estadisticasDuranteView), #OK - S OJO CON LOS CAMBIOS A HACER
     path('reportes/despues/', estadisticas.estadisticasDespuesView), #OK - S OJO CON LOS CAMBIOS A HACER
     path('reportes/<str:proyid>/detalle/', estadisticas.estadisticasDetalleView), #OK - S OJO CON LOS CAMBIOS A HACER
+    path('reportes/proyectos/', estadisticas.estadisticasProyectosView),   
+    path('reportes/proyecto/<str:projid>', estadisticas.proyectoIndividualView),
+
 
     #path('reportes/ranking/', estadisticas.rankingView),  #S - Vistas que se agregan después por nuestra funcionalidad
     #path('reportes/proyecto/', estadisticas.reportesProyectosIndividualesView), #S - Vistas que se agregan después por nuestra funcionalidad
