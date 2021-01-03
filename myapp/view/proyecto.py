@@ -777,7 +777,7 @@ def tareasProyectoView(request, proyid):
 
     return data
 
-    ##
+##
 # @brief recurso que provee el detalle de un proyecto
 # @param request Instancia HttpRequest
 # @param proyid Identificación del proyecto
@@ -789,6 +789,54 @@ def detalleProyecto(request, proyid):
 
     try:
         query = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, proyecto.proj_name, prioridad.priority_name \
+                from opx.project as proyecto \
+                inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
+                inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
+                inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
+                inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
+                where proyecto.proj_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            listaTareas = dictfetchall(cursor)
+
+        data = {
+            'code': 200,
+            'detail':{
+              #'proyecto': proyecto[0],
+              'tareas': list(listaTareas)
+            },
+            'status': 'success'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': "error",
+        }
+
+    except DataError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status = data['code'], safe = False)
+
+    ##
+# @brief recurso que provee el detalle de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def detalleProyectoMovil(request, proyid):
+
+    try:
+        query = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, proyecto.*, prioridad.priority_name \
                 from opx.project as proyecto \
                 inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
                 inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
