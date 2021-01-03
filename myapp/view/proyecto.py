@@ -777,7 +777,7 @@ def tareasProyectoView(request, proyid):
 
     return data
 
-    ##
+##
 # @brief recurso que provee el detalle de un proyecto
 # @param request Instancia HttpRequest
 # @param proyid Identificación del proyecto
@@ -804,6 +804,64 @@ def detalleProyecto(request, proyid):
             'code': 200,
             'detail':{
               #'proyecto': proyecto[0],
+              'tareas': list(listaTareas)
+            },
+            'status': 'success'
+        }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': "error",
+        }
+
+    except DataError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status = data['code'], safe = False)
+
+    ##
+# @brief recurso que provee el detalle de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificación del proyecto
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def detalleProyectoMovil(request, proyid):
+
+    try:
+        queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
+
+        queryTareas = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, prioridad.priority_name, td.dimension_geojson, tr.* \
+                    from opx.project as proyecto \
+                    inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
+                    inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
+                    inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
+                    inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
+                    inner join opx.territorial_dimension as td on td.dimension_id = tarea.territorial_dimension_id    \
+                    inner join opx.task_restriction as tr on tr.restriction_id = tarea.task_restriction_id \
+                    where proyecto.proj_id = '"+proyid+"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(queryProyecto)
+            infoPj = dictfetchall(cursor)
+            print(infoPj)      
+            
+        with connection.cursor() as cursor:
+            cursor.execute(queryTareas)
+            listaTareas = dictfetchall(cursor)   
+            print(listaTareas)   
+
+        data = {
+            'code': 200,
+            'detail':{
+              'proyecto': infoPj[0],
               'tareas': list(listaTareas)
             },
             'status': 'success'

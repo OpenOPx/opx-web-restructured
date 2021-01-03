@@ -489,8 +489,9 @@ class OsmElement(models.Model):
     osmelement_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
     osmelement_name = models.CharField(max_length=255)
-    osmkey = models.CharField(max_length=255)
-    losed_way = models.IntegerField()
+    osm_key = models.CharField(max_length=255)
+    osm_value = models.CharField(max_length=255)
+    closed_way = models.IntegerField()
 
     class Meta:
         db_table = '"opx"."osm_element"'
@@ -500,7 +501,7 @@ class Cartography(models.Model):
     cartography_id = models.UUIDField(
         primary_key=True, default=uuid4, editable=False)
     osmid = models.CharField(max_length=100)
-    cartography_state = models.IntegerField()
+    cartography_state = models.IntegerField(default=1)
     instrument = models.ForeignKey(Instrument, on_delete=models.PROTECT)
     task = models.ForeignKey(Task, on_delete=models.PROTECT)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)

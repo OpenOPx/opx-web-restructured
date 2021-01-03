@@ -85,7 +85,7 @@ def almacenamientoInstrumento(request):
     instrTipo = request.POST.get('instrtipo')
     instrNombre = request.POST.get('instrnombre')
     instrDescripcion = request.POST.get('instrdescripcion')
-    areaInteres = "{}" #request.POST.get('areaInteres')
+    areaInteres = request.POST.get('areaInteres')
     KOBO_INSTRUMENT = "1"
     TM_INSTRUMENT = "2"
 
@@ -240,10 +240,10 @@ def informacionInstrumento(request, id):
                     'code': 500
                 }
 
-        elif instrumento.instrtipo == 2:
+        elif instrumento.instrument_type == 2:
 
-            informacion = tmclient.informacionProyectoTM(instrumento.instridexterno)
-            informacionMapeo = detalleCartografia(str(tarea.tareid))
+            informacion = tmclient.informacionProyectoTM(instrumento.external_id)
+            informacionMapeo = detalleCartografia(str(tarea.task_id))
 
             if(informacionMapeo['code'] == 200):
                 geojson = informacionMapeo['geojson']
@@ -252,7 +252,7 @@ def informacionInstrumento(request, id):
 
             if (isinstance(informacion, dict)):
 
-                informacion['tipoInstrumento'] = instrumento.instrtipo
+                informacion['tipoInstrumento'] = instrumento.instrument_type
 
                 data = {
                     'status': 'success',
