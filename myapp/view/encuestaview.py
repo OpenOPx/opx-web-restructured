@@ -46,12 +46,13 @@ from myapp.view import(
 # @param tareid Identificación de la tarea
 # @return Diccionario
 #
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
+#@api_view(["POST"])
+#@permission_classes((IsAuthenticated,))
 def almacenarEncuestas(instrumento, informacion, person, task):
 
     try:
         with transaction.atomic():
+            print(">> Encuesta: Entró")
             for info in informacion:
 
                 try:
@@ -64,6 +65,7 @@ def almacenarEncuestas(instrumento, informacion, person, task):
                         koboid=info['_uuid'], 
                         survery_content=json.dumps(info), 
                         #userid=userid, (person)
+                        person=person,
                         task=task)
                     encuesta.full_clean()
                     encuesta.save()
@@ -89,10 +91,10 @@ def almacenarEncuestas(instrumento, informacion, person, task):
 def revisarEncuesta(request, encuestaid):
 
     try:
-        encuesta = models.Encuesta.objects.get(pk=encuestaid)
+        encuesta = models.Survery.objects.get(pk=encuestaid)
 
-        encuesta.observacion = request.POST.get('observacion')
-        encuesta.estado = request.POST.get('estado')
+        encuesta.survery_observation = request.POST.get('observacion')
+        encuesta.survery_state = request.POST.get('estado')
 
         encuesta.full_clean()
         encuesta.save()

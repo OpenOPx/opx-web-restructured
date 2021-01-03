@@ -34,7 +34,8 @@ if 'osm-api-url' in settings.keys():
 #
 def osmHeaders():
 
-    credentials = 'inge4neuromedia@gmail.com:;K7c8`EQ+82eyHKd'.encode('utf-8')
+    #credentials = 'inge4neuromedia@gmail.com:;K7c8`EQ+82eyHKd'.encode('utf-8')
+    credentials = 'develop.opx@gmail.com:12345678'.encode('utf-8')
     credentialsEncode = str(base64.b64encode(credentials), 'utf-8')
 
     headers = {
