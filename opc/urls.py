@@ -171,7 +171,8 @@ urlpatterns = [
     path('reportes/equipos/miembro/<str:personId>/proyectos/', reporte.proyectosPersona), #JM OK OK
     path('reportes/equipos/miembro/<str:personId>/', reporte.reporteMiembroView), #JM OK OK
     path('persona/detalle/<str:personId>/', reporte.detallePersona), #JM OK OK
-    path('reportes/rank/', reporte.ranking), #JM
+    path('reportes/rank/', reporte.ranking), #JM OK
+    path('reportes/ranking/', reporte.reporteRankView), #JM
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR
