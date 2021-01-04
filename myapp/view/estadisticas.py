@@ -14,7 +14,7 @@ from myapp.models import Project, Role, User, Task, Neighborhood, Team, ProjectC
 # TOCA IR COLOCANDO ESTO - Survey, Instrumento, Encuesta, NivelEducativo, Barrio, Equipo, ContextoProyecto, DecisionProyecto, DelimitacionGeografica
 from myapp.view.utilidades import dictfetchall, reporteEstadoProyecto, reporteEstadoTarea
 # TOCA IR COLOCANDO ESTO -  from myapp.views import detalleFormularioKoboToolbox
-
+from myapp import models
 import csv
 import json
 import os
@@ -1344,6 +1344,32 @@ def limpiezaDatos(request, proyid):
 def estadisticasView(request):
 
     return render(request, "reportes/antes.html")
+
+##
+# @brief Plantilla de estadisticas generales del sistema
+# @param request instancia HttpRequest
+# @return plantilla HTML
+#
+def estadisticasProyectosView(request):
+
+    return render(request, "reportes/listadoproyectos.html")
+
+##
+# @brief Plantilla de estadisticas generales del sistema
+# @param request instancia HttpRequest
+# @return plantilla HTML
+#
+def proyectoIndividualView(request, projid):
+
+    try:
+        proyecto = models.Project.objects.get(pk=projid)
+        data =  render(request, 'reportes/proyectoindividual.html', {'proyecto':proyecto})
+    except ObjectDoesNotExist:
+        data = HttpResponse("", status=404)
+    except ValidationError:
+        data = HttpResponse("", status=400)
+    return data
+
 
 ##
 # @brief Plantilla de estadisticas correspondiente a los proyectos que se encuentran en ejecución

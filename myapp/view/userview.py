@@ -32,6 +32,7 @@ from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
 PROYECTISTA = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
 # VOLUNTARIO =
+EQUIPO_CIUDADANOS = 'b4879f48-8ab1-4d79-8f5b-7585b75cfb07'
 
 # ======================= usuarios =================================
 
@@ -254,7 +255,18 @@ def almacenarUsuario(request):
                     type=type_device
                 )
                 device.save()
+            #Agregar a equipo ciudadanos
+            equipo = models.Team.objects.get(pk=EQUIPO_CIUDADANOS)
+            equipoPersona = models.TeamPerson.objects.filter(person__pers_id__exact = person.pers_id).filter(team__team_id__exact = equipo.team_id)
 
+            if len(equipoPersona) == 0:
+                equipoMiembro = models.TeamPerson(
+                person = person,
+                team = equipo
+                )
+                equipoMiembro.full_clean()
+                equipoMiembro.save()
+            
             data = {
                 'code': 201,
                 # mando user o person?

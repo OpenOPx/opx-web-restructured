@@ -21,7 +21,7 @@ from myapp import views
 
 from myapp.view import (
     userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros, notificaciones,
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte #,contextualizacion, tareas
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -97,15 +97,15 @@ urlpatterns = [
     path('instrumentos/<str:id>/verificar-implementacion/', koboclient.verificarImplementaciónFormulario), #OK OK LEO
 
     #path('instrumentos/delete/<str:instrid>', views.eliminarInstrumento), #??? ESTO ALGUNA VEZ ESTUVO? - El back de NM tiene eliminar instrumento
-    #path('instrumentos/<str:id>/informacion/', views.informacionInstrumento), #??? - El back de NM tiene esto instrumento
+    path('instrumentos/<str:id>/informacion/', instrumentview.informacionInstrumento), #??? - El back de NM tiene esto instrumento
 
     path('instrumentos/formularios-kobotoolbox/list/', koboclient.listadoFormulariosKoboToolbox), #OK OK LEO
     path('instrumentos/enlace-formulario/<str:tareid>', koboclient.enlaceFormularioKoboToolbox), #OK OK LEO
 
-    #path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento), #???
-    #path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), #???
-    #path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), #???
-    #path('instrumentos/revisar-encuesta/<str:encuestaid>', views.revisarEncuesta), #???
+    path('instrumentos/mapear/<str:tareid>', osm.AgregarElemento), # ok LF
+    path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), # OK LF
+    path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), # ok LF
+    path('instrumentos/revisar-encuesta/<str:encuestaid>', encuestaview.revisarEncuesta), #???
 
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
@@ -113,7 +113,7 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    path('proyectos/detail/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
+    path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #OK OK JM
 
@@ -145,13 +145,15 @@ urlpatterns = [
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
     path('elementos-osm/list/', osm.elementosOsm),  #S JM LEO
 
+
+
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
     path('tareas/store/', tareas.almacenamientoTarea), #OK - JM
-    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), #LEO
-    #path('contextualizacion/todo/', contextualizacion.todo), #LEO
-    #path('contextualizacion/mes/', contextualizacion.mensual), #LEO
-    #path('contextualizacion/semana/', contextualizacion.semanal), #LEO
-    #path('contextualizacion/dia/', contextualizacion.dia), #LEO
+    #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Reportes?
+    #path('contextualizacion/todo/', contextualizacion.todo), #Reportes?
+    #path('contextualizacion/mes/', contextualizacion.mensual), #Reportes?
+    #path('contextualizacion/semana/', contextualizacion.semanal), #Reportes?
+    #path('contextualizacion/dia/', contextualizacion.dia), #Reportes?
 
     path('comentario/list/', comentario.listadoComentarios), #OK - JM 
     path('comentario/delete/', comentario.eliminarComentario), #OK - JM 
@@ -183,6 +185,7 @@ urlpatterns = [
     # ======================== Estadisticas Durante ===================================
 
     path('estadisticas/proyectos-tareas/', estadisticas.proyectosTareas), # QUEDÉ EN LA PARTE DE ENCUESTAS Y PROGRESO - S
+
     #path('estadisticas/estado-proyectos/', estadisticas.estadoActualProyectos), # AHORA QUE ME ACUERDO ESTO NO SE VA A USAR 
 
     # ======================== Estadisticas Después ===================================
@@ -213,6 +216,9 @@ urlpatterns = [
     path('reportes/durante/', estadisticas.estadisticasDuranteView), #OK - S OJO CON LOS CAMBIOS A HACER
     path('reportes/despues/', estadisticas.estadisticasDespuesView), #OK - S OJO CON LOS CAMBIOS A HACER
     path('reportes/<str:proyid>/detalle/', estadisticas.estadisticasDetalleView), #OK - S OJO CON LOS CAMBIOS A HACER
+    path('reportes/proyectos/', estadisticas.estadisticasProyectosView),   
+    path('reportes/proyecto/<str:projid>', estadisticas.proyectoIndividualView),
+
 
     #path('reportes/ranking/', estadisticas.rankingView),  #S - Vistas que se agregan después por nuestra funcionalidad
     #path('reportes/proyecto/', estadisticas.reportesProyectosIndividualesView), #S - Vistas que se agregan después por nuestra funcionalidad

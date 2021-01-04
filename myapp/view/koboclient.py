@@ -121,7 +121,9 @@ def enlaceFormularioKoboToolbox(request, tareid):
     try:
         tarea = models.Task.objects.get(pk=tareid)
 
-        instrumento = models.Instrument.objects.get(pk=tarea.task_id)
+        #instrumento = models.Instrument.objects.get(pk=tarea.instrument.instrument_id)
+        instrumento = tarea.instrument
+
 
         if instrumento.instrument_type == KOBO_INSTR:
 
@@ -131,7 +133,7 @@ def enlaceFormularioKoboToolbox(request, tareid):
             if (isinstance(informacion, dict)):
 
                 user = usuarioAutenticado(request)
-                person = models.Person.objects.get(user__user_id__exact = user.userid)
+                person = models.Person.objects.get(user__userid__exact = user.userid)
                 encuestaview.almacenarEncuestas(
                     instrumento, informacion['info'], person, tarea)
 
@@ -375,7 +377,7 @@ def verificarImplementaciónFormulario(request, id):
     except ObjectDoesNotExist:
 
         data = {
-            'status': 'success',
+            'status': 'error',
             'code': 404
         }
 
