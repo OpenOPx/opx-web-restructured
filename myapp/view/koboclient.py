@@ -164,7 +164,7 @@ def almacenarSurvery(request):
     return JsonResponse(data, status=data['code'], safe=False)
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated))
+@permission_classes((IsAuthenticated,))
 def koboSubmissionsQuantity(request, tareaid):
     KOBO_INSTR = 1
     try:
