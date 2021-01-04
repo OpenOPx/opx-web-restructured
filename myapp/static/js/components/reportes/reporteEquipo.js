@@ -89,7 +89,9 @@ let reporteEquipo = new Vue({
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
-
+                        axisY: {
+                            includeZero: true
+                          },
                       labels: titulos,
                       datasets: [
                         {
