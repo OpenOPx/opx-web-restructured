@@ -44,6 +44,8 @@
 
   <!-- Estilos App -->
   <link rel="stylesheet" href="{% static 'webpack_bundles/styles.css' %}">
+
+  <link rel="stylesheet" href="{% static 'css/opxicesi.css' %}">
 </head>
 
 <body class="">
@@ -76,7 +78,7 @@
               <li class="nav-item ">
                 <a class="nav-link" data-toggle="collapse" href="#collapse-usuarios">
                   <i class="material-icons">person</i>
-                  <p>Usuarios</p>
+                  <p class="icesi-toggle">Usuarios</p>
                 </a>
                 <div class="collapse submenu" id="collapse-usuarios">
                   <ul class="nav">
@@ -133,7 +135,7 @@
               <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#collapse-proyectos">
                   <i class="material-icons">dashboard</i>
-                  <p>Proyectos</p>
+                  <p class="icesi-toggle">Proyectos</p>
                 </a>
                 <div class="collapse submenu" id="collapse-proyectos">
                   <ul class="nav">
@@ -198,7 +200,7 @@
               <li class="nav-item ">
                 <a class="nav-link" data-toggle="collapse" href="#collapse-reportes" aria-expanded="true" aria-controls="collapse-reportes">
                   <i class="material-icons">bar_chart</i>
-                  <p>Reportes</p>
+                  <p class="icesi-toggle">Reportes</p>
                 </a>
                 <div class="collapse submenu" id="collapse-reportes">
                   <ul class="nav">
@@ -492,6 +494,8 @@
   <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>-->
 
   <script src="{% static 'webpack_bundles/main.js' %}"></script>
+
+  <script src="{% static 'js/icesijs.js' %}"></script>
 
   <!--  <script src="http://pruebasneuro.co/prueba/cookies.js"></script>-->
 

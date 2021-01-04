@@ -161,13 +161,17 @@ urlpatterns = [
     path('comentario/update/', comentario.actualizarComentario), #OK - JM 
 
     #pendiente
-    path('reportes/equipos/', reporte.reporteEquiposView), #JM
-    path('reportes/equipos/miembro/<str:id>/', reporte.reporteIndividualMiembroView), #JM
-    path('reportes/equipos/estadisticas/1/', reporte.canva1), #JM
-    path('reportes/equipos/estadisticas/2/', reporte.canva2), #JM
-    path('reportes/equipos/estadisticas/3/', reporte.canva3), #JM    
-    path('reportes/equipos/estadisticas/generales/', reporte.generales), #JM      
-    path('reportes/equipos/<str:planid>/miembros/', reporte.miembrosEquipoView), #JM
+    path('reportes/equipos/', reporte.reporteEquiposView), #JM OK OK
+    path('reportes/equipos/estadisticas/1/', reporte.canva1), #JM OK OK
+    path('reportes/equipos/estadisticas/2/', reporte.canva2), #JM OK OK
+    path('reportes/equipos/estadisticas/3/', reporte.canva3), #JM OK OK
+    path('reportes/equipos/estadisticas/generales/', reporte.generales), #JM OK OK
+    path('reportes/equipos/<str:planid>/miembros/', reporte.miembrosEquipoView), #JM OK OK
+    path('reportes/equipos/miembro/<str:personId>/equipos/', reporte.equiposPersona), #JM OK OK
+    path('reportes/equipos/miembro/<str:personId>/proyectos/', reporte.proyectosPersona), #JM OK OK
+    path('reportes/equipos/miembro/<str:personId>/', reporte.reporteMiembroView), #JM OK OK
+    path('persona/detalle/<str:personId>/', reporte.detallePersona), #JM OK OK
+    path('reportes/rank/', reporte.ranking), #JM
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR

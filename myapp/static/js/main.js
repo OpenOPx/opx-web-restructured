@@ -208,6 +208,8 @@ require('./components/reportes/reportesproyectos').proyecto;
 
 require('./components/reportes/reportePlantilla').reportePlantilla;
 require('./components/reportes/reporteEquipo').reporteEquipo;
+require('./components/reportes/reporteMiembro').reporteMiembro;
+
 
 // Gestión de Plantillas de Equipo
 require('./components/plantillas/plantillasEquipo').gestionPlantilla;

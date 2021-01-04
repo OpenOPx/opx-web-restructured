@@ -112,7 +112,7 @@ def listadoProyectos(request):
 
         # ================= Busqueda de proyectos
         if search:
-            proyectos = proyectos.filter(proj_name__icontains = search)
+            proyectos = models.Project.filter(proj_name__icontains = search)
 
 
         listadoProyectos = []
