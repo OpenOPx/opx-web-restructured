@@ -115,36 +115,50 @@ def detalleFormularioKoboToolbox(id):
 def enlaceFormularioKoboToolbox(request, tareid):
 
     KOBO_INSTR = 1
-
+    print("1")
     #headers = {'Authorization': settings['kobo-token']}
 
     try:
         tarea = models.Task.objects.get(pk=tareid)
+        print("2")
 
         #instrumento = models.Instrument.objects.get(pk=tarea.instrument.instrument_id)
         instrumento = tarea.instrument
+        print("3")
 
 
         if instrumento.instrument_type == KOBO_INSTR:
+            print("4")
 
             informacion = informacionFormularioKoboToolbox(
                 instrumento.external_id)
+            print("5")
 
             if (isinstance(informacion, dict)):
-
+                print("6")
                 user = usuarioAutenticado(request)
+                print("7")
+
                 person = models.Person.objects.get(user__userid__exact = user.userid)
+                print("8")
+
                 encuestaview.almacenarEncuestas(
                     instrumento, informacion['info'], person, tarea)
+                print("9")
+
 
             detalleFormulario = detalleFormularioKoboToolbox(
                 instrumento.external_id)
+            print("10")
 
             if detalleFormulario:
+                print("11")
 
                 if(detalleFormulario['deployment__active']):
+                    print("12")
 
                     if detalleFormulario['deployment__submission_count'] < tarea.task_quantity:
+                        print("13")
 
                         enlace = detalleFormulario['deployment__links']['offline_url']
 
@@ -203,6 +217,7 @@ def enlaceFormularioKoboToolbox(request, tareid):
             'code': 400,
             'status': 'error'
         }
+    print("15")
 
     return JsonResponse(data, status=data['code'], safe=False)
 
