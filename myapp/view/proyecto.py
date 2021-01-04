@@ -581,13 +581,15 @@ def equipoProyectoView(request, proyid):
 def equipoProyecto(request, proyid):
 
     try:
-        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
+        query = "select tm.team_name, tm.team_id, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)
 
             for n in equipos:
                 n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+                n['team_miembros'] = len(models.TeamPerson.objects.filter(team__team_id__exact = n['team_id'])) 
+
 
             data = {
                 'code': 200,

@@ -106,6 +106,8 @@ urlpatterns = [
     path('instrumentos/detalle-cartografia/<str:tareid>', osm.cartografiasInstrumento), # OK LF
     path('instrumentos/eliminar-cartografia/<str:cartografiaid>', osm.eliminarCartografia), # ok LF
     path('instrumentos/revisar-encuesta/<str:encuestaid>', encuestaview.revisarEncuesta), #???
+    path('instrumentos/kobo-submissions/<str:tareaid>', koboclient.koboSubmissionsQuantity),
+    path('instrumentos/encuesta/store/', koboclient.almacenarSurvery),
 
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
