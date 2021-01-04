@@ -34,7 +34,7 @@ estadisticas = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.proyectos = response.data.data;
+                    this.proyecto = response.data.data;
                 }
             });
         },
