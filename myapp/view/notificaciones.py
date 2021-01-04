@@ -40,7 +40,8 @@ CAMBIO_EQUIPO = 3
 CAMBIO_DIMENSION_TERRITORIAL = 1
 CAMBIO_FECHA_PROYECTO = 4
 CAMBIO_FECHA_TAREA = 2
-
+AGREGADO_EQUIPO = 'AGREGADO_EQUIPO'
+ELIMINADO_EQUIPO = 'ELIMINADO_EQUIPO'
 
 ##
 # @brief Envio de notifificaciones correspondiente a la gestión de cambios de un proyecto especifico

@@ -309,25 +309,25 @@ gestionProyecto = new Vue({
                     for(let i=0; i<cantidadDimensiones; i++){
 
                         // Añadiendo Dimensiones geográficas
-                        let feature = JSON.parse(dimensiones[i].geojson)
+                        let feature = JSON.parse(dimensiones[i].dimension_geojson)
                         feature.properties = {
                             color: '#0CBAEF',
-                            description: dimensiones[i].nombre,
-                            dimensionid: dimensiones[i].dimensionid,
-                            id: dimensiones[i].proyid,
+                            description: dimensiones[i].dimension_name,
+                            dimensionid: dimensiones[i].dimension_id,
+                            id: this.proyectoSeleccionado.proj_id,//dimensiones[i].proyid,
                             type: 'dimension'
                         }
 
                         features.push(feature)
 
-                        tareas = dimensiones[i].tareas;
-                        cantidadTareas = dimensiones[i].tareas.length;
+                        tareas = this.proyectoSeleccionado.tareas//dimensiones[i].tareas;
+                        cantidadTareas = tareas.length//dimensiones[i].tareas.length;
 
                         if(cantidadTareas > 0){
-
+                            
                             for(let j=0; j<cantidadTareas; j++){
 
-                                let feature = JSON.parse(tareas[j].geojson_subconjunto)
+                                let feature = JSON.parse(tareas[j].dimension_geojson)
                                 feature.properties = {
                                     color: '#F4B821',
                                     description: tareas[j].tarenombre,

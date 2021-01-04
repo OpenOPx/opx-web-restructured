@@ -30,7 +30,12 @@ from rest_framework.permissions import (
 
 from myapp import models
 from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
- 
+
+ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
+ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
+ROL_VOLUNTARIO = '0be58d4e-6735-481a-8740-739a73c3be86'
+ROL_VALIDADOR = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
+
 ##
 # @brief Función que provee una plantilla HTML para la gestión de proyectos
 # @param request Instancia HttpRequest
@@ -76,7 +81,7 @@ def listadoProyectos(request):
             #Consulta de proyectos para super administrador
             person = models.Person.objects.get(user__userid = user.userid)
                 
-            if str(person.role.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+            if str(person.role.role_id) == ROL_SUPER_ADMIN:
                 proyectos = models.Project.objects.all()
                 # Especificando orden
                 proyectos = proyectos.order_by('-proj_creation_date')
@@ -84,7 +89,7 @@ def listadoProyectos(request):
                 proyectos = list(proyectos.values())
 
             # Consulta de proyectos para proyectista
-            elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            elif str(person.role.role_id) == ROL_PROYECTISTA:
                 proyectos = models.Project.objects.filter(proj_owner__pers_id__exact = person.pers_id)
                 # Especificando orden
                 proyectos = proyectos.order_by('-proj_creation_date')
@@ -92,7 +97,7 @@ def listadoProyectos(request):
                 proyectos = list(proyectos.values())
 
             # Consulta de proyectos para voluntarios o validadores
-            elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(person.role.role_id) == ROL_VOLUNTARIO or str(person.role.role_id) == ROL_VALIDADOR:
 
                 #consultar los proyectos a los que está asociado el voluntario o validador
                 query = "select distinct pj.* from opx.team_person as tp inner join opx.project_team as pt on pt.team_id = tp.team_id inner join opx.project as pj on pt.project_id = pj.proj_id where tp.person_id = '"+str(person.pers_id)+"' order by pj.proj_creation_date DESC;"
@@ -122,7 +127,7 @@ def listadoProyectos(request):
             persona = models.Person.objects.get(pk = p['proj_owner_id'])
             p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
-            if 'user' in locals() and str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            if 'user' in locals() and (str(person.role.role_id) == ROL_PROYECTISTA or str(person.role.role_id) == ROL_SUPER_ADMIN):
 
                 p['dimensiones_territoriales'] = []
 
@@ -133,7 +138,9 @@ def listadoProyectos(request):
                     territorios = dictfetchall(cursor)
                     p['dimensiones_territoriales'] = list(territorios)
 
-                query1 = "select tarea.* from opx.task as tarea where tarea.project_id = '"+str(p['proj_id'])+"';"
+                query1 = "select tarea.*, dim.* from opx.task as tarea \
+                        inner join opx.territorial_dimension as dim on dim.dimension_id = tarea.territorial_dimension_id \
+                        where tarea.project_id = '"+str(p['proj_id'])+"';"
                 with connection.cursor() as cursor:
                     cursor.execute(query1)
                     tareas = dictfetchall(cursor)

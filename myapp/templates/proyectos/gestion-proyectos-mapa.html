@@ -25,7 +25,7 @@
                         <label for="">Seleccione Un Proyecto</label>
                         <select v-model="informacionProyecto" @change="cargarInformacionProyecto(informacionProyecto)" name="" id="" class="form-control">
                             <option value="">Seleccione un Proyecto</option>
-                            <option v-for="proyecto in proyectos" :value="proyecto"> [[ proyecto.proynombre ]] </option>
+                            <option v-for="proyecto in proyectos" :value="proyecto"> [[ proyecto.proj_name ]] </option>
                         </select>
                     </div>
                 </form>
