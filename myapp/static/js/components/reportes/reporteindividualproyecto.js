@@ -1,4 +1,4 @@
-proyecto = new Vue({
+proyectoReporte = new Vue({
     el: '#reportes-proyectoindividual',
     delimiters: ['[[', ']]'],
     data: {
@@ -14,7 +14,6 @@ proyecto = new Vue({
     created(){
         if(window.location.pathname.substr(1, 17) == "reportes/proyecto"){
             this.proyectoID = window.location.pathname.substr(19);
-            console.log(this.proyectoID)
             this.listadoGeneral();
             this.listadoTareas();
             this.listadoComentarios();
@@ -25,7 +24,7 @@ proyecto = new Vue({
         listadoGeneral(){
 
             axios({
-                url: '/estadisticas/estado-proyectos/',
+                url: '/proyectos/detail/'+ this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -42,7 +41,7 @@ proyecto = new Vue({
         listadoTareas(){
 
             axios({
-                url: '/estadisticas/proyectos-tareas/',
+                url: '/proyectos/'+this.proyectoID+'/tareas/',
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -52,36 +51,21 @@ proyecto = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success' && response.data.data.length > 0){
 
-                    new Gantt('#proyectos-gantt', response.data.data, {
-                        on_click: (task) => {
+                    this.tareas = response.data.data;
 
-                            if(task.type == 'project'){
-
-                                statsPromises = [this.tareasXTipo(task.id), this.tareasXEstado(task.id)];
-
-                                Promise.all(statsPromises)
-                                .then(() => {
-
-                                    console.log("bn");
-                                    $("#estadisticas-tareas").modal('show');
-                                })
-                                .catch((reason) => {
-                                    console.log(reason)
-                                    Swal.fire({
-                                        title: 'Error',
-                                        text: 'Ocurrio un error. Por favor intenta de nuevo',
-                                        type: 'error'
-                                    });
-                                });
-                            }
-                        }
-                    });
                 }
             });
-        },listadoComentarios(){
+        },
+        datas (ids) {
+            return {
+            pjId: ids
+            }
+        }, 
+        listadoComentarios(){
 
             axios({
-                url: '/estadisticas/estado-proyectos/',
+                url: '/comentario/list/',
+                data: this.datas(this.proyectoID),
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -91,75 +75,75 @@ proyecto = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.proyectos = response.data.data;
+                    this.comentarios = response.data.data;
                 }
             });
         },
-        tareasXTipo(proyectoID){
-
-            return new Promise((resolve,reject) => {
-
-                axios({
-                    url: '/estadisticas/' + proyectoID + '/tareas-x-tipo/',
-                    method: 'GET',
-                    headers: {
-                        Authorization: getToken()
-                    }
-                })
-                .then(response => {
-
-
-                    
-                })
-            })
-        },
-        tareasXEstado(proyectoID){
-
-            return new Promise((resolve,reject) => {
-
-                axios({
-                    url: '/estadisticas/' + proyectoID + '/tareas-x-estado/',
-                    method: 'GET',
-                    headers: {
-                        Authorization: getToken()
-                    }
-                })
-                .then(response => {
-
-                    if(response.data.code == 200 && response.data.status == 'success'){
-
-                        let data = response.data.data;
-
-                        let ctx = document.getElementById("tareas-x-estado").getContext('2d')
-                        new Chart(ctx, {
-                            type: 'doughnut',
-                            data: {
-                              labels: data.estados,
-                              datasets: [
-                                {
-                                  label: "Tareas Por Estado",
-                                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                                  data: data.cantidad
-                                }
-                              ]
-                            },
-                            options: {
-                              title: {
-                                display: true,
-                                text: 'Tareas Por Estado'
-                              }
-                            }
-                        });
-
-                        resolve("");
-
-                    } else{
-
-                        reject("");
-                    }
-                })
-            });
-        },
+        //tareasXTipo(proyectoID){
+//
+        //    return new Promise((resolve,reject) => {
+//
+        //        axios({
+        //            url: '/estadisticas/' + proyectoID + '/tareas-x-tipo/',
+        //            method: 'GET',
+        //            headers: {
+        //                Authorization: getToken()
+        //            }
+        //        })
+        //        .then(response => {
+//
+//
+        //            
+        //        })
+        //    })
+        //},
+        //tareasXEstado(proyectoID){
+//
+        //    return new Promise((resolve,reject) => {
+//
+        //        axios({
+        //            url: '/estadisticas/' + proyectoID + '/tareas-x-estado/',
+        //            method: 'GET',
+        //            headers: {
+        //                Authorization: getToken()
+        //            }
+        //        })
+        //        .then(response => {
+//
+        //            if(response.data.code == 200 && response.data.status == 'success'){
+//
+        //                let data = response.data.data;
+//
+        //                let ctx = document.getElementById("tareas-x-estado").getContext('2d')
+        //                new Chart(ctx, {
+        //                    type: 'doughnut',
+        //                    data: {
+        //                      labels: data.estados,
+        //                      datasets: [
+        //                        {
+        //                          label: "Tareas Por Estado",
+        //                          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+        //                          data: data.cantidad
+        //                        }
+        //                      ]
+        //                    },
+        //                    options: {
+        //                      title: {
+        //                        display: true,
+        //                        text: 'Tareas Por Estado'
+        //                      }
+        //                    }
+        //                });
+//
+        //                resolve("");
+//
+        //            } else{
+//
+        //                reject("");
+        //            }
+        //        })
+        //    });
+        //},
         cambioVista(vista){
 
             if(vista == 1){

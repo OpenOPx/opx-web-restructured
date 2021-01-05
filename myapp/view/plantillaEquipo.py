@@ -361,8 +361,6 @@ def miembrosPlantillaView(request, planid):
 
         plantilla = PlantillaEquipo.objects.get(pk=planid)
 
-        print(plantilla.descripcion)
-
         response = render(request, "proyectos/gestion-miembros-plantilla.html", {'plantilla': plantilla})
 
     except ObjectDoesNotExist:

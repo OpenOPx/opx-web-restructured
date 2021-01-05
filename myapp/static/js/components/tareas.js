@@ -129,7 +129,6 @@ let tarea = new Vue({
 
             this.loader(true);
 
-            console.log(this.almacenamientoTarea)
             var queryString = Object.keys(this.almacenamientoTarea).map(key => {
 
                 if(key == 'dimensionid' && this.almacenamientoTarea.taretipo == "1"){

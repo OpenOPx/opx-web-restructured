@@ -141,7 +141,6 @@ def eliminarInstrumento(request, instrid):
 
     try:
         instrumento = models.Instrument.objects.get(pk=instrid)
-        print("trying to delete instrument with id: ", instrid)
         #instrumento.delete()
 
         return JsonResponse({'status': 'success'})

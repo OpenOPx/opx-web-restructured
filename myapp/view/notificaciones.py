@@ -196,7 +196,6 @@ def getPersonNotifications(request):
 
     notifications = models.Notification.objects.filter(person__pers_id__exact = person.pers_id)
     notifications = list(notifications.values())
-    print(notifications)
     response = {
         'code': 200,
         'data': notifications,

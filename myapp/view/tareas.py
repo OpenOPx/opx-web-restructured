@@ -324,7 +324,6 @@ def eliminarTarea(request, tareid):
 
     try:
         tarea = models.Task.objects.get(pk = tareid)
-        print(tarea.task_restriction.restriction_id)
         restriccion = models.TaskRestriction.objects.get(pk = tarea.task_restriction.restriction_id)
 
         subterritorio = models.TerritorialDimension.objects.get(pk = tarea.territorial_dimension.dimension_id)
@@ -366,12 +365,9 @@ def actualizarTarea(request, tareid):
         restriction.start_time = request.POST.get('HoraInicio')
         restriction.end_time = request.POST.get('HoraCierre')
         restriction.save()
-        print(request.POST.get('tarfechacierre'))
-        print(request.POST.get('HoraInicio'))
-        print(request.POST.get('HoraCierre'))
-        print(request.data)
+
         taskpriority = models.TaskPriority.objects.get(pk = request.POST.get('task_priority_id'))
-        print(request.POST.get('tarfechainicio'))
+
         tasktipe = models.TaskType.objects.get(pk = request.POST.get('task_type_id'))
        
 

@@ -246,7 +246,6 @@ def geopandaGeojson(geometry):
                 data = (float(coords[0]), float(coords[1]))
                 coordenadas.append(data)
 
-            print(coordenadas)
             polygon = shapely.geometry.Polygon(coordenadas)
             geojson = geopandas.GeoSeries(polygon).to_json()
 

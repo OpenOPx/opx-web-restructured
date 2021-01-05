@@ -112,7 +112,6 @@ def detalleFormularioKoboToolbox(id):
 def almacenarSurvery(request):
     KOBO_INSTR = 1
     tareaid = request.POST.get('tareaid')
-    print(tareaid)
     try:
         with transaction.atomic():
             tarea = models.Task.objects.get(pk=tareaid)
@@ -161,7 +160,7 @@ def almacenarSurvery(request):
             'code': 400,
             'status': 'error'
         }
-    print("15")
+
 
     return JsonResponse(data, status=data['code'], safe=False)
 
@@ -213,7 +212,6 @@ def koboSubmissionsQuantity(request, tareaid):
 def enlaceFormularioKoboToolbox(request, tareid):
 
     KOBO_INSTR = 1
-    #print("1")
     #headers = {'Authorization': settings['kobo-token']}
 
     try:
@@ -224,11 +222,10 @@ def enlaceFormularioKoboToolbox(request, tareid):
 
 
         if instrumento.instrument_type == KOBO_INSTR:
-            #print("4")
             """
             informacion = informacionFormularioKoboToolbox(
                 instrumento.external_id)
-            #print("5")
+ 
 
             if (isinstance(informacion, dict)):
                 #print("6")
@@ -324,7 +321,6 @@ def enlaceFormularioKoboToolbox(request, tareid):
             'code': 400,
             'status': 'error'
         }
-    print("15")
 
     return JsonResponse(data, status=data['code'], safe=False)
 
