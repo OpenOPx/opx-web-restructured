@@ -135,12 +135,12 @@ def listadoTareas(request):
 
         # Consulta de proyectos para un usuario proyectista
         elif str(person.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
-            n = "SELECT tk.* FROM opx.person AS person INNER JOIN opx.project AS pj ON person.pers_id = pj.proj_owner_id INNER JOIN opx.task as tk ON pj.proj_id = tk.project_id where person.pers_id = '"+ str(person.pers_id)+"';"
+            n = "select tk.*, restric.* from opx.person as persona inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id inner join opx.task as tarea on tarea.project_id = proyecto.proj_id inner join opx.task_restriction as restric on tarea.task_restriction_id = restric.restriction_id where persona.pers_id = '"+ str(person.pers_id)+"';"
 
         # Consulta de proyectos para un usuario voluntario o validador
         elif str(person.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
-            n = "SELECT DISTINCT tk.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
-
+            n = "SELECT DISTINCT tk.*, restric.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id INNER JOIN opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
+      
       # ================ Obtener página validación de la misma ========================
         page = request.GET.get('page')
 
@@ -273,8 +273,9 @@ def detalleTarea(request, tareid):
 
     try:
         tarea = models.Task.objects.get(pk = tareid)
-
+        restricciones = models.TaskRestriction.get(pk = tarea.task_restriction.restriction_id)
         tareaDict = model_to_dict(tarea)
+        restriccionesDict = model_to_dict(restricciones)
         
         # Tipo encuesta
         if tareaDict['task_type'] == 1:
@@ -293,7 +294,8 @@ def detalleTarea(request, tareid):
         data = {
             'code': 200,
             'status': 'success',
-            'tarea': tareaDict
+            'tarea': tareaDict,
+            'restriccion': restriccionesDict
         }
 
     except ObjectDoesNotExist:
