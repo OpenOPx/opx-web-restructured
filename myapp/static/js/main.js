@@ -209,6 +209,7 @@ require('./components/reportes/reportesproyectos').proyecto;
 require('./components/reportes/reportePlantilla').reportePlantilla;
 require('./components/reportes/reporteEquipo').reporteEquipo;
 require('./components/reportes/reporteMiembro').reporteMiembro;
+require('./components/reportes/reporteRank').reporteClasificacion;
 
 
 // Gestión de Plantillas de Equipo

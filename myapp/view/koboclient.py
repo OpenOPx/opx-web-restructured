@@ -105,6 +105,104 @@ def detalleFormularioKoboToolbox(id):
 
     return data
 
+#AGREGAR AL PATH URL
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def almacenarSurvery(request):
+    KOBO_INSTR = 1
+    tareaid = request.POST.get('tareaid')
+    print(tareaid)
+    try:
+        with transaction.atomic():
+            tarea = models.Task.objects.get(pk=tareaid)
+
+            #instrumento = models.Instrument.objects.get(pk=tarea.instrument.instrument_id)
+            instrumento = tarea.instrument
+
+            if instrumento.instrument_type == KOBO_INSTR:
+
+                informacion = informacionFormularioKoboToolbox(
+                    instrumento.external_id)
+
+                if (isinstance(informacion, dict)):
+                    user = usuarioAutenticado(request)
+                    person = models.Person.objects.get(user__userid__exact = user.userid)
+
+                    #encuestaview.almacenarEncuestas(
+                    #    instrumento, informacion['info'], person, tarea)
+                    index_info = len(informacion['info'])
+                    info = informacion['info'][index_info-1]
+                    encuesta = models.Survery(
+                        instrument=instrumento, 
+                        koboid=info['_uuid'], 
+                        survery_content=json.dumps(info), 
+                        survery_observation='Ehhg',
+                        #userid=userid, (person)
+                        person=person,
+                        task=tarea)
+                    encuesta.full_clean()
+                    encuesta.save()
+                    data = {
+                        'code': 201,
+                        'status': 'success'
+                    }
+
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+    print("15")
+
+    return JsonResponse(data, status=data['code'], safe=False)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def koboSubmissionsQuantity(request, tareaid):
+    KOBO_INSTR = 1
+    try:
+        tarea = models.Task.objects.get(pk=tareaid)
+
+        #instrumento = models.Instrument.objects.get(pk=tarea.instrument.instrument_id)
+        instrumento = tarea.instrument
+        if instrumento.instrument_type == KOBO_INSTR:
+            detalleFormulario = detalleFormularioKoboToolbox(
+                instrumento.external_id)
+            if detalleFormulario:
+                if(detalleFormulario['deployment__active']):
+                    subm_quantity = detalleFormulario['deployment__submission_count']
+                    data = {
+                        'code': 200,
+                        'status': 'success',
+                        'submissions_quantity' :subm_quantity,
+                    }
+    except ObjectDoesNotExist:
+
+        data = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError:
+
+        data = {
+            'code': 400,
+            'status': 'error'
+        }
+
+    return JsonResponse(data, status=data['code'], safe=False)
+        
+
+
 ##
 # @brief Obtención de enlace de diligenciamiento de un formulario de KoboToolbox
 # @param id tareid Identificación de la tarea Tipo Encuesta
@@ -115,50 +213,59 @@ def detalleFormularioKoboToolbox(id):
 def enlaceFormularioKoboToolbox(request, tareid):
 
     KOBO_INSTR = 1
-    print("1")
+    #print("1")
     #headers = {'Authorization': settings['kobo-token']}
 
     try:
         tarea = models.Task.objects.get(pk=tareid)
-        print("2")
 
         #instrumento = models.Instrument.objects.get(pk=tarea.instrument.instrument_id)
         instrumento = tarea.instrument
-        print("3")
 
 
         if instrumento.instrument_type == KOBO_INSTR:
-            print("4")
-
+            #print("4")
+            """
             informacion = informacionFormularioKoboToolbox(
                 instrumento.external_id)
-            print("5")
+            #print("5")
 
             if (isinstance(informacion, dict)):
-                print("6")
+                #print("6")
                 user = usuarioAutenticado(request)
-                print("7")
+                #print("7")
 
                 person = models.Person.objects.get(user__userid__exact = user.userid)
-                print("8")
+                #print("8")
 
-                encuestaview.almacenarEncuestas(
-                    instrumento, informacion['info'], person, tarea)
+                #encuestaview.almacenarEncuestas(
+                #    instrumento, informacion['info'], person, tarea)
+                index_info = len(informacion['info'])
+                #print(informacion)
+                print(index_info)
+                info = informacion['info'][index_info-1]
+                #print(info)
+                encuesta = models.Survery(
+                    instrument=instrumento, 
+                    koboid=info['_uuid'], 
+                    survery_content=json.dumps(info), 
+                    survery_observation='Ehhg',
+                    #userid=userid, (person)
+                    person=person,
+                    task=tarea)
+                encuesta.full_clean()
+                encuesta.save()
                 print("9")
-
+                """
 
             detalleFormulario = detalleFormularioKoboToolbox(
                 instrumento.external_id)
-            print("10")
 
             if detalleFormulario:
-                print("11")
 
                 if(detalleFormulario['deployment__active']):
-                    print("12")
 
                     if detalleFormulario['deployment__submission_count'] < tarea.task_quantity:
-                        print("13")
 
                         enlace = detalleFormulario['deployment__links']['offline_url']
 

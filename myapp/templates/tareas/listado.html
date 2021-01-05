@@ -99,6 +99,7 @@
                             <a @click.prevent="edicionTarea = data.item; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
                             <a @click.prevent="eliminarTarea(data.item.task_id)" class="dropdown-item" href="#"> Eliminación</a>
                             <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrument_id"> Validar </a>
+                            <a @click.prevent="almacenamientoTarea = data.item; listadoInstrumentos(almacenamientoTarea.taretipo)" data-toggle="modal" data-target="#nueva-campana" class="dropdown-item" href="#"> Nueva Campaña </a>
                           </div>
                         </div>
                       </template>
@@ -258,7 +259,149 @@
             </div>
           </div>
 
-        <!-- Edición de Tarea -->
+          <!-- Nueva Campaña -->
+          <div class="modal fade" id="nueva-campana">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Nueva Campaña de Tarea</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Nombre</label>
+                          <input v-model="almacenamientoTarea.task_name" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Descripción</label>
+                            <textarea v-model="almacenamientoTarea.task_description" rows="5" class="form-control"></textarea>
+                          <!--<editor
+                             api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
+                             :init="{
+                               height: 300,
+                               menubar: false,
+                               plugins: 'link',
+                               toolbar:
+                                 'undo redo | formatselect | bold italic backcolor | \
+                                 alignleft aligncenter alignright alignjustify | \
+                                 bullist numlist outdent indent | removeformat | link'
+                             }"
+                             v-model="almacenamientoTarea.taredescripcion"
+                           />-->
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Tipo</label>
+                          <select v-model="almacenamientoTarea.task_type_id" @change="listadoInstrumentos(almacenamientoTarea.task_type_id); restablecerMapa()" class="form-control">
+                            <option value="">Seleccione un tipo</option>
+                            <option value="1">Encuesta</option>
+                            <option value="2">Cartografia (Pronto)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Cantidad</label>
+                          <input v-model="almacenamientoTarea.task_quantity" type="number" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Proyecto</label>
+                          <select v-model="almacenamientoTarea.project_id" @change="obtenerDimensionesTerritoriales(almacenamientoTarea.project_id)" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="proyecto in proyectos" :value="proyecto.proj_id"> [[ proyecto.proj_name ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div v-if="almacenamientoTarea.taretipo == '1'" class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Dimension Territorial</label>
+                          <select @change="generarDimensionTerritorial(dimension)" v-model="dimension" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="dimension in dimensionesTerritoriales" :value="dimension"> [[ dimension.dimension_name ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Instrumento</label>
+                          <select v-model="almacenamientoTarea.instrument_id" @change="generarDimensionTerritorialInstrumento(almacenamientoTarea.instrument_id)" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option v-for="instrumento in instrumentos" :value="instrumento.instrument_id"> [[ instrumento.instrument_name ]] </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Prioridad</label>
+                          <select v-model="almacenamientoTarea.task_priority_id" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="3178cdc1-4756-4565-9a41-6f7efed27b12"> Alta </option>
+                            <option value="43601d71-4e9a-45e5-8f68-d24a31071107"> Media </option>
+                            <option value="94281abf-11d9-4b9d-8c07-f01e8025a202"> Baja </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="offset-md-3 col-md-6">
+                        <input v-model="almacenamientoTarea.nombreSubconjunto" type="text" class="form-control" placeholder="Nombre de dimension"> <br />
+                      </div>
+                      <div class="col-md-12">
+                        <div id="taskmap"></div>
+                      </div>
+                      
+                      <div class="col-md-12">
+                        <label class="bmd-label-floating">Restricciones</label>
+                        <div class="">
+                          <div class="form-group">
+                            <label for="" class="bmd-label-floating">Fecha Inicio</label>
+                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
+                            <datepicker
+                                    @selected="formateoFechaInicio"
+                                    bootstrap-styling
+                                    placeholder="Fecha de Inicio">
+                            </datepicker>
+                          </div>
+                        </div>
+                        <div class="">
+                          <div class="form-group">
+                            <label for="" class="bmd-label-floating">Fecha Cierre</label>
+                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
+                            <datepicker
+                                    @selected="formateoFechaFin"
+                                    bootstrap-styling
+                                    placeholder="Fecha de Fin">
+                            </datepicker>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <input class="col-md-4" v-model="almacenamientoTarea.HoraInicio" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <small>Hora de inicio</small>
+                        <input class="col-md-4" v-model="almacenamientoTarea.HoraCierre" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <small>Hora de cierre</small>
+                      </div>
+                      <div align="center" class="col-md-12">
+                        <div class="form-group">
+                          <button :disabled="!almacenamientoTarea.nombreSubconjunto || !almacenamientoTarea.tarfechacierre || !almacenamientoTarea.tarfechainicio || !almacenamientoTarea.HoraInicio || !almacenamientoTarea.HoraCierre || !almacenamientoTarea.tarenombre || !almacenamientoTarea.taretipo || !almacenamientoTarea.tarerestriccant || !almacenamientoTarea.instrid || !almacenamientoTarea.proyid || !almacenamientoTarea.geojsonsubconjunto" class="btn" @click="almacenarTarea()" type="button">Guardar</button>
+                        </div>
+                      </div>                
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edición de Tarea -->
           <div class="modal fade" id="editar-tarea">
             <div class="modal-dialog">
               <div class="modal-content">
