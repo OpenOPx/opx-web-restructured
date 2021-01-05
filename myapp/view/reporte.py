@@ -281,20 +281,45 @@ def detallePersona(request, personId):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def ranking(request):
+    try:
+        print(request.data)
+        inicio = request.GET.get('inicio')
+        fin = request.GET.get('fin')
 
-    query = "select persona.pers_id, persona.pers_name, persona.pers_lastname, persona.pers_score \
-            from opx.person as persona \
-            where persona.role_id = '53ad3141-56bb-4ee2-adcf-5664ba03ad65' or persona.role_id = '0be58d4e-6735-481a-8740-739a73c3be86' or persona.role_id = '628acd70-f86f-4449-af06-ab36144d9d6a' \
-            order by persona.pers_score DESC limit 20"
+        query = "select persona.pers_name, persona.pers_lastname, persona.pers_score \
+                from opx.person as persona  \
+                where (persona.role_id = '53ad3141-56bb-4ee2-adcf-5664ba03ad65' or persona.role_id = '0be58d4e-6735-481a-8740-739a73c3be86' or persona.role_id = '628acd70-f86f-4449-af06-ab36144d9d6a') and persona.pers_score>0 \
+                order by persona.pers_score DESC limit 30"
 
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        rank = dictfetchall(cursor)
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rank = dictfetchall(cursor)
 
-    response = {
-        'code': 200,
-        'data': rank,
-        'status': 'success'
-    }
+            i = 0
+            for r in rank:
+                r['clasificacion'] = i
+                i=i+1
+
+        response = {
+            'code': 200,
+            'data': list(rank)[int(inicio):int(fin)],
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'errors': dict(e),
+            'status': 'error'
+        }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+    ##
+# @brief 
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def reporteRankView(request):
+    return render(request, "reportes/reporteRank.html")
