@@ -216,35 +216,37 @@
                       <div class="col-md-12">
                         <div id="taskmap"></div>
                       </div>
-                      <label class="bmd-label-floating">Restricciones</label>
                       <div class="col-md-12">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="" class="bmd-label-floating">Fecha Inicio</label>
-                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
-                            <datepicker
-                                    @selected="formateoFechaInicio"
-                                    bootstrap-styling
-                                    placeholder="Fecha de Inicio">
-                            </datepicker>
+                        <label class="bmd-label-floating">Restricciones</label>
+                        <div class="col-md-12">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="" class="bmd-label-floating">Fecha Inicio</label>
+                              <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
+                              <datepicker
+                                      @selected="formateoFechaInicio"
+                                      bootstrap-styling
+                                      placeholder="Fecha de Inicio">
+                              </datepicker>
+                            </div>
                           </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="" class="bmd-label-floating">Fecha Cierre</label>
-                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
-                            <datepicker
-                                    @selected="formateoFechaFin"
-                                    bootstrap-styling
-                                    placeholder="Fecha de Fin">
-                            </datepicker>
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="" class="bmd-label-floating">Fecha Cierre</label>
+                              <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
+                              <datepicker
+                                      @selected="formateoFechaFin"
+                                      bootstrap-styling
+                                      placeholder="Fecha de Fin">
+                              </datepicker>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div class="col-md-12">
-                        <input v-model="almacenamientoTarea.HoraInicio" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <input v-model="almacenamientoTarea.HoraInicio" class="col-md-4" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de inicio</small>
-                        <input v-model="almacenamientoTarea.HoraCierre" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <input v-model="almacenamientoTarea.HoraCierre" class="col-md-4" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de cierre</small>
                       </div>
                       <div align="center" class="col-md-12">
@@ -472,36 +474,38 @@
                         </div>
                       </div>
 
-
-                      <label class="bmd-label-floating">Restricciones</label>
                       <div class="col-md-12">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="" class="bmd-label-floating">Fecha Inicio</label>
-                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
-                            <datepicker
-                                    @selected="edicionformateoFechaInicio"
-                                    bootstrap-styling
-                                    placeholder="Fecha de Inicio">
-                            </datepicker>
+
+                        <label class="bmd-label-floating">Restricciones</label>
+                        <div class="col-md-12">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="" class="bmd-label-floating">Fecha Inicio</label>
+                              <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
+                              <datepicker
+                                      @selected="edicionformateoFechaInicio"
+                                      bootstrap-styling
+                                      placeholder="Fecha de Inicio">
+                              </datepicker>
+                            </div>
                           </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="" class="bmd-label-floating">Fecha Cierre</label>
-                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
-                            <datepicker
-                                    @selected="edicionformateoFechaFin"
-                                    bootstrap-styling
-                                    placeholder="Fecha de Fin">
-                            </datepicker>
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="" class="bmd-label-floating">Fecha Cierre</label>
+                              <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
+                              <datepicker
+                                      @selected="edicionformateoFechaFin"
+                                      bootstrap-styling
+                                      placeholder="Fecha de Fin">
+                              </datepicker>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div class="col-md-12">
-                        <input v-model="edicionTarea.HoraInicio" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <input v-model="edicionTarea.HoraInicio" class="col-md-3" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de inicio</small>
-                        <input v-model="edicionTarea.HoraCierre" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <input v-model="edicionTarea.HoraCierre"class="col-md-3" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
                         <small>Hora de cierre</small>
                       </div>
 
