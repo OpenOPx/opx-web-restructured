@@ -148,13 +148,7 @@ def listadoTareas(request):
             page = 1
 
         all = request.GET.get('all')
-
-        # Obtener Búsqueda y validación de la misma
-        search = request.GET.get('search')
-        if search is not  None:
-            if len(tareasUsuario) > 0:
-                query += " and"
-            query += " (t.task_name ~* '" + search + "');"        
+       
 
         with connection.cursor() as cursor:
             cursor.execute(n)
@@ -176,6 +170,10 @@ def listadoTareas(request):
                     progreso = (len(encuestas) * 100) / t['task_completness']
                     t['task_quantity'] = progreso
 
+        search = request.GET.get('search')
+        if search is not  None:
+            tareas = models.Task.filter(task_name__icontains = search)
+            
         if all is not None and all == "1":
             data = {
                 'code': 200,
@@ -197,7 +195,8 @@ def listadoTareas(request):
                 },
                 'tareas': tareas,
                 'status': 'success'
-            }
+            }        # Obtener Búsqueda y validación de la misma
+
 
     except EmptyPage:
 
