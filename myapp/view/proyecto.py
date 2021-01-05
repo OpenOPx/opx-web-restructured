@@ -821,15 +821,14 @@ def detalleProyectoMovil(request, proyid):
     try:
         queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
 
-        queryTareas = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, prioridad.priority_name, td.dimension_geojson, tr.* \
-                    from opx.project as proyecto \
-                    inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
-                    inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
-                    inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
-                    inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
-                    inner join opx.territorial_dimension as td on td.dimension_id = tarea.territorial_dimension_id    \
-                    inner join opx.task_restriction as tr on tr.restriction_id = tarea.task_restriction_id \
-                    where proyecto.proj_id = '"+proyid+"';"
+        queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity,  \
+                        tarea.task_completness, tarea.task_creation_date, tarea.instrument_id, tarea.proj_dimension_id, \
+                        tarea.project_id, tarea.task_priority_id, tarea.territorial_dimension_id, territorio.dimension_geojson, \
+                        tarea.task_restriction_id, tarea.task_type_id, tipoTarea.task_type_name \
+                        from opx.task as tarea \
+                        inner join opx.task_type as tipoTarea on tipoTarea.task_type_id = tarea.task_type_id \
+                        inner join opx.territorial_dimension as territorio on territorio.dimension_id = tarea.territorial_dimension_id \
+                        where tarea.project_id = '"+proyid+"'"
 
         with connection.cursor() as cursor:
             cursor.execute(queryProyecto)
