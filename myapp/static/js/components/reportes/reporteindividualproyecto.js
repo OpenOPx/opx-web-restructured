@@ -2,7 +2,7 @@ proyectoReporte = new Vue({
     el: '#reportes-proyectoindividual',
     delimiters: ['[[', ']]'],
     data: {
-        proyecto: [],
+        proyecto: [], 
         tareas: [],
         comentarios: [],
         proyectoID: '',
@@ -31,10 +31,12 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
-
+                console.log(response.data)
+                console.log("respondió" + response.data.detail.proyecto)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    this.proyecto = response.data.data;
+                    this.proyecto = response.data.detail.proyecto;
+                    console.log(this.proyecto)
                 }
             });
         },
