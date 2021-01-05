@@ -175,6 +175,8 @@ urlpatterns = [
     path('persona/detalle/<str:personId>/', reporte.detallePersona), #JM OK OK
     path('reportes/rank/', reporte.ranking), #JM OK
     path('reportes/ranking/', reporte.reporteRankView), #JM
+    path('puntaje/tarea/<str:tarid>/', utilidades.puntajeTarea), #JM - S
+    path('puntaje/proyecto/<str:proyid>/', utilidades.puntajeProyecto), #JM - S
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR

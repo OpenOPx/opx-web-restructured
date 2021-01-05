@@ -1355,7 +1355,6 @@ def estadisticasProyectosView(request):
 # @return plantilla HTML
 #
 def proyectoIndividualView(request, projid):
-
     try:
         proyecto = models.Project.objects.get(pk=projid)
         data =  render(request, 'reportes/proyectoindividual.html', {'proyecto':proyecto})

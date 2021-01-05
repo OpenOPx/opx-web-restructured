@@ -808,7 +808,7 @@ def detalleProyecto(request, proyid):
 
     return JsonResponse(data, status = data['code'], safe = False)
 
-    ##
+##
 # @brief recurso que provee el detalle de un proyecto
 # @param request Instancia HttpRequest
 # @param proyid Identificación del proyecto

@@ -146,6 +146,9 @@ def almacenarSurvery(request):
                         'code': 201,
                         'status': 'success'
                     }
+        utilidades.puntajeTarea(tareaid)  
+        utilidades.puntajeProyecto(tarea.project.proj_id)    
+    
 
     except ObjectDoesNotExist:
 
