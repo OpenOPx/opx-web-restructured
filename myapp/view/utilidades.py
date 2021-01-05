@@ -215,29 +215,6 @@ def puntajeProyecto( proyid):
 # @return Diccionario
 #
 def reporteEstadoProyecto(proyid):
-    progresoProyecto = (models.Project.objects.get(pk = proyid)).proj_completness
-    tareas = models.Task.objects.filter(project_id__exact = proyid)
-    tareasValidadas = 0 #pendiente
-
-    for tarea in tareas:
-
-        if tarea.task_type_id == 1:
-            encuestas = models.Survery.objects.filter(task__task_id__exact = tarea.task_id)
-            progreso = (len(encuestas) * 100) / tarea.task_quantity
-
-            progresoProyecto = progresoProyecto + progreso
-
-        if tarea.task_type_id == 2:
-            tareasValidadas += 1
-
-    if progresoProyecto > 0:
-        progresoProyecto = (progresoProyecto * 100) / (len(tareas) * 100)
-
-    if (len(tareas) > 0):
-        estadoValidacion = (tareasValidadas * 100) / len(tareas)
-    else:
-        estadoValidacion = 0
-
 
     query = "select count(distinct tp.person_id) from opx.team_person as tp inner join opx.project_team as pt on tp.team_id = pt.team_id where pt.project_id = '"+proyid+"';"
     with connection.cursor() as cursor:
@@ -245,8 +222,7 @@ def reporteEstadoProyecto(proyid):
         cantidadMiembros = dictfetchall(cursor)
 
     return {
-        'progreso-proyecto':    progresoProyecto,
-        'estado-validacion':    estadoValidacion,
+        'estado-validacion':    0,
         'cantidad-integrantes': cantidadMiembros
     }
 
