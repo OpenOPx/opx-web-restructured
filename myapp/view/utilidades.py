@@ -3,7 +3,8 @@ from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.db import (connection, transaction)
 from myapp import models
-
+from django.forms.models import model_to_dict
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -164,6 +165,46 @@ def notFoundPage(request, exception=None):
 #
 def serverErrorPage(request, exception=None):
     return render(request, "error/500.html")
+
+#
+#
+#COMENTAR LUEGO XD
+
+def puntajeTarea(tarid):
+    print(tarid)
+    tarea = models.Task.objects.get(pk = tarid)
+    print("2")
+    if tarea.task_type_id == 1:
+        print("3")
+        encuestas = models.Survery.objects.filter(task__task_id__exact = tarea.task_id)
+        print("4")
+        progreso = (len(encuestas)/ tarea.task_quantity)
+        tarea.task_completness = progreso
+        if progreso == 100:
+            tarea.isactive = 0
+        tarea.save()
+    if tarea.task_type_id == 2:
+        tareasValidadas += 1  
+
+
+def puntajeProyecto( proyid):
+    proyecto = (models.Project.objects.get(pk = proyid))
+    tareas = models.Task.objects.filter(project_id__exact = proyid)
+    progresoProyecto = 0
+    prioridadTotal = 0
+    for tarea in tareas:
+        if tarea.task_type_id == 1:
+            prioridadTotal += tarea.task_priority.priority_number
+
+    for tarea in tareas:
+        if tarea.task_type_id == 1:
+            prioridadDeTarea = tarea.task_priority.priority_number
+            pesoDeTarea= (prioridadDeTarea/prioridadTotal) * 100
+            progresoProyecto += tarea.task_completness * pesoDeTarea
+    if progresoProyecto == 100:
+        proyecto.isactive = 0
+    proyecto.proj_completness = progresoProyecto
+    proyecto.save()
 
 ##
 # @brief Función que calcula el estado actual de un proyecto. provee datos como:

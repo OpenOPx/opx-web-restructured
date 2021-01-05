@@ -435,13 +435,13 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Cantidad</label>
-                          <input v-model="edicionTarea.task_quantity" type="number" class="form-control">
+                          <input v-model="edicionTarea.task_quantity" type="number" class="form-control" disabled>
                         </div>
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Proyecto</label>
-                          <select v-model="edicionTarea.project_id" class="form-control">
+                          <select v-model="edicionTarea.project_id" class="form-control" disabled>
                             <option value="">Seleccione</option>
                             <option v-for="proyecto in proyectos" :value="proyecto.proj_id"> [[ proyecto.proj_name ]] </option>
                           </select>
