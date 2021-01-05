@@ -277,7 +277,7 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Nombre</label>
-                          <input v-model="almacenamientoTarea.task_name" type="text" class="form-control">
+                          <input v-model="almacenamientoTarea.task_name + ' #Campaña:'" type="text" class="form-control">
                         </div>
                       </div>
                       <div class="col-md-12">
@@ -324,7 +324,7 @@
                           </select>
                         </div>
                       </div>
-                      <div v-if="almacenamientoTarea.taretipo == '1'" class="col-md-12">
+                      <div v-if="almacenamientoTarea.task_type_id == '1'" class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Dimension Territorial</label>
                           <select @change="generarDimensionTerritorial(dimension)" v-model="dimension" class="form-control">

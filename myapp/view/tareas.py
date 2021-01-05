@@ -170,10 +170,12 @@ def listadoTareas(request):
                     progreso = (len(encuestas) * 100) / t['task_completness']
                     t['task_quantity'] = progreso
 
+        # Obtener Búsqueda y validación de la misma
         search = request.GET.get('search')
+        
         if search is not  None:
-            tareas = models.Task.filter(task_name__icontains = search)
-            
+            tareas = models.Task.objects.filter(task_name__icontains = search)
+            tareas = list(tareas.values())
         if all is not None and all == "1":
             data = {
                 'code': 200,

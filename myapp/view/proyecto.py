@@ -112,13 +112,22 @@ def listadoProyectos(request):
 
         # ================= Busqueda de proyectos
         if search:
-            proyectos = models.Project.filter(proj_name__icontains = search)
+            proyectos = models.Project.objects.filter(proj_name__icontains = search)
+            proyectos = list(proyectos.values())
+            print("PROYECTOS DE SEARCH")
+            print(proyectos)
 
 
         listadoProyectos = []
+        type(proyectos)
         for p in proyectos:
-
+            type(p)
+            print("IMPRIME P")
+            print(p)
             #Consulta del proyectista
+            name = p['proj_external_id']
+            #proj_owner_id = p['proj_owner_id']
+            print(name)
             persona = models.Person.objects.get(pk = p['proj_owner_id'])
             p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
