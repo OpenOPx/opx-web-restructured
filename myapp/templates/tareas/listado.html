@@ -162,7 +162,6 @@
                           <select v-model="almacenamientoTarea.taretipo" @change="listadoInstrumentos(almacenamientoTarea.taretipo); restablecerMapa()" class="form-control">
                             <option value="">Seleccione un tipo</option>
                             <option value="1">Encuesta</option>
-                            <option value="2">Cartografia (Pronto)</option>
                           </select>
                         </div>
                       </div>
@@ -308,9 +307,9 @@
                           <label class="bmd-label-floating">Prioridad</label>
                           <select v-model="edicionTarea.task_priority_id" class="form-control">
                             <option value="">Seleccione</option>
-                            <option value="e89daf26-7135-4635-bcf7-08c943f767ff"> Alta </option>
-                            <option value="1e1a92df-c40f-4d01-97ed-d145d19d4036"> Media </option>
-                            <option value="bf508e5d-6bbf-460e-988c-4d66fee4cedb"> Baja </option>
+                            <option value="3178cdc1-4756-4565-9a41-6f7efed27b12"> Alta </option>
+                            <option value="43601d71-4e9a-45e5-8f68-d24a31071107"> Media </option>
+                            <option value="94281abf-11d9-4b9d-8c07-f01e8025a202"> Baja </option>
                           </select>
                         </div>
                       </div>
@@ -326,22 +325,47 @@
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Descripción</label>
-                          <!--<textarea v-model="edicionTarea.taredescripcion" rows="5" class="form-control"></textarea>-->
-                          <editor
-                             api-key="yppjpwidnfhsiwqjvltoxykexydqk3m1xk218rj4r1lvk85v"
-                             :init="{
-                               height: 300,
-                               menubar: false,
-                               plugins: 'link',
-                               toolbar:
-                                 'undo redo | formatselect | bold italic backcolor | \
-                                 alignleft aligncenter alignright alignjustify | \
-                                 bullist numlist outdent indent | removeformat | link'
-                             }"
-                             v-model="edicionTarea.taredescripcion"
-                           />
+                          <textarea v-model="edicionTarea.task_description" rows="5" class="form-control">[[edicionTarea]]</textarea>
                         </div>
                       </div>
+
+
+                      <label class="bmd-label-floating">Restricciones</label>
+                      <div class="col-md-12">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="" class="bmd-label-floating">Fecha Inicio</label>
+                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechainicio" />-->
+                            <datepicker
+                                    @selected="edicionformateoFechaInicio"
+                                    bootstrap-styling
+                                    placeholder="Fecha de Inicio">
+                            </datepicker>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="" class="bmd-label-floating">Fecha Cierre</label>
+                            <!--<input class="form-control" type="date" v-model="almacenamientoProyecto.proyfechacierre" />-->
+                            <datepicker
+                                    @selected="edicionformateoFechaFin"
+                                    bootstrap-styling
+                                    placeholder="Fecha de Fin">
+                            </datepicker>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <input v-model="edicionTarea.HoraInicio" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <small>Hora de inicio</small>
+                        <input v-model="edicionTarea.HoraCierre" type="time" id="appt" name="appt" min="05:00" max="23:59" required>
+                        <small>Hora de cierre</small>
+                      </div>
+
+
+
+
+
                       <div align="center" class="col-md-12">
                         <div class="form-group">
                           <button class="btn" @click="editarTarea()" type="button">Editar</button>
