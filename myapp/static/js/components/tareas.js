@@ -395,7 +395,6 @@ let tarea = new Vue({
             })
         },
         generarMapa(timeout, dimension){
-
             window.setTimeout(() => {
 
                 var taskMap = L.map('taskmap',  {

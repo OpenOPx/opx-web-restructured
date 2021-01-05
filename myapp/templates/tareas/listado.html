@@ -99,7 +99,7 @@
                             <a @click.prevent="edicionTarea = data.item; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
                             <a @click.prevent="eliminarTarea(data.item.task_id)" class="dropdown-item" href="#"> Eliminación</a>
                             <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrument_id"> Validar </a>
-                            <a @click.prevent="almacenamientoTarea = data.item; listadoInstrumentos(almacenamientoTarea.taretipo)" data-toggle="modal" data-target="#nueva-campana" class="dropdown-item" href="#"> Nueva Campaña </a>
+                            <a @click="almacenamientoTarea = data.item; listadoInstrumentos(almacenamientoTarea.taretipo); generarMapa(2000)" data-toggle="modal" data-target="#nueva-campana" class="dropdown-item" href="#"> Nueva Campaña </a>
                           </div>
                         </div>
                       </template>
