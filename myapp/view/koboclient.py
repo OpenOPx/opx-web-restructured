@@ -106,11 +106,13 @@ def detalleFormularioKoboToolbox(id):
     return data
 
 #AGREGAR AL PATH URL
+@csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenarSurvery(request):
     KOBO_INSTR = 1
     tareaid = request.POST.get('tareaid')
+    print(tareaid)
     try:
         with transaction.atomic():
             tarea = models.Task.objects.get(pk=tareaid)
