@@ -1,5 +1,5 @@
-estadisticas = new Vue({
-    el: '#reportes-durante',
+proyecto = new Vue({
+    el: '#reportes-proyectoindividual',
     delimiters: ['[[', ']]'],
     data: {
         proyecto: [],
@@ -14,7 +14,8 @@ estadisticas = new Vue({
     created(){
         if(window.location.pathname.substr(1, 17) == "reportes/proyecto"){
             this.proyectoID = window.location.pathname.substr(19);
-            this.listadoGenaral();
+            console.log(this.proyectoID)
+            this.listadoGeneral();
             this.listadoTareas();
             this.listadoComentarios();
         }
