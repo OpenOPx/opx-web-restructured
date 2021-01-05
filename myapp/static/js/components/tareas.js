@@ -193,7 +193,6 @@ let tarea = new Vue({
                 this.restablecerMapa();
 
                 this.loader(false);
-
                 Swal.fire({
                   title: 'Error!',
                   text: 'Ocurrio un error. Por favor intenta de nuevo',
@@ -557,6 +556,12 @@ let tarea = new Vue({
         },
         formateoFechaFin(date){
             this.almacenamientoTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaInicio(date){
+            this.edicionTarea.tarfechainicio = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaFin(date){
+            this.edicionTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
         }
     },
     filters: {

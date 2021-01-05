@@ -148,13 +148,7 @@ def listadoTareas(request):
             page = 1
 
         all = request.GET.get('all')
-
-        # Obtener Búsqueda y validación de la misma
-        #search = request.GET.get('search')
-        #if search is not  None:
-        #    if len(tareasUsuario) > 0:
-        #        n += " and"
-        #    n += " (t.task_name ~* '" + search + "');"        
+       
 
         with connection.cursor() as cursor:
             cursor.execute(n)
@@ -203,7 +197,8 @@ def listadoTareas(request):
                 },
                 'tareas': tareas,
                 'status': 'success'
-            }
+            }        # Obtener Búsqueda y validación de la misma
+
 
     except EmptyPage:
 
@@ -363,10 +358,23 @@ def actualizarTarea(request, tareid):
 
         estado = 0
         tarea = models.Task.objects.get(pk=tareid)
+
+
+        restriction = models.TaskRestriction.objects.get(pk = request.POST.get('task_restriction_id'))
+        restriction.start_time = request.POST.get('tarfechainicio')
+        restriction.task_end_date = request.POST.get('tarfechacierre')
+        restriction.start_time = request.POST.get('HoraInicio')
+        restriction.end_time = request.POST.get('HoraCierre')
+        restriction.save()
+        print(request.POST.get('tarfechacierre'))
+        print(request.POST.get('HoraInicio'))
+        print(request.POST.get('HoraCierre'))
         print(request.data)
-        print(tareid)
         taskpriority = models.TaskPriority.objects.get(pk = request.POST.get('task_priority_id'))
+        print(request.POST.get('tarfechainicio'))
         tasktipe = models.TaskType.objects.get(pk = request.POST.get('task_type_id'))
+       
+
         projecto = models.Project.objects.get(pk = request.POST.get('project_id'))
         tarea.task_name = request.POST.get('task_name')
         tarea.task_type = tasktipe
@@ -374,8 +382,9 @@ def actualizarTarea(request, tareid):
         tarea.project = projecto
         tarea.task_description = request.POST.get('task_description')
         tarea.task_priority = taskpriority
+        tarea.task_restriction = restriction
 
-        tarea.full_clean()
+
 
         if estado == 2 and tarea.tareestado != 2:
 
@@ -411,7 +420,7 @@ def actualizarTarea(request, tareid):
         response = {
             'code': 404,
             'message': str(e),
-            'status': 'error'
+            'status': 'error' + str(e)
         }
 
     except ValidationError as e:
