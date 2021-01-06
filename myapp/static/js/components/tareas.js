@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'task_priority_name'
+                key: 'priority_name'
             },
             {
                 label: 'Fecha de Creación',
@@ -111,7 +111,7 @@ let tarea = new Vue({
 
             axios({
                 method: 'GET',
-                url: '/proyectos/detail/' + proyectoid,
+                url: '/proyectos/details/' + proyectoid,
                 headers: {
                     Authorization: getToken()
                 }

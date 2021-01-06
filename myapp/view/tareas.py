@@ -161,7 +161,7 @@ def listadoTareas(request):
             t['task_type_name'] = (models.TaskType.objects.get(pk = t['task_type_id'])).task_type_name
             t['instrument_name']= (models.Instrument.objects.get(pk = t['instrument_id'])).instrument_name
             t['proj_name']= (models.Project.objects.get(pk = t['project_id'])).proj_name
-            t['task_priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
+            t['priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
 
             # Tipo encuesta
             if t['task_type_id'] == 1:
