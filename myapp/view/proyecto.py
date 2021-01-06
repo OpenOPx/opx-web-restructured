@@ -862,3 +862,37 @@ def detalleProyectoMovil(request, proyid):
         }
 
     return JsonResponse(data, status = data['code'], safe = False)
+
+##
+# @brief Recurso que provee los integrantes de un proyecto
+# @param request Instancia HttpRequest
+# @param proyid Identificacion del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def decisionesDelProyecto(request, proyid):
+
+    try:
+        query = "select des.* from opx.decision as des inner join opx.project_decision as pd on pd.decision_id = des.decs_id where pd.project_id = '"+proyid+"';"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            decisiones = dictfetchall(cursor)
+
+
+            data = {
+                'code': 200,
+                'decisiones': decisiones,
+                'status': 'success'
+            }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'decisiones': list(e),
+            'status': 'success'
+        }
+
+    return JsonResponse(data, safe = False, status = data['code'])
