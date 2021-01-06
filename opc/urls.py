@@ -115,9 +115,11 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
+    path('proyectos/details/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
     path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #OK OK JM
+    path('decisiones/reportes/<str:proyid>', proyecto.decisionesDelProyecto),
 
     #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO
 
@@ -175,6 +177,8 @@ urlpatterns = [
     path('persona/detalle/<str:personId>/', reporte.detallePersona), #JM OK OK
     path('reportes/rank/', reporte.ranking), #JM OK
     path('reportes/ranking/', reporte.reporteRankView), #JM
+    path('puntaje/tarea/<str:tarid>/', utilidades.puntajeTarea), #JM - S
+    path('puntaje/proyecto/<str:proyid>/', utilidades.puntajeProyecto), #JM - S
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR

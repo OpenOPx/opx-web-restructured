@@ -205,6 +205,8 @@ require('./components/reportes/durante').estadisticas;
 require('./components/reportes/despues').estadisticas;
 require('./components/reportes/detalle').estadisticas;
 require('./components/reportes/reportesproyectos').proyecto;
+require('./components/reportes/reporteindividualproyecto').proyectoReporte;
+
 
 require('./components/reportes/reportePlantilla').reportePlantilla;
 require('./components/reportes/reporteEquipo').reporteEquipo;

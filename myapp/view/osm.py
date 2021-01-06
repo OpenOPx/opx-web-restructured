@@ -317,7 +317,6 @@ def detalleCartografia(tareid):
                         xmlObject = ET.fromstring(xmlResponse)
                         nodes = xmlObject.findall('way')[0].findall('nd')
 
-                        # print(xmlResponse)
 
                         nodesGeometry = []
 

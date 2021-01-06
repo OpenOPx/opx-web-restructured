@@ -47,9 +47,7 @@ let gestionPlantilla = new Vue({
             .then(response => {
 
                 if(response.data.code == 200 && response.data.status == 'success'){
-
                     this.plantillas = response.data.data;
-                    console.log(this.plantillas)
                 }
 
             })
@@ -152,9 +150,6 @@ let gestionPlantilla = new Vue({
             queryString =  Object.keys(this.plantillaEdicion).map(key => {
                 return key + "=" + this.plantillaEdicion[key];
             }).join('&');
-
-            console.log(queryString)
-            console.log(this.plantillaEdicion.team_id)
 
             axios({
                 url: '/plantillas-equipo/' + this.plantillaEdicion.team_id+'/',

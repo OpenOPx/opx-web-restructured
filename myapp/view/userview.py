@@ -307,7 +307,6 @@ def actualizarUsuario(request, userid):
 
     try:
         with transaction.atomic():
-            print("updating user", userid)
             # Obteniendo datos respecto a la ubicacion del usuario
             latitud = request.POST.get('latitud')
             longitud = request.POST.get('longitud')
@@ -367,7 +366,6 @@ def actualizarUsuario(request, userid):
                 'usuario': serializers.serialize('python', [person])[0],
                 'status': 'success'
             }
-            print(data)
 
     except ObjectDoesNotExist:
 

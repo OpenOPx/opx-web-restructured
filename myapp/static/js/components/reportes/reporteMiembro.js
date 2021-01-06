@@ -105,7 +105,6 @@ reporteMiembro = new Vue({
                 }
             })
             .then(response => {
-                console.log(response)
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.persona = response.data.data;
                 }
@@ -116,7 +115,6 @@ reporteMiembro = new Vue({
         filteredTeam(){
             var filter = this.filterTeam && this.filterTeam.toLowerCase();
             var equipos = this.equipos;
-            console.log(equipos)
             if(filter){
                 equipos = equipos.filter((row) => {
                     return Object.keys(row).some((key) => {

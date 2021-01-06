@@ -34,8 +34,7 @@ let login = new Vue({
                         'Content-type': 'application/x-www-form-urlencoded'
                     }
                 })
-                .then(response => {
-                    console.log(JSON.stringify(response.data));              
+                .then(response => {             
                     sessionStorage.setItem('userinfo', JSON.stringify(response.data));
 
                     this.loader(false);

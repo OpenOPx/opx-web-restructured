@@ -93,8 +93,6 @@ def listadoEquipos(request):
             'message': 'Usuario no permitido',
             'status': 'error'
         }
-
-    print(response)
     return JsonResponse(response, safe=False, status=response['code'])
 ##
 # @brief Recurso de creación de plantilla de equipo

@@ -58,12 +58,9 @@ reporteClasificacion = new Vue({
     },
     created(){
         window.setTimeout(() => {
-            console.log(window.location.pathname.substr(1, 18))
             if(window.location.pathname.substr(1, 18) == "reportes/ranking/"){
-                console.log("ENTRAAAAAAAAAAASADASDA")
                 this.listadoTop();
                 this.listadoOthers();
-                console.log("SALIOOOO")
 
             }
         }, 1000);
@@ -81,7 +78,6 @@ reporteClasificacion = new Vue({
             })
             .then(response => {
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    console.log(response.data.data)
                     this.top = response.data.data;
                 }
             });
@@ -97,7 +93,6 @@ reporteClasificacion = new Vue({
             })
             .then(response => {
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    console.log(response.data.data)
                     this.others = response.data.data;
                 }
             });

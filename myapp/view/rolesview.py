@@ -214,7 +214,6 @@ def almacenamientoFuncionRol(request):
   
     roles = models.Role.objects.get(role_id = rolID)
     permmisionn= models.Permissionn.objects.get(perm_id = accionID)
-    #print("AQUÍ", permmisionn.perm_name)
 
     funcionRol = models.RolePermissionn(role = roles, permissionn = permmisionn)
 
@@ -239,7 +238,7 @@ def almacenamientoFuncionRol(request):
 @permission_classes((IsAuthenticated,))
 def eliminarFuncionRol(request, funcrolid):
     roleid = request.data['id']
-    print(roleid)
+
     try:
         funcionRol = models.RolePermissionn.objects.filter(permissionn_id = funcrolid).filter(role_id = roleid)
 

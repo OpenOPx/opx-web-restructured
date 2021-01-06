@@ -63,7 +63,6 @@ reportePlantilla = new Vue({
             })
             .then(response => {
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    console.log(response.data.data)
                     this.miembrosPlantilla = response.data.data;
                 }
             });

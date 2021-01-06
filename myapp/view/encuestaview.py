@@ -52,7 +52,6 @@ def almacenarEncuestas(instrumento, informacion, person, task):
 
     try:
         with transaction.atomic():
-            print(">> Encuesta: Entró")
             index_info = len(informacion)
             #for info in informacion:
 

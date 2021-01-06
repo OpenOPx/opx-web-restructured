@@ -84,7 +84,6 @@ def agregarMiembro(request, planid):
             personaId = request.POST.get('usuarioId')
 
             persona = models.Person.objects.get(user__userid = personaId)
-            print(persona)
 
             equipo = models.Team.objects.get(pk=planid)
 

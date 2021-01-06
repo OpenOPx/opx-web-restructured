@@ -203,7 +203,6 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
-                console.log(response.data.data)
                 this.datosGenerales = response.data.data;
             })
         },

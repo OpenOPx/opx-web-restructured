@@ -69,7 +69,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'task_priority_name'
+                key: 'priority_name'
             },
             {
                 label: 'Fecha de Creación',
@@ -111,7 +111,7 @@ let tarea = new Vue({
 
             axios({
                 method: 'GET',
-                url: '/proyectos/detail/' + proyectoid,
+                url: '/proyectos/details/' + proyectoid,
                 headers: {
                     Authorization: getToken()
                 }
@@ -129,7 +129,6 @@ let tarea = new Vue({
 
             this.loader(true);
 
-            console.log(this.almacenamientoTarea)
             var queryString = Object.keys(this.almacenamientoTarea).map(key => {
 
                 if(key == 'dimensionid' && this.almacenamientoTarea.taretipo == "1"){
@@ -193,7 +192,6 @@ let tarea = new Vue({
                 this.restablecerMapa();
 
                 this.loader(false);
-
                 Swal.fire({
                   title: 'Error!',
                   text: 'Ocurrio un error. Por favor intenta de nuevo',
@@ -397,7 +395,6 @@ let tarea = new Vue({
             })
         },
         generarMapa(timeout, dimension){
-
             window.setTimeout(() => {
 
                 var taskMap = L.map('taskmap',  {
@@ -557,6 +554,12 @@ let tarea = new Vue({
         },
         formateoFechaFin(date){
             this.almacenamientoTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaInicio(date){
+            this.edicionTarea.tarfechainicio = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaFin(date){
+            this.edicionTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
         }
     },
     filters: {

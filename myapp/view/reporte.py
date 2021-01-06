@@ -282,7 +282,6 @@ def detallePersona(request, personId):
 @permission_classes((IsAuthenticated,))
 def ranking(request):
     try:
-        print(request.data)
         inicio = request.GET.get('inicio')
         fin = request.GET.get('fin')
 
