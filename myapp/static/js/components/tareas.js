@@ -31,6 +31,7 @@ let tarea = new Vue({
         loading: false,
         dimensionesTerritoriales: [],
         taskMap: {},
+        taskMapCampana: {},
         dimensionTerritorialReferencia: {},
         filterKey: '',
         general: true,
@@ -395,14 +396,24 @@ let tarea = new Vue({
             })
         },
         generarMapa(timeout, dimension){
+            alert('entro a generar mapa')
+            console.log('Entro al generar mapa')
             window.setTimeout(() => {
-
-                var taskMap = L.map('taskmap',  {
-                    center: [3.450572, -76.538705],
-                    drawControl: false,
-                    zoom: 13
-                });
-
+                if(timeout === 2500 || timeout === 10){
+                    var taskMap = L.map('taskmapcampana',  {
+                        center: [3.450572, -76.538705],
+                        drawControl: false,
+                        zoom: 13
+                    });
+                }else{
+                    var taskMap = L.map('taskmap',  {
+                        center: [3.450572, -76.538705],
+                        drawControl: false,
+                        zoom: 13
+                    });
+                }
+                
+                
                 L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                   attribution: 'idesccali.gov.co © IDESC',
                 }).addTo(taskMap);
@@ -413,9 +424,9 @@ let tarea = new Vue({
                   transparent: !0,
                   version: '1.1.0'
                 }).addTo(taskMap);
-
+                console.log('Antes del if dimension')
                 if(dimension){
-
+                    console.log('Entro al if dimension')
                     this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.dimension_geojson)).addTo(taskMap);
 
                     //L.marker([3.45000, -76.535000]).addTo(taskMap);
@@ -471,12 +482,20 @@ let tarea = new Vue({
                 }
 
                 this.taskMap = taskMap;
+                //this.taskMapCampana = taskMap;
             }, timeout);
         },
         restablecerMapa(){
-
-            this.taskMap.remove();
-            this.generarMapa(0);
+            if(this.taskMap != {}){
+                this.taskMap.remove();
+                this.generarMapa(0);
+            }else{
+                this.taskMapCampana.remove();
+                this.generarMapa(10);
+            }
+            //this.taskMap.remove();
+            //this.taskMapCampana.remove();
+            //this.generarMapa(0);
             this.almacenamientoTarea.geojsonsubconjunto = null;
         },
         cantidadAreasMapa(editableLayers){
@@ -501,6 +520,7 @@ let tarea = new Vue({
 
                 this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
                 this.taskMap.remove();
+                //this.taskMapCampana.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);
             }
@@ -545,6 +565,7 @@ let tarea = new Vue({
             if(this.almacenamientoTarea.taretipo == "2"){
 
                 this.taskMap.remove();
+                //this.taskMapCampana.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, instrumento);
             }
