@@ -37,14 +37,6 @@ def miembrosEquipoView(request, planid):
 
 ##
 # @brief 
-# @param request Instancia HttpRequest
-# @return plantilla HTML
-#
-def reporteIndividualMiembroView(request):
-    return render(request, "reportes/reporteIndividualMiembro.html")
-
-##
-# @brief 
 # @param request instancia HttpRequest
 # @return cadena JSON
 #
@@ -174,3 +166,159 @@ def generales(request):
     }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+##
+# @brief 
+# @param request instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def proyectosPersona(request, personId):
+    
+    query= "select pj.* \
+            from opx.project as pj \
+            inner join opx.project_team as pt on pj.proj_id = pt.project_id \
+            inner join opx.team_person as tp on pt.team_id = tp.team_id \
+            where tp.person_id = '"+personId+"';"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        proyectosP = dictfetchall(cursor)
+
+    response = {
+        'code': 200,
+        'data': proyectosP,
+        'status': 'success'
+    }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
+
+##
+# @brief 
+# @param request instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def equiposPersona(request, personId):
+    
+    query= "select tp.*, equipo.*, persona.pers_name, persona.pers_lastname \
+            from opx.team_person as tp \
+            inner join opx.team as equipo on equipo.team_id = tp.team_id \
+            inner join opx.person as persona on persona.pers_id = tp.person_id \
+            where tp.person_id = '"+personId+"';"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        equiposP = dictfetchall(cursor)
+
+    response = {
+        'code': 200,
+        'data': equiposP,
+        'status': 'success'
+    }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
+
+##
+# @brief 
+# @param request instancia HttpRequest
+# @return cadena JSON
+#
+def reporteMiembroView(request, personId):
+
+    try:
+        persona = models.Person.objects.get(pk=personId)
+
+        response = render(request, "reportes/reporteIndividualMiembro.html")
+
+    except ObjectDoesNotExist:
+        response = HttpResponse("", status=404)
+
+    except ValidationError:
+        response = HttpResponse("", status=400)
+
+    return response
+
+##
+# @brief 
+# @param request instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def detallePersona(request, personId):
+    
+    query= "select persona.*, usuario.useremail, nivelE.educlevel_name, genero.gender_name, barrio.neighb_name, rol.role_name \
+            from opx.person as persona \
+            inner join opx.user as usuario on persona.user_id = usuario.userid \
+            inner join opx.education_level as nivelE on nivelE.educlevel_id = persona.education_level_id \
+            inner join opx.gender as genero on genero.gender_id = persona.gender_id \
+            inner join opx.neighborhood as barrio on barrio.neighb_id = persona.neighborhood_id \
+            inner join opx.role as rol on rol.role_id = persona.role_id \
+            where persona.pers_id = '"+personId+"';"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        detalle = dictfetchall(cursor)
+
+    response = {
+        'code': 200,
+        'data': detalle[0],
+        'status': 'success'
+    }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
+##
+# @brief Recurso que provee el ranking de usuarios del sistema
+# @param request instancia HttpRequest
+# @return cadena JSON
+#
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def ranking(request):
+    try:
+        inicio = request.GET.get('inicio')
+        fin = request.GET.get('fin')
+
+        query = "select persona.pers_name, persona.pers_lastname, persona.pers_score \
+                from opx.person as persona  \
+                where (persona.role_id = '53ad3141-56bb-4ee2-adcf-5664ba03ad65' or persona.role_id = '0be58d4e-6735-481a-8740-739a73c3be86' or persona.role_id = '628acd70-f86f-4449-af06-ab36144d9d6a') and persona.pers_score>0 \
+                order by persona.pers_score DESC limit 30"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rank = dictfetchall(cursor)
+
+            i = 0
+            for r in rank:
+                r['clasificacion'] = i
+                i=i+1
+
+        response = {
+            'code': 200,
+            'data': list(rank)[int(inicio):int(fin)],
+            'status': 'success'
+        }
+
+    except ValidationError as e:
+
+        data = {
+            'code': 400,
+            'errors': dict(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
+    ##
+# @brief 
+# @param request Instancia HttpRequest
+# @return plantilla HTML
+#
+def reporteRankView(request):
+    return render(request, "reportes/reporteRank.html")

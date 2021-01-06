@@ -79,7 +79,7 @@ let equipo = new Vue({
                 this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.equipo = response.data.equipo;
-                    console.log(this.equipo)
+
                 }
             });
         },
@@ -123,7 +123,7 @@ let equipo = new Vue({
             });
         },
         eliminarIntegrante(equID){
-            console.log(equID)
+
             axios({
                 url: '/equipos/delete/' + equID,
                 method: 'DELETE',
@@ -136,7 +136,7 @@ let equipo = new Vue({
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.obtenerEquipos();
-                    console.log(response)
+
                     this.obtenerUsuariosDisponibles();
                 }
             })
@@ -166,18 +166,11 @@ let equipo = new Vue({
             return equipo;
         },
         filteredAvailableUsers(){
-            console.log("1")
             var filter = this.filterAvailableUsers && this.filterAvailableUsers.toLowerCase();
-            console.log("2")
             var usuariosDisponibles = this.usuariosDisponibles;
-            console.log("3")
-            console.log(filter)
             if(filter){
-                console.log("4")
                 usuariosDisponibles = usuariosDisponibles.filter((row) => {
-                    console.log("5")
                     return Object.keys(row).some((key) => {
-                        console.log("6")
                         return String(row[key]).toLowerCase().indexOf(filter) > -1;
                     });
                 });

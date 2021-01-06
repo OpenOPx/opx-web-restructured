@@ -117,13 +117,18 @@ def listadoProyectos(request):
 
         # ================= Busqueda de proyectos
         if search:
-            proyectos = proyectos.filter(proj_name__icontains = search)
+            proyectos = models.Project.objects.filter(proj_name__icontains = search)
+            proyectos = list(proyectos.values())
+
 
 
         listadoProyectos = []
+        type(proyectos)
         for p in proyectos:
-
+            type(p)
             #Consulta del proyectista
+            name = p['proj_external_id']
+            #proj_owner_id = p['proj_owner_id']
             persona = models.Person.objects.get(pk = p['proj_owner_id'])
             p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
@@ -215,31 +220,20 @@ def listadoProyectos(request):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def almacenamientoProyecto(request):
-    print(request.data)
-    print("1")
     user = usuarioAutenticado(request)
     person = models.Person.objects.get(user__userid = user.userid)
-    print("2")
     # Decodificando el access token
     tokenBackend = TokenBackend(settings.SIMPLE_JWT['ALGORITHM'], settings.SIMPLE_JWT['SIGNING_KEY'], settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
-
-    print("3")
     decisiones = request.POST.get('decisiones')
-    print("4")
     contextos = request.POST.get('contextos')
-    print("5")
     equipos = request.POST.get('plantillas')
-    print("6")
     delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
-    print("7")
     tipoP = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
     
     try:
         with transaction.atomic():
-            print("8")
             if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
-                print("9")
                 proyecto = models.Project(
                     proj_name = request.POST.get('proynombre'),
                     proj_description= request.POST.get('proydescripcion'),
@@ -250,31 +244,23 @@ def almacenamientoProyecto(request):
                     project_type = tipoP,
                     proj_owner = person
                 )
-                print("10")
                 proyecto.full_clean()
-                print("11")
                 proyecto.save()
-                print("12")
 
                 delimitacionGeograficas = json.loads(delimitacionGeograficas)
                 almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
 
-                print("13")
                 decisiones = json.loads(decisiones)
                 almacenarDecisionProyecto(proyecto, decisiones)
 
-                print("14")
                 contextos = json.loads(contextos)
                 almacenarContextosProyecto(proyecto, contextos)
 
-                print("15")
                 equipos = json.loads(equipos)
                 asignarEquipos(proyecto, equipos)
 
-                print("16")
                 data = serializers.serialize('python', [proyecto])[0]
 
-                print("17")
                 data = {
                     'code': 201,
                     'proyecto': data,
@@ -311,7 +297,7 @@ def almacenamientoProyecto(request):
             'message': str(e),
             'status': 'error'
         }
-    print("18")
+
     return JsonResponse(data, safe = False, status = data['code'])
 
 ##
@@ -321,11 +307,8 @@ def almacenamientoProyecto(request):
 # @return booleano
 #
 def almacenarDecisionProyecto(proyecto, decisiones):
-    print(decisiones)
     try:
         for decisionI in decisiones:
-            print("acáaaaaaaaaaaaaaaaaaa")
-            print(decisionI+ "ESTO FUE")
             desicionP = None
             decisionProyecto = None
 
@@ -417,7 +400,6 @@ def asignarEquipos(proyecto, equipos):
                     team = equipoP,
                     project = proyecto
                 )
-                print(proyectoEquipo)
                 proyectoEquipo.save()
     
             return True
@@ -519,7 +501,6 @@ def eliminarProyecto(request, proyid):
         for p in projContx:
             p.delete()
 
-        print("3")
         projTeam = models.ProjectTeam.objects.filter(project__proj_id = proyid)
         for p in projTeam:
             p.delete()
@@ -588,13 +569,15 @@ def equipoProyectoView(request, proyid):
 def equipoProyecto(request, proyid):
 
     try:
-        query = "select tm.team_name, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
+        query = "select tm.team_name, tm.team_id, tm.team_effectiveness, tm.team_leader_id, pt.proj_team_id  from opx.project as pj inner join opx.project_team as pt on pj.proj_id = pt.project_id inner join opx.team as tm on pt.team_id = tm.team_id where pj.proj_id = '"+ proyid+"' order by tm.team_name ASC"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)
 
             for n in equipos:
                 n['name_owner'] = (models.Person.objects.get(pk = n['team_leader_id'])).pers_name
+                n['team_miembros'] = len(models.TeamPerson.objects.filter(team__team_id__exact = n['team_id'])) 
+
 
             data = {
                 'code': 200,
@@ -832,7 +815,7 @@ def detalleProyecto(request, proyid):
 
     return JsonResponse(data, status = data['code'], safe = False)
 
-    ##
+##
 # @brief recurso que provee el detalle de un proyecto
 # @param request Instancia HttpRequest
 # @param proyid Identificación del proyecto
@@ -845,25 +828,22 @@ def detalleProyectoMovil(request, proyid):
     try:
         queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
 
-        queryTareas = "select tarea.*,tipoT.task_type_name, instrumento.instrument_name, prioridad.priority_name, td.dimension_geojson, tr.* \
-                    from opx.project as proyecto \
-                    inner join opx.task as tarea on proyecto.proj_id = tarea.project_id \
-                    inner join opx.task_priority as prioridad on tarea.task_priority_id = prioridad.priority_id \
-                    inner join opx.task_type as tipoT on tarea.task_type_id = tipoT.task_type_id \
-                    inner join opx.instrument as instrumento on tarea.instrument_id = instrumento.instrument_id \
-                    inner join opx.territorial_dimension as td on td.dimension_id = tarea.territorial_dimension_id    \
-                    inner join opx.task_restriction as tr on tr.restriction_id = tarea.task_restriction_id \
-                    where proyecto.proj_id = '"+proyid+"';"
+        queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity,  \
+                        tarea.task_completness, tarea.task_creation_date, tarea.instrument_id, tarea.proj_dimension_id, \
+                        tarea.project_id, tarea.task_priority_id, tarea.territorial_dimension_id, territorio.dimension_geojson, \
+                        tarea.task_restriction_id, tarea.task_type_id, tipoTarea.task_type_name \
+                        from opx.task as tarea \
+                        inner join opx.task_type as tipoTarea on tipoTarea.task_type_id = tarea.task_type_id \
+                        inner join opx.territorial_dimension as territorio on territorio.dimension_id = tarea.territorial_dimension_id \
+                        where tarea.project_id = '"+proyid+"'"
 
         with connection.cursor() as cursor:
             cursor.execute(queryProyecto)
-            infoPj = dictfetchall(cursor)
-            print(infoPj)      
+            infoPj = dictfetchall(cursor)   
             
         with connection.cursor() as cursor:
             cursor.execute(queryTareas)
-            listaTareas = dictfetchall(cursor)   
-            print(listaTareas)   
+            listaTareas = dictfetchall(cursor)     
 
         data = {
             'code': 200,

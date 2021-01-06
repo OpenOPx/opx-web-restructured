@@ -7,7 +7,6 @@ class MyAuthBackend(object):
 
         try:
             user = User.objects.filter(useremail__exact = email).filter(password__exact = password)
-            print(user.useremail)
             if user[0]:
                 return user[0]
             else:

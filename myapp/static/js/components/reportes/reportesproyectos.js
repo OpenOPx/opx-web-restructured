@@ -103,11 +103,9 @@ proyecto = new Vue({
             });
         },
         almacenarProyecto(){
-            console.log("1")
             //this.almacenamientoProyecto.proypropietario = getUser().id;
 
             this.loader(true);
-            console.log("2")
             var queryString = Object.keys(this.almacenamientoProyecto).map(key => {
 
                 if(key == 'decisiones'){
@@ -119,7 +117,6 @@ proyecto = new Vue({
                         decisiones.push(this.almacenamientoProyecto.decisiones[i].decs_id);
                     }
                     valor = JSON.stringify(decisiones);
-                    console.log("3")
                 } else if(key == 'contextos'){
 
                     let contextos = [];
@@ -131,7 +128,6 @@ proyecto = new Vue({
                     }
 
                     valor = JSON.stringify(contextos);
-                    console.log("4")
                 } else if(key == 'plantillas'){
 
                     let plantillas = [];
@@ -143,21 +139,15 @@ proyecto = new Vue({
                     }
 
                     valor = JSON.stringify(plantillas);
-                    console.log("5")
                 } else if(key == 'delimitacionesGeograficas'){
 
                     valor = JSON.stringify(this.almacenamientoProyecto.delimitacionesGeograficas);
-                    console.log("6")
                 } else{
 
                     valor = this.almacenamientoProyecto[key]
-                    console.log("7")
                 }
                 return key + '=' + valor
             }).join('&');
-            console.log("8")
-            console.log(queryString)
-            console.log("9")
             axios({
                 method: 'post',
                 url: '/proyectos/store/',

@@ -52,23 +52,23 @@ def almacenarEncuestas(instrumento, informacion, person, task):
 
     try:
         with transaction.atomic():
-            print(">> Encuesta: Entró")
-            for info in informacion:
+            index_info = len(informacion)
+            #for info in informacion:
 
-                try:
-                    models.Survery.objects.get(koboid__exact=info['_uuid'])
+            #try:
+                #models.Survery.objects.get(koboid__exact=info['_uuid'])
 
-                except ObjectDoesNotExist:
-
-                    encuesta = models.Survery(
-                        instrument=instrumento, 
-                        koboid=info['_uuid'], 
-                        survery_content=json.dumps(info), 
-                        #userid=userid, (person)
-                        person=person,
-                        task=task)
-                    encuesta.full_clean()
-                    encuesta.save()
+            #except ObjectDoesNotExist:
+            info = informacion[index_info]
+            encuesta = models.Survery(
+                instrument=instrumento, 
+                koboid=info['_uuid'], 
+                survery_content=json.dumps(info), 
+                #userid=userid, (person)
+                person=person,
+                task=task)
+            encuesta.full_clean()
+            encuesta.save()
 
     except ValidationError as e:
 

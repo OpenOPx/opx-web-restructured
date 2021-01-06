@@ -364,8 +364,6 @@ gestionProyecto = new Vue({
             })
             .then(response => {
 
-                console.log(response);
-
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.tareaGestion = response.data.tarea;

@@ -89,7 +89,9 @@ let reporteEquipo = new Vue({
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
-
+                        axisY: {
+                            includeZero: true
+                          },
                       labels: titulos,
                       datasets: [
                         {
@@ -201,7 +203,6 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
-                console.log(response.data.data)
                 this.datosGenerales = response.data.data;
             })
         },

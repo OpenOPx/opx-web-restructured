@@ -718,8 +718,6 @@ def usuariosXRolProyecto(request, proyid):
                         "AND e.proyid = '{}';" \
                         .format(str(rol.rolid), str(proyid))
 
-                print(query)
-
                 cursor.execute(query)
 
                 data['roles'].append(rol.rolname)
@@ -1324,15 +1322,12 @@ def limpiezaDatos(request, proyid):
 
             contenidoFormateado.append(data)
 
-    #print(contenidoFormateado)
-
     csvFile = io.StringIO()
     writer = csv.writer(csvFile)
 
     for cf in contenidoFormateado:
         writer.writerow(cf)
 
-    print(csvFile.getValue())
 
 # ================ Vistas ===============
 
@@ -1360,7 +1355,6 @@ def estadisticasProyectosView(request):
 # @return plantilla HTML
 #
 def proyectoIndividualView(request, projid):
-
     try:
         proyecto = models.Project.objects.get(pk=projid)
         data =  render(request, 'reportes/proyectoindividual.html', {'proyecto':proyecto})

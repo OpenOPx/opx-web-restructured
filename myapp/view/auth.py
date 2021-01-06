@@ -74,7 +74,6 @@ def passwordResetVerification(request):
             message = "<p> Cambia tu clave <a href='" + settings.URL_APP + "auth/password-reset/" + token + "'> Aquí </a> </p>"
 
             # Envío de correo electrónico
-            print(settings.EMAIL_HOST_USER)
             send_mail(
                 subject,
                 message,
