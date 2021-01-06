@@ -295,7 +295,7 @@ def ranking(request):
             cursor.execute(query)
             rank = dictfetchall(cursor)
 
-            i = 0
+            i = 1
             for r in rank:
                 r['clasificacion'] = i
                 i=i+1
