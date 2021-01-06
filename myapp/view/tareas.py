@@ -273,7 +273,7 @@ def detalleTarea(request, tareid):
 
     try:
         tarea = models.Task.objects.get(pk = tareid)
-        restricciones = models.TaskRestriction.get(pk = tarea.task_restriction.restriction_id)
+        restricciones = models.TaskRestriction.objects.get(pk = tarea.task_restriction.restriction_id)
         tareaDict = model_to_dict(tarea)
         restriccionesDict = model_to_dict(restricciones)
         
