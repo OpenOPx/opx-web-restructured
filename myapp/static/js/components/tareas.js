@@ -29,6 +29,7 @@ let tarea = new Vue({
         proyectos: [],
         instrumentos: [],
         loading: false,
+        campana: false,
         dimensionesTerritoriales: [],
         taskMap: {},
         dimensionTerritorialReferencia: {},
@@ -69,7 +70,7 @@ let tarea = new Vue({
             },
             {
                 label: 'Prioridad',
-                key: 'task_priority_name'
+                key: 'priority_name'
             },
             {
                 label: 'Fecha de Creación',
@@ -82,6 +83,9 @@ let tarea = new Vue({
         ]
     },
     methods: {
+        cambiarCampana(campana){
+            this.campana = campana
+        },
         listadoTareas(){
 
             this.loader(true);
@@ -111,7 +115,7 @@ let tarea = new Vue({
 
             axios({
                 method: 'GET',
-                url: '/proyectos/detail/' + proyectoid,
+                url: '/proyectos/details/' + proyectoid,
                 headers: {
                     Authorization: getToken()
                 }
@@ -150,6 +154,80 @@ let tarea = new Vue({
             axios({
                 method: 'post',
                 url: '/tareas/store/',
+                data: queryString,
+                headers: {
+                    'Content-type': 'application/x-www-form-urlencoded',
+                    Authorization: getToken()
+                }
+            })
+            .then(response => {
+
+                $("#agregar-tarea").modal('hide')
+                this.almacenamientoTarea = {
+                    geojsonsubconjunto: null
+                };
+                this.restablecerMapa();
+
+                if(this.general){
+
+                    this.listadoTareas();
+
+                } else{
+
+                    this.listadoTareasProyecto(this.proyectoID);
+                }
+
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Exito!',
+                  text: 'Tarea creada satisfactoriamente',
+                  type: 'success',
+                  confirmButtonText: 'Acepto'
+                });
+            })
+            .catch(response => {
+
+                $("#agregar-tarea").modal('hide')
+                this.almacenamientoTarea = {
+                    geojsonsubconjunto: null
+                };
+                this.restablecerMapa();
+
+                this.loader(false);
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  type: 'error',
+                  confirmButtonText: 'Acepto'
+                });
+            });
+        },
+        almacenarCampana(){
+            this.loader(true);
+
+            var queryString = Object.keys(this.almacenamientoTarea).map(key => {
+
+                if(key == 'dimensionid' && this.almacenamientoTarea.task_type_id == "1"){
+
+                    valor = (this.almacenamientoTarea.dimensionid).dimension_id;
+
+                } else if(key == 'instrument_id'){
+
+                    valor = this.almacenamientoTarea.instrument_id
+
+                } else{
+
+                    valor = this.almacenamientoTarea[key];
+                }
+
+                return key + '=' + valor;
+            }).join('&');
+
+            axios({
+                method: 'post',
+                url: '/tareas/campana/',
                 data: queryString,
                 headers: {
                     'Content-type': 'application/x-www-form-urlencoded',
@@ -373,7 +451,7 @@ let tarea = new Vue({
             this.loading = status;
         },
         obtenerDimensionesTerritoriales(proyid){
-
+            
             axios({
                 url: '/proyectos/dimensiones-territoriales/' + proyid,
                 method: 'GET',
@@ -395,14 +473,16 @@ let tarea = new Vue({
             })
         },
         generarMapa(timeout, dimension){
+            alert('entro a generar mapa')
+            console.log('Entro al generar mapa')
             window.setTimeout(() => {
-
+                
                 var taskMap = L.map('taskmap',  {
                     center: [3.450572, -76.538705],
                     drawControl: false,
                     zoom: 13
                 });
-
+                
                 L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                   attribution: 'idesccali.gov.co © IDESC',
                 }).addTo(taskMap);
@@ -413,9 +493,9 @@ let tarea = new Vue({
                   transparent: !0,
                   version: '1.1.0'
                 }).addTo(taskMap);
-
+                console.log('Antes del if dimension')
                 if(dimension){
-
+                    console.log('Entro al if dimension')
                     this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.dimension_geojson)).addTo(taskMap);
 
                     //L.marker([3.45000, -76.535000]).addTo(taskMap);
@@ -474,7 +554,6 @@ let tarea = new Vue({
             }, timeout);
         },
         restablecerMapa(){
-
             this.taskMap.remove();
             this.generarMapa(0);
             this.almacenamientoTarea.geojsonsubconjunto = null;
@@ -498,6 +577,15 @@ let tarea = new Vue({
         },
         generarDimensionTerritorial(dimension){
             if(this.almacenamientoTarea.taretipo == "1"){
+
+                this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
+                this.taskMap.remove();
+                this.almacenamientoTarea.geojsonsubconjunto = null;
+                this.generarMapa(0, dimension);
+            }
+        },
+        generarDimensionTerritorialCampana(dimension){
+            if(this.almacenamientoTarea.task_type_id == "1"){
 
                 this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
                 this.taskMap.remove();

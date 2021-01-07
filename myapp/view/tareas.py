@@ -118,6 +118,78 @@ def almacenamientoTarea(request):
 
     return JsonResponse(response, safe=False, status=response['code'])##
 
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def almacenamientoCampana(request):
+    restricciones = models.TaskRestriction(
+        start_time = request.POST.get('HoraInicio'),
+        end_time = request.POST.get('HoraCierre'),
+        task_start_date = request.POST.get('tarfechainicio'),
+        task_end_date = request.POST.get('tarfechacierre')
+    )
+
+    territorioSubconjunto = models.TerritorialDimension(
+        dimension_name = request.POST.get('nombreSubconjunto'),
+        dimension_geojson = request.POST.get('geojsonsubconjunto'),
+        dimension_type = models.DimensionType.objects.get(pk = "35b0b478-9675-45fe-8da5-02ea9ef88f1b")
+    )
+
+    territorioSubconjunto.full_clean()
+    territorioSubconjunto.save()
+
+    restricciones.full_clean()
+    restricciones.save()
+    proyid = request.POST.get('project_id')
+
+    dimen = models.TerritorialDimension.objects.get(pk = request.POST.get('dimensionIDparaTerritorialD'))
+
+    with transaction.atomic():
+        tarea = models.Task(
+            task_name = request.POST.get('task_name'),
+            task_type = models.TaskType.objects.get(pk = request.POST.get('task_type_id')),
+            task_quantity = request.POST.get('task_quantity'),
+            task_priority = models.TaskPriority.objects.get(priority_id = request.POST.get('task_priority_id')),
+            task_description = request.POST.get('task_description'),
+            project = models.Project.objects.get(pk = proyid),
+            task_observation = "esto es para reportes",
+            proj_dimension = dimen,
+            instrument = models.Instrument.objects.get(pk = request.POST.get('instrument_id')),
+            territorial_dimension = territorioSubconjunto,
+            task_restriction = restricciones,
+        )
+
+        try:
+            tarea.full_clean()
+            tarea.save()
+            data = serializers.serialize('python', [tarea])
+
+            response = {
+                'code':     201,
+                'tarea':    data,
+                'status':   'success'
+            }
+
+        except ValidationError as e:
+            territorioSubconjunto.delete()
+            restricciones.delete()
+            response = {
+                'code':     400,
+                'errors':   dict(e),
+                'status':   'error'
+            }
+
+        except IntegrityError as e:
+            territorioSubconjunto.delete()
+            restricciones.delete()
+            response = {
+                'code':     400,
+                'message':  str(e),
+                'status':   'success'
+            }
+
+    return JsonResponse(response, safe=False, status=response['code'])##
+
 ##
 # @brief recurso que provee el listado de tareas
 # @param request Instancia HttpRequest
@@ -167,7 +239,7 @@ def listadoTareas(request):
             t['task_type_name'] = (models.TaskType.objects.get(pk = t['task_type_id'])).task_type_name
             t['instrument_name']= (models.Instrument.objects.get(pk = t['instrument_id'])).instrument_name
             t['proj_name']= (models.Project.objects.get(pk = t['project_id'])).proj_name
-            t['task_priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
+            t['priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
 
             # Tipo encuesta
             if t['task_type_id'] == 1:
@@ -279,7 +351,7 @@ def detalleTarea(request, tareid):
 
     try:
         tarea = models.Task.objects.get(pk = tareid)
-        restricciones = models.TaskRestriction.get(pk = tarea.task_restriction.restriction_id)
+        restricciones = models.TaskRestriction.objects.get(pk = tarea.task_restriction.restriction_id)
         tareaDict = model_to_dict(tarea)
         restriccionesDict = model_to_dict(restricciones)
         
