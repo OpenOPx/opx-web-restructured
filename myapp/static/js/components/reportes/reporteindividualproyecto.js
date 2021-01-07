@@ -49,7 +49,6 @@ proyectoReporte = new Vue({
             this.listadoGeneral();
             this.listadoTareas();
             this.listadoComentarios();
-            this.generarMapa(0);
             
         }
 
