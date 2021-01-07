@@ -213,7 +213,7 @@ def listadoTareas(request):
 
         # Consulta de proyectos para un usuario proyectista
         elif str(person.role_id) == ROL_PROYECTISTA:
-            n = "select tk.*, restric.* from opx.person as persona inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id inner join opx.task as tarea on tarea.project_id = proyecto.proj_id inner join opx.task_restriction as restric on tarea.task_restriction_id = restric.restriction_id where persona.pers_id = '"+ str(person.pers_id)+"';"
+            n = "select tk.*, restric.* from opx.person as persona inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id inner join opx.task as tk on tk.project_id = proyecto.proj_id inner join opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id where persona.pers_id = '"+ str(person.pers_id)+"';"
 
         # Consulta de proyectos para un usuario voluntario o validador
         elif str(person.role_id) == ROL_VOLUNTARIO or str(person.pers_id) == ROL_VALIDADOR:
