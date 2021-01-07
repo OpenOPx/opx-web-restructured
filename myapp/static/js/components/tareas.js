@@ -29,9 +29,9 @@ let tarea = new Vue({
         proyectos: [],
         instrumentos: [],
         loading: false,
+        campana: false,
         dimensionesTerritoriales: [],
         taskMap: {},
-        taskMapCampana: {},
         dimensionTerritorialReferencia: {},
         filterKey: '',
         general: true,
@@ -83,6 +83,9 @@ let tarea = new Vue({
         ]
     },
     methods: {
+        cambiarCampana(campana){
+            this.campana = campana
+        },
         listadoTareas(){
 
             this.loader(true);
@@ -151,6 +154,80 @@ let tarea = new Vue({
             axios({
                 method: 'post',
                 url: '/tareas/store/',
+                data: queryString,
+                headers: {
+                    'Content-type': 'application/x-www-form-urlencoded',
+                    Authorization: getToken()
+                }
+            })
+            .then(response => {
+
+                $("#agregar-tarea").modal('hide')
+                this.almacenamientoTarea = {
+                    geojsonsubconjunto: null
+                };
+                this.restablecerMapa();
+
+                if(this.general){
+
+                    this.listadoTareas();
+
+                } else{
+
+                    this.listadoTareasProyecto(this.proyectoID);
+                }
+
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Exito!',
+                  text: 'Tarea creada satisfactoriamente',
+                  type: 'success',
+                  confirmButtonText: 'Acepto'
+                });
+            })
+            .catch(response => {
+
+                $("#agregar-tarea").modal('hide')
+                this.almacenamientoTarea = {
+                    geojsonsubconjunto: null
+                };
+                this.restablecerMapa();
+
+                this.loader(false);
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  type: 'error',
+                  confirmButtonText: 'Acepto'
+                });
+            });
+        },
+        almacenarCampana(){
+            this.loader(true);
+
+            var queryString = Object.keys(this.almacenamientoTarea).map(key => {
+
+                if(key == 'dimensionid' && this.almacenamientoTarea.task_type_id == "1"){
+
+                    valor = (this.almacenamientoTarea.dimensionid).dimension_id;
+
+                } else if(key == 'instrument_id'){
+
+                    valor = this.almacenamientoTarea.instrument_id
+
+                } else{
+
+                    valor = this.almacenamientoTarea[key];
+                }
+
+                return key + '=' + valor;
+            }).join('&');
+
+            axios({
+                method: 'post',
+                url: '/tareas/campana/',
                 data: queryString,
                 headers: {
                     'Content-type': 'application/x-www-form-urlencoded',
@@ -374,7 +451,7 @@ let tarea = new Vue({
             this.loading = status;
         },
         obtenerDimensionesTerritoriales(proyid){
-
+            
             axios({
                 url: '/proyectos/dimensiones-territoriales/' + proyid,
                 method: 'GET',
@@ -399,20 +476,12 @@ let tarea = new Vue({
             alert('entro a generar mapa')
             console.log('Entro al generar mapa')
             window.setTimeout(() => {
-                if(timeout === 2500 || timeout === 10){
-                    var taskMap = L.map('taskmapcampana',  {
-                        center: [3.450572, -76.538705],
-                        drawControl: false,
-                        zoom: 13
-                    });
-                }else{
-                    var taskMap = L.map('taskmap',  {
-                        center: [3.450572, -76.538705],
-                        drawControl: false,
-                        zoom: 13
-                    });
-                }
                 
+                var taskMap = L.map('taskmap',  {
+                    center: [3.450572, -76.538705],
+                    drawControl: false,
+                    zoom: 13
+                });
                 
                 L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                   attribution: 'idesccali.gov.co © IDESC',
@@ -482,20 +551,11 @@ let tarea = new Vue({
                 }
 
                 this.taskMap = taskMap;
-                //this.taskMapCampana = taskMap;
             }, timeout);
         },
         restablecerMapa(){
-            if(this.taskMap != {}){
-                this.taskMap.remove();
-                this.generarMapa(0);
-            }else{
-                this.taskMapCampana.remove();
-                this.generarMapa(10);
-            }
-            //this.taskMap.remove();
-            //this.taskMapCampana.remove();
-            //this.generarMapa(0);
+            this.taskMap.remove();
+            this.generarMapa(0);
             this.almacenamientoTarea.geojsonsubconjunto = null;
         },
         cantidadAreasMapa(editableLayers){
@@ -520,7 +580,15 @@ let tarea = new Vue({
 
                 this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
                 this.taskMap.remove();
-                //this.taskMapCampana.remove();
+                this.almacenamientoTarea.geojsonsubconjunto = null;
+                this.generarMapa(0, dimension);
+            }
+        },
+        generarDimensionTerritorialCampana(dimension){
+            if(this.almacenamientoTarea.task_type_id == "1"){
+
+                this.almacenamientoTarea.dimensionIDparaTerritorialD = dimension.dimension_id
+                this.taskMap.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, dimension);
             }
@@ -565,7 +633,6 @@ let tarea = new Vue({
             if(this.almacenamientoTarea.taretipo == "2"){
 
                 this.taskMap.remove();
-                //this.taskMapCampana.remove();
                 this.almacenamientoTarea.geojsonsubconjunto = null;
                 this.generarMapa(0, instrumento);
             }

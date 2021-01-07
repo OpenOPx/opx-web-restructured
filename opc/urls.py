@@ -138,6 +138,7 @@ urlpatterns = [
     path('tareas/list/', tareas.listadoTareas), #OK S
     path('tareas/delete/<str:tareid>/', tareas.eliminarTarea), #OK S OK
     path('tareas/store/', tareas.almacenamientoTarea), #OK S
+    path('tareas/campana/', tareas.almacenamientoCampana), #OK S
     path('tareas/<str:tareid>', tareas.actualizarTarea), #OK S OK
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
     path('tareas/detail/<str:tareid>', tareas.detalleTarea), #OK S OK
