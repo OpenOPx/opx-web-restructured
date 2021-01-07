@@ -479,6 +479,33 @@ def actualizarProyecto(request, proyid):
     except ValidationError as e:
         return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
 
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarProyectoMovil(request, proyid):
+    try:
+        proyecto = models.Project.objects.get(pk=proyid)
+
+        
+        proyecto.proj_name = request.POST.get('proj_name')
+        proyecto.proj_description = request.POST.get('proj_description')
+        #proyecto.project_type = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
+        proyecto.proj_start_date = request.POST.get('proj_start_date')
+        proyecto.proj_close_date = request.POST.get('proj_close_date')
+        
+        proyecto.full_clean()
+        proyecto.save()
+
+        return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+
 ##
 # @brief recurso de eliminación de proyectos
 # @param request Instancia HttpRequest
@@ -831,10 +858,11 @@ def detalleProyectoMovil(request, proyid):
         queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity,  \
                         tarea.task_completness, tarea.task_creation_date, tarea.instrument_id, tarea.proj_dimension_id, \
                         tarea.project_id, tarea.task_priority_id, tarea.territorial_dimension_id, territorio.dimension_geojson, \
-                        tarea.task_restriction_id, tarea.task_type_id, tipoTarea.task_type_name \
+                        tarea.task_restriction_id, restric.*, tarea.task_type_id, tipoTarea.task_type_name \
                         from opx.task as tarea \
                         inner join opx.task_type as tipoTarea on tipoTarea.task_type_id = tarea.task_type_id \
                         inner join opx.territorial_dimension as territorio on territorio.dimension_id = tarea.territorial_dimension_id \
+                        inner join opx.task_restriction as restric on restric.restriction_id = tarea.task_restriction_id \
                         where tarea.project_id = '"+proyid+"'"
 
         with connection.cursor() as cursor:
