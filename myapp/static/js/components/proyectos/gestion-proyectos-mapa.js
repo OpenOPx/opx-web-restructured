@@ -632,9 +632,9 @@ gestionProyecto = new Vue({
             }
         },
         paso2GestionTerritorial(){
-            if(!this.datosCambioTerritorial.geojson){
+            /*if(!this.datosCambioTerritorial.geojson){
                 this.datosCambioTerritorial.geojson = this.informacionProyecto.dimensiones_territoriales[0].
-            }
+            }*/
             this.gestionTerritorial.areaDimensionTerritorial = false;
             this.gestionTerritorial.listadoTareas = true;
             this.gestionTerritorial.areaTarea = false;
