@@ -105,11 +105,12 @@ gestionProyecto = new Vue({
 
         },
         cargarMapaDimensionTerritorial(){
+            this.datosCambioTerritorial['geojson'] = JSON.stringify(layer.toGeoJSON());
 
             map = L.map('mapa-dimension-territorial',  {
                 center: [3.450572, -76.538705],
                 drawControl: false,
-                zoom: 13
+                zoom: 11
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -181,7 +182,7 @@ gestionProyecto = new Vue({
             this.mapaTarea = L.map('mapa-tarea',  {
                 center: [3.450572, -76.538705],
                 drawControl: false,
-                zoom: 13
+                zoom: 11
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -243,10 +244,16 @@ gestionProyecto = new Vue({
                 if (type === 'polygon' && this.cantidadAreasMapa(editableLayers) == 0 && this.validarSubconjunto(layer.toGeoJSON())) {
 
                     editableLayers.addLayer(layer);
+                    this.loader(true)
+                    /*this.updateTaskDimension(tarea, JSON.stringify(layer.toGeoJSON())).then(resp => {
 
-                    tarea['geojson_subconjunto'] = JSON.stringify(layer.toGeoJSON());
+                        tarea['redimensionado'] = true;
+                        this.tareaEdicion = true;
+                    })*/
+                    tarea['dimension_geojson'] = JSON.stringify(layer.toGeoJSON());
                     tarea['redimensionado'] = true;
                     this.tareaEdicion = true;
+                    this.loader(false)
                 }
             });
 
@@ -264,7 +271,7 @@ gestionProyecto = new Vue({
             this.map.remove();
         },
         obtenerProyectos(){
-
+            this.loader(true);
             return new Promise((resolve, reject) => {
 
                 axios({
@@ -282,11 +289,18 @@ gestionProyecto = new Vue({
                     if(response.data.code == 200 && response.data.status == 'success'){
 
                         this.proyectos = response.data.proyectos;
+                        this.loader(false);
                         resolve(this.proyectos);
                     }
                 })
                 .catch(() => {
-
+                    this.loader(false);
+                    Swal.fire({
+                        title: 'Ha ocurrido un error',
+                        text: 'No se pudo cargar los proyectos',
+                        type: 'error',
+                        confirmButtonText: 'Acepto',
+                    });
                     reject("");
                 })
             });
@@ -330,8 +344,8 @@ gestionProyecto = new Vue({
                                 let feature = JSON.parse(tareas[j].dimension_geojson)
                                 feature.properties = {
                                     color: '#F4B821',
-                                    description: tareas[j].tarenombre,
-                                    id: tareas[j].tareid,
+                                    description: tareas[j].task_name,
+                                    id: tareas[j].task_id,
                                     type: 'tarea'
                                 }
 
@@ -519,7 +533,8 @@ gestionProyecto = new Vue({
         obtenerTareasDimensionTerritorial(){
 
             axios({
-                url: '/tareas-dimension-territorial/' + this.capaEdicion.dimensionid,
+                //url: '/tareas-dimension-territorial/' + this.capaEdicion.dimensionid,
+                url: '/proyectos/detail/' + this.informacionProyecto.proj_id,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -529,7 +544,7 @@ gestionProyecto = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
-                    let tareas = response.data.data;
+                    let tareas = response.data.detail.tareas;
 
                     for(let i=0; i<tareas.length; i++){
 
@@ -571,30 +586,16 @@ gestionProyecto = new Vue({
                     })
                     .then(response => {
 
-                        // Ocultar Loader
                         this.loader(false);
 
                         if(response.data.code == 200 && response.data.status == 'success'){
 
                             this.obtenerProyectos().then(response => {
 
-                               proyectoEdicion = response.find(element => element.proyid == this.capaEdicion.id);
+                               proyectoEdicion = response.find(element => element.proj_id == this.capaEdicion.id);
 
                                this.cargarInformacionProyecto(proyectoEdicion);
-
-                               $("#gestion-territorio-proyecto").modal('hide');
-
-                               this.acciones = {
-                                 objetivo: false,
-                                 territorio: false,
-                                 tiempo: false
-                               }
-
-                               this.gestionTerritorial = {
-                                 areaDimensionTerritorial: true,
-                                 areaTarea: false,
-                                 listadoTareas: false
-                               }
+                               this.closeModalCambioTerritorio();
 
                                Swal.fire({
                                    title: 'Exito',
@@ -605,7 +606,7 @@ gestionProyecto = new Vue({
                         }
                     })
                     .catch(() => {
-
+                        this.loader(false)
                         Swal.fire({
                             title: 'Error',
                             text: 'Ocurrio un error. Por favor intenta de nuevo',
@@ -876,6 +877,63 @@ gestionProyecto = new Vue({
             } else{
 
                 setTimeout(() => this.ubicacionEquipoProyecto(), 5000);
+            }
+        },
+        updateTaskDimension(tarea, geojson){
+            return new Promise((resolve, reject) => {
+                data = {
+                    geojson: geojson
+                }
+                let queryString = Object.keys(data).map(key => {
+
+                    return key + '=' + data[key]
+                })
+                .join('&')
+                axios({
+                    url: 'dimensiones/'+tarea.territorial_dimension_id+'/geojson/',
+                    method: 'POST',
+                    data: queryString,
+                    headers: {
+                        'Content-type': 'application/x-www-form-urlencoded',
+                        Authorization: getToken()
+                    }
+                }).then(response => {
+                    this.loader(false)
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'La dimensión de la tarea se actualizó exitosamente.',
+                        type: 'success',
+                        confirmButtonText: 'Aceptar',
+                    });
+                    resolve(response.data)
+
+                }).catch(()=> {
+                    this.loader(false)
+                    Swal.fire({
+                        title: 'Ha ocurrido un error',
+                        text: 'No se pudo actualizar la dimensión de la tarea.',
+                        type: 'error',
+                        confirmButtonText: 'Aceptar',
+                    });
+                    reject("");
+                })
+            })
+
+        },
+        closeModalCambioTerritorio(){
+            $("#gestion-territorio-proyecto").modal('hide');
+            this.datosCambioTerritorial.geojson = false
+            this.datosCambioTerritorial.tareas = []
+            this.acciones = {
+              objetivo: false,
+              territorio: false,
+              tiempo: false
+            }
+
+            this.gestionTerritorial = {
+              areaDimensionTerritorial: true,
+              areaTarea: false,
+              listadoTareas: false
             }
         },
         loader(status){

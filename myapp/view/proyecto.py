@@ -869,3 +869,77 @@ def detalleProyectoMovil(request, proyid):
         }
 
     return JsonResponse(data, status = data['code'], safe = False)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def cambioTerritorio(request, dimensionid):
+
+    try:
+
+        with transaction.atomic():
+            project_dimension = models.TerritorialDimension.objects.get(pk=dimensionid)
+
+            data = json.loads(request.body)
+
+            if 'geojson' in data:
+                #dimensionTerritorialNew = models.DelimitacionGeografica(proyid=dimensionTerritorialOld.proyid, nombre=dimensionTerritorialOld.nombre, geojson=data['geojson'])
+                #dimensionTerritorialNew.save()
+                project_dimension.dimension_geojson = data['geojson']
+                project_dimension.save()
+                if 'tareas' in data:
+                    for tarea in data['tareas']:
+
+                        #tareaObj = models.Tarea.objects.get(pk=tarea['tareid'])
+                        task_dimension = models.TerritorialDimension.objects.get(pk = tarea['territorial_dimension_id'])
+                        task_dimension.dimension_geojson = tarea['dimension_geojson']
+                        task_dimension.save()
+                        """
+                        if(tarea['dimensionid'] == str(dimensionTerritorialOld.dimensionid)):
+                            tareaObj.geojson_subconjunto = tarea['geojson_subconjunto']
+                            tareaObj.dimensionid = dimensionTerritorialNew.dimensionid
+                            tareaObj.save()
+
+                        else:
+                            raise ValidationError("La Tarea no pertenece a la dimensión")
+
+                    dimensionTerritorialOld.estado = 0
+                    dimensionTerritorialOld.save()"""
+
+                    response = {
+                        'code': 200,
+                        'status': 'success'
+                    }
+
+                else:
+                    raise ValidationError("JSON Inválido")
+
+            else:
+                raise ValidationError("JSON Inválido")
+
+        # =============== Notificación de Gestión de Cambios ======================
+        """
+        usuarios = obtenerEmailsEquipo(dimensionTerritorialNew.proyid)
+
+        # Obteneniendo información del proyecto
+        proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
+
+        # Envío de Notificaciones
+        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)
+        """
+
+    except ObjectDoesNotExist:
+        response = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError as e:
+        response = {
+            'code': 400,
+            'message': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+    

@@ -589,12 +589,14 @@ def notificacionPromocionUsuario(user, rol):
 # @param request Instancia HttpRequest
 # @param dimensionid Identificación de la dimensión geográfica
 #
-def tareasXDimensionTerritorial(request, dimensionid):
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def tareasXDimensionTerritorial(request, proj_id):
 
     try:
-        dimensionTerritorial = models.DelimitacionGeografica.objects.get(pk=dimensionid)
+        #dimensionTerritorial = models.TerritorialDimension.objects.get(pk=dimensionid) nunca lo usaron
 
-        tareas = models.Tarea.objects.filter(dimensionid__exact=dimensionid).values()
+        tareas = models.Task.objects.filter(project__proj_id__exact=proj_id).values()
 
         response = {
             'code': 200,
