@@ -33,6 +33,12 @@ from myapp.view import koboclient
 from myapp.view.utilidades import dictfetchall, obtenerParametroSistema, obtenerEmailsEquipo, usuarioAutenticado
 from myapp.view.notificaciones import gestionCambios
 
+ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
+ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
+ROL_VOLUNTARIO = '0be58d4e-6735-481a-8740-739a73c3be86'
+ROL_VALIDADOR = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
+
+
 # =========================== Tareas ==============================
 
 ##
@@ -201,16 +207,16 @@ def listadoTareas(request):
         proyectosUsuario = []
         n = ""
         # Superadministrador
-        if str(person.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+        if str(person.role_id) == ROL_SUPER_ADMIN:
             tareasUsuario = []
             n = "SELECT tk.* FROM opx.task as tk;"
 
         # Consulta de proyectos para un usuario proyectista
-        elif str(person.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+        elif str(person.role_id) == ROL_PROYECTISTA:
             n = "select tk.*, restric.* from opx.person as persona inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id inner join opx.task as tk on tk.project_id = proyecto.proj_id inner join opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id where persona.pers_id = '"+ str(person.pers_id)+"';"
 
         # Consulta de proyectos para un usuario voluntario o validador
-        elif str(person.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.pers_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+        elif str(person.role_id) == ROL_VOLUNTARIO or str(person.pers_id) == ROL_VALIDADOR:
             n = "SELECT DISTINCT tk.*, restric.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id INNER JOIN opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
       
       # ================ Obtener página validación de la misma ========================
@@ -617,15 +623,15 @@ def promoverUsuario(user):
     puntajeProyectista = obtenerParametroSistema('umbral-proyectista')
 
     # Promoción de voluntario a validador
-    if user.rolid == '0be58d4e-6735-481a-8740-739a73c3be86' and user.puntaje >= puntajeValidador:
-        user.rolid = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
+    if user.rolid == ROL_VOLUNTARIO and user.puntaje >= puntajeValidador:
+        user.rolid = ROL_VALIDADOR
         user.save()
 
         notificacionPromocionUsuario(user, 'Validador')
 
     # Promocion de Validador a Proyectista
-    if user.rolid == '53ad3141-56bb-4ee2-adcf-5664ba03ad65' and user.puntaje >= puntajeProyectista:
-        user.rolid = '628acd70-f86f-4449-af06-ab36144d9d6a'
+    if user.rolid == ROL_VALIDADOR and user.puntaje >= puntajeProyectista:
+        user.rolid = ROL_PROYECTISTA
         user.save()
 
         notificacionPromocionUsuario(user, 'Proyectista')
@@ -655,12 +661,14 @@ def notificacionPromocionUsuario(user, rol):
 # @param request Instancia HttpRequest
 # @param dimensionid Identificación de la dimensión geográfica
 #
-def tareasXDimensionTerritorial(request, dimensionid):
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def tareasXDimensionTerritorial(request, proj_id):
 
     try:
-        dimensionTerritorial = models.DelimitacionGeografica.objects.get(pk=dimensionid)
+        #dimensionTerritorial = models.TerritorialDimension.objects.get(pk=dimensionid) nunca lo usaron
 
-        tareas = models.Tarea.objects.filter(dimensionid__exact=dimensionid).values()
+        tareas = models.Task.objects.filter(project__proj_id__exact=proj_id).values()
 
         response = {
             'code': 200,

@@ -21,7 +21,7 @@ from myapp import views
 
 from myapp.view import (
     userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros, notificaciones,
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview #,contextualizacion, tareas
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview, territorialDimension, #,contextualizacion, tareas
 )
 
 urlpatterns = [
@@ -121,7 +121,7 @@ urlpatterns = [
     path('proyectos/dimensiones-territoriales/<str:proyid>', proyecto.dimensionesTerritoriales), #OK OK JM
     path('decisiones/reportes/<str:proyid>', proyecto.decisionesDelProyecto),
 
-    #path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO
+    path('proyectos/<str:dimensionid>/cambio-territorio/', proyecto.cambioTerritorio), #LEO
 
     path('tipos-proyecto/', tiposProyecto.tiposProyectoView), #OK OK S
     path('tipos-proyecto/list/', tiposProyecto.listadoTiposProyecto), #OK OK S 
@@ -143,7 +143,7 @@ urlpatterns = [
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
     path('tareas/detail/<str:tareid>', tareas.detalleTarea), #OK S OK
     path('instrumentos/informacion/<str:id>', instrumentview.informacionInstrumentoView), #S #???
-    #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #???
+    #path('tareas-dimension-territorial/<str:dimensionid>', tareas.tareasXDimensionTerritorial), #S #??? Se usaba en GC pero ya no (LFC)
     path('tareas/tipos/', views.listadoTiposDeTareas), #OK S
 
     path('generos/list/', utilidades.listadoGeneros), #OK OK S
@@ -236,5 +236,7 @@ urlpatterns = [
     path('mi-perfil/', profileview.perfilView), #OK OK LEO
 
     path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl), #OK OK LEO
-    path('notificaciones/list/', notificaciones.getPersonNotifications) # LF Gestion de cambios
+    path('notificaciones/list/', notificaciones.getPersonNotifications), # LF Gestion de cambios
+    path('dimensiones/list/', territorialDimension.listadoDimensionesPrecargadas),
+    path('proyectos/gestion/dimensiones/<str:dimension_id>/geojson/', territorialDimension.updateGeojson),
 ]
