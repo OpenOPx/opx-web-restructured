@@ -180,7 +180,7 @@ def puntajeTarea(tarid):
         print("4")
         progreso = (len(encuestas)/ tarea.task_quantity)
         tarea.task_completness = progreso
-        if progreso == 100:
+        if progreso == 1:
             tarea.isactive = 0
         tarea.save()
     if tarea.task_type_id == 2:

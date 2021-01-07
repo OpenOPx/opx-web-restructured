@@ -361,7 +361,10 @@ def detalleTarea(request, tareid):
             encuestas = models.Survery.objects.filter(task_id__exact=tarea.task_id)
             progreso = (len(encuestas) * 100) / tareaDict['task_quantity']
             tareaDict['task_completness'] = progreso
-
+            tareaDict['task_start_date'] = restricciones.task_start_date
+            tareaDict['task_end_date'] = restricciones.task_end_date
+            tareaDict['start_time'] = restricciones.start_time
+            tareaDict['end_time'] = restricciones.end_time
             # instrumento = models.Instrumento.objects.get(pk=tareaDict['instrid'])
             # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
             #
