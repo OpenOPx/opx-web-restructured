@@ -72,11 +72,12 @@ def listadoEquipos(request):
         }
 
     elif (rol == '628acd70-f86f-4449-af06-ab36144d9d6a'):
-        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo inner join opx.person as persona on equipo.team_leader_id = '"+str(person.pers_id)+"';"
+        EQUIPO_CIUDADANOS_ID = 'b4879f48-8ab1-4d79-8f5b-7585b75cfb07'
+        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo  inner join opx.person as persona on equipo.team_leader_id = persona.pers_id where equipo.team_leader_id = '"+str(person.pers_id)+"'"+" or equipo.team_id = '"+EQUIPO_CIUDADANOS_ID+"';"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)     
-
+            
         for e in equipos:
             e['team_miembros'] = len(models.TeamPerson.objects.filter(team__team_id__exact = e['team_id']))  
 
