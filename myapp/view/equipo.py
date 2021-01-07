@@ -72,7 +72,7 @@ def listadoEquipos(request):
         }
 
     elif (rol == '628acd70-f86f-4449-af06-ab36144d9d6a'):
-        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo inner join opx.person as persona on equipo.team_leader_id = '"+person.pers_id+"';"
+        query = "select equipo.*, persona.pers_name, persona.pers_lastname from opx.team as equipo inner join opx.person as persona on equipo.team_leader_id = '"+str(person.pers_id)+"';"
         with connection.cursor() as cursor:
             cursor.execute(query)
             equipos = dictfetchall(cursor)     
