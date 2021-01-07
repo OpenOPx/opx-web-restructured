@@ -203,6 +203,7 @@ class TerritorialDimension(models.Model):
         primary_key=True, default=uuid4, editable=False)
     dimension_name = models.CharField(max_length=100, unique=True)
     dimension_geojson = JSONField()
+    neighborhood_id = models.CharField(max_length=100, null=True, blank=True)
     isactive = models.IntegerField(default=1, null=False, blank=False)
     preloaded = models.IntegerField(default=0, null=False, blank=False)
     dimension_type = models.ForeignKey(DimensionType, on_delete=models.PROTECT)
@@ -475,7 +476,7 @@ class Survery(models.Model):
         primary_key=True, default=uuid4, editable=False)
     koboid = models.CharField(max_length=255, null=False, blank=True)
     survery_content = JSONField()
-    survery_state = models.IntegerField(default=0)
+    survery_state = models.IntegerField(default=0) #revisar el default
     survery_observation = models.CharField(max_length=1000, null=True, blank=True)
     task = models.ForeignKey(Task, on_delete=models.PROTECT)
     instrument = models.ForeignKey(Instrument, on_delete=models.PROTECT)

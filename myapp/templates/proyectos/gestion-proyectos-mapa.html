@@ -125,7 +125,7 @@
                         <div align="center" v-if="gestionTerritorial.areaDimensionTerritorial">
                             <p>Por favor selecciona una nueva area en la que se va a ejecutar el proyecto o presiona en siguiente para usar la misma</p>
                             <div id="mapa-dimension-territorial"></div>
-                            <button @click="paso2GestionTerritorial()" class="btn">Siguiente</button>
+                            <button :disabled="!datosCambioTerritorial.geojson" @click="paso2GestionTerritorial()" class="btn">Siguiente</button>
                         </div>
                         <div align="center" v-if="gestionTerritorial.listadoTareas">
                             <p>

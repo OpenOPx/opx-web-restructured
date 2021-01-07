@@ -105,7 +105,6 @@ gestionProyecto = new Vue({
 
         },
         cargarMapaDimensionTerritorial(){
-            this.datosCambioTerritorial['geojson'] = JSON.stringify(layer.toGeoJSON());
 
             map = L.map('mapa-dimension-territorial',  {
                 center: [3.450572, -76.538705],
@@ -633,7 +632,9 @@ gestionProyecto = new Vue({
             }
         },
         paso2GestionTerritorial(){
-
+            if(!this.datosCambioTerritorial.geojson){
+                this.datosCambioTerritorial.geojson = this.informacionProyecto.dimensiones_territoriales[0].
+            }
             this.gestionTerritorial.areaDimensionTerritorial = false;
             this.gestionTerritorial.listadoTareas = true;
             this.gestionTerritorial.areaTarea = false;
