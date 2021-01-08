@@ -65,14 +65,9 @@ urlpatterns = [
     path('decisiones/delete/<str:desiid>/', decision.eliminarDecision), #OK OK JM
     path('decisiones/<str:desiid>', decision.actualizarDecision), #OK OK JM
 
+
     path('equipos/', equipo.equiposView), #OK OK JM
     path('equipos/<str:planid>/miembros/', equipo.miembrosEquipoView), #OK OK JM
-    path('equipos/list/<str:proyid>', proyecto.equipoProyecto), #OK OK JM
-    path('equipos/<str:proyid>/equipos-disponibles/', proyecto.equiposDisponiblesProyecto), #OK OK JM
-    path('equipos/store/', proyecto.agregarEquipo), #OK OK JM
-    path('equipos/delete/<str:equid>', proyecto.eliminarEquipo), #OK OK JM
-    path('equipos/proyecto/<str:proyid>', proyecto.equipoProyectoView), #OK OK JM
-
     path('plantillas-equipo/list/', equipo.listadoEquipos), #OK OK JM
     path('plantillas-equipo/<str:planid>/delete/', equipo.eliminarEquipo), #OK OK JM
     path('plantillas-equipo/store/', equipo.crearEquipo), #OK OK JM
@@ -109,6 +104,11 @@ urlpatterns = [
     path('instrumentos/kobo-submissions/<str:tareaid>', koboclient.koboSubmissionsQuantity),
     path('instrumentos/encuesta/store/', koboclient.almacenarSurvery),
 
+    path('equipos/list/<str:proyid>', proyecto.equipoProyecto), #OK OK JM
+    path('equipos/<str:proyid>/equipos-disponibles/', proyecto.equiposDisponiblesProyecto), #OK OK JM
+    path('equipos/store/', proyecto.agregarEquipo), #OK OK JM
+    path('equipos/delete/<str:equid>', proyecto.eliminarEquipo), #OK OK JM
+    path('equipos/proyecto/<str:proyid>', proyecto.equipoProyectoView), #OK OK JM
     path('proyectos/', proyecto.listadoProyectosView), #OK OK JM
     path('proyectos/gestion/', proyecto.gestionProyectosView), #OK OK JM
     path('proyectos/list/', proyecto.listadoProyectos), #OK OK JM

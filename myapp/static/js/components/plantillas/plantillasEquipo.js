@@ -35,6 +35,10 @@ let gestionPlantilla = new Vue({
                 key: 'pers_lastname'
             },
             {
+                label: 'Miembros',
+                key: 'team_miembros'
+            },
+            {
                 label: '',
                 key: 'acciones'
             }
@@ -105,7 +109,7 @@ let gestionPlantilla = new Vue({
    
                         Swal.fire(
                          'Error!',
-                         'Ocurrio un error por favor intenta de nuevo',
+                         'No es posible eliminar el equipo debido a que está vinculado a un proyecto',
                          'error'
                        );
                    });
@@ -151,7 +155,7 @@ let gestionPlantilla = new Vue({
 
                 Swal.fire({
                   title: 'Error!',
-                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  text: 'Ya existe un equipo con el nombre digitado, verifica la información',
                   type: 'error',
                   confirmButtonText: 'Acepto'
                 });
@@ -181,7 +185,7 @@ let gestionPlantilla = new Vue({
 
                     Swal.fire({
                         title: 'Exito',
-                        text: 'Equipo modificada',
+                        text: 'Equipo modificado',
                         type: 'success',
                     });
                 }
@@ -192,7 +196,7 @@ let gestionPlantilla = new Vue({
 
                 Swal.fire(
                     'Error!',
-                    'Ocurrio un error. Por favor intenta de nuevo',
+                    'Ya existe un equipo con el nombre digitado, verifica la información',
                     'error'
                 );
             });
