@@ -1,23 +1,13 @@
 proyecto = new Vue({
     el: '#gestion-proyectos',
     delimiters: ['[[', ']]'],
-    created: function(){
-
-        if(window.location.pathname == '/proyectos/'){
-
-            this.listadoProyectos();
-            this.listadoDecisiones();
-            this.listadoContextos();
-            this.listadoPlantillas();
-            this.listadoTiposProyecto();
-        }
-    },
     data: {
         almacenamientoProyecto: {
             delimitacionesGeograficas: [],
             tiproid: ''
         },
         decisiones: [],
+        dimensionesPre: [],
         edicionProyecto: {},
         proyectos: [],
         proyectosFields: [
@@ -61,8 +51,20 @@ proyecto = new Vue({
         delimitacionGeograficaEdicion: null,
         filterKey: ''
     },
+    created() {
+
+        if (window.location.pathname == '/proyectos/') {
+
+            this.listadoProyectos();
+            this.listadoDimensionesPrecargadas();
+            this.listadoDecisiones();
+            this.listadoContextos();
+            this.listadoPlantillas();
+            this.listadoTiposProyecto();
+        }
+    },
     methods: {
-        listadoProyectos(){
+        listadoProyectos() {
 
             this.loader(true);
 
@@ -76,62 +78,71 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
+                .then(response => {
 
-                this.loader(false);
+                    this.loader(false);
 
-                if(response.data.code == 200 && response.data.status == 'success'){
+                    if (response.data.code == 200 && response.data.status == 'success') {
 
-                    this.proyectos = response.data.proyectos;
-                }
-            });
+                        this.proyectos = response.data.proyectos;
+                    }
+                });
         },
-        almacenarProyecto(){
+        almacenarProyecto() {
             //this.almacenamientoProyecto.proypropietario = getUser().id;
 
             this.loader(true);
             var queryString = Object.keys(this.almacenamientoProyecto).map(key => {
 
-                if(key == 'decisiones'){
+                if (key == 'dimensionesPre') {
+                    let dimensionesPrec = [];
+
+                    for (let i = 0; i < this.almacenamientoProyecto.dimensionesPre.length; i++) {
+                        dimensionesPrec.push(this.almacenamientoProyecto.dimensionesPre[i].dimension_id);
+                    }
+
+                    valor = JSON.stringify(dimensionesPrec);
+                } else if (key == 'decisiones') {
 
                     let decisiones = [];
 
-                    for(let i = 0; i < this.almacenamientoProyecto.decisiones.length; i++){
+                    for (let i = 0; i < this.almacenamientoProyecto.decisiones.length; i++) {
 
                         decisiones.push(this.almacenamientoProyecto.decisiones[i].decs_id);
                     }
                     valor = JSON.stringify(decisiones);
-                } else if(key == 'contextos'){
+                } else if (key == 'contextos') {
 
                     let contextos = [];
 
-                    for(let i = 0; i < this.almacenamientoProyecto.contextos.length; i++){
+                    for (let i = 0; i < this.almacenamientoProyecto.contextos.length; i++) {
 
 
                         contextos.push(this.almacenamientoProyecto.contextos[i].context_id);
                     }
 
                     valor = JSON.stringify(contextos);
-                } else if(key == 'plantillas'){
+                } else if (key == 'plantillas') {
 
                     let plantillas = [];
 
-                    for(let i = 0; i < this.almacenamientoProyecto.plantillas.length; i++){
+                    for (let i = 0; i < this.almacenamientoProyecto.plantillas.length; i++) {
 
 
                         plantillas.push(this.almacenamientoProyecto.plantillas[i].team_id);
                     }
 
                     valor = JSON.stringify(plantillas);
-                } else if(key == 'delimitacionesGeograficas'){
+                } else if (key == 'delimitacionesGeograficas') {
 
                     valor = JSON.stringify(this.almacenamientoProyecto.delimitacionesGeograficas);
-                } else{
+                } else {
 
                     valor = this.almacenamientoProyecto[key]
                 }
                 return key + '=' + valor
             }).join('&');
+            console.log(queryString)
             axios({
                 method: 'post',
                 url: '/proyectos/store/',
@@ -141,38 +152,38 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
+                .then(response => {
 
-                $("#agregar-proyecto").modal('hide')
-                this.almacenamientoProyecto = {
-                    delimitacionesGeograficas: []
-                };
-                this.listadoProyectos();
+                    $("#agregar-proyecto").modal('hide')
+                    this.almacenamientoProyecto = {
+                        delimitacionesGeograficas: []
+                    };
+                    this.listadoProyectos();
 
-                this.loader(false);
+                    this.loader(false);
 
-                Swal.fire({
-                  title: 'Exito!',
-                  text: 'Proyecto creado satisfactoriamente',
-                  type: 'success',
-                  confirmButtonText: 'Acepto'
+                    Swal.fire({
+                        title: 'Exito!',
+                        text: 'Proyecto creado satisfactoriamente',
+                        type: 'success',
+                        confirmButtonText: 'Acepto'
+                    });
+                })
+                .catch(response => {
+
+                    $("#agregar-proyecto").modal('hide');
+
+                    this.loader(false);
+
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Ocurrio un error. Por favor intenta de nuevo',
+                        type: 'error',
+                        confirmButtonText: 'Acepto'
+                    });
                 });
-            })
-            .catch(response => {
-
-                $("#agregar-proyecto").modal('hide');
-
-                this.loader(false);
-
-                Swal.fire({
-                  title: 'Error!',
-                  text: 'Ocurrio un error. Por favor intenta de nuevo',
-                  type: 'error',
-                  confirmButtonText: 'Acepto'
-                });
-            });
         },
-        generarMapa(timeout, coordenadas){
+        generarMapa(timeout, coordenadas) {
 
             window.setTimeout(() => {
 
@@ -183,10 +194,10 @@ proyecto = new Vue({
                 }).addTo(mapObject);
 
                 L.tileLayer.wms('http://ws-idesc.cali.gov.co:8081/geoserver/wms?service=WMS', {
-                  layers: 'idesc:mc_barrios',
-                  format: 'image/png',
-                  transparent: !0,
-                  version: '1.1.0'
+                    layers: 'idesc:mc_barrios',
+                    format: 'image/png',
+                    transparent: !0,
+                    version: '1.1.0'
                 }).addTo(mapObject);
 
                 var editableLayers = new L.FeatureGroup();
@@ -236,13 +247,13 @@ proyecto = new Vue({
 
                 mapObject.on(L.Draw.Event.DELETED, (e) => {
 
-                     if(this.cantidadAreasMapa(editableLayers) == 0){
+                    if (this.cantidadAreasMapa(editableLayers) == 0) {
 
                         this.delimitacionGeografica.geojson = null;
-                     }
+                    }
                 });
 
-                if(coordenadas){
+                if (coordenadas) {
 
                     L.polygon(coordenadas).addTo(mapObject);
                 }
@@ -251,16 +262,16 @@ proyecto = new Vue({
 
             }, timeout);
         },
-        cantidadAreasMapa(editableLayers){
+        cantidadAreasMapa(editableLayers) {
 
             return Object.keys(editableLayers._layers).length;
         },
-        restablecerMapa(){
+        restablecerMapa() {
 
             this.mapObject.remove();
             this.generarMapa(0);
         },
-        restablecerDelimitacionGeografica(){
+        restablecerDelimitacionGeografica() {
 
             this.delimitacionGeografica = {
                 nombre: null,
@@ -269,14 +280,14 @@ proyecto = new Vue({
 
             this.delimitacionGeograficaEdicion = null;
         },
-        agregarDelimitacionGeografica(){
+        agregarDelimitacionGeografica() {
 
             this.almacenamientoProyecto.delimitacionesGeograficas.push(this.delimitacionGeografica);
 
             this.restablecerDelimitacionGeografica();
             this.restablecerMapa();
         },
-        eliminarDelimitacionGeografica(index){
+        eliminarDelimitacionGeografica(index) {
 
             Swal.fire({
                 title: 'Estas seguro?',
@@ -287,109 +298,117 @@ proyecto = new Vue({
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Acepto!'
             })
-            .then(result => {
+                .then(result => {
 
-                if(result.value){
-
-                    this.almacenamientoProyecto.delimitacionesGeograficas.splice(index, 1);
-                }
-            });
+                    if (result.value) {
+                        this.almacenamientoProyecto.delimitacionesGeograficas.splice(index, 1);
+                    }
+                });
         },
-        detalleDelimitacionGeografica(delimitacion, index){
-
+        detalleDelimitacionGeografica(delimitacion, index) {
+            console.log(delimitacion)
             this.delimitacionGeografica = delimitacion;
             this.delimitacionGeograficaEdicion = index.toString();
 
             coordenadasLeaflet = JSON.parse(delimitacion.geojson)['geometry']['coordinates'][0];
             coordenadas = []
 
-            for(let i = 0; i < coordenadasLeaflet.length; i++){
+            for (let i = 0; i < coordenadasLeaflet.length; i++) {
 
                 coordenadas.push(coordenadasLeaflet[i].reverse());
             }
 
             this.mapObject.remove();
+            console.log(coordenadas)
             this.generarMapa(0, coordenadas);
         },
-        actualizarDelimitacionGeografica(){
+        actualizarDelimitacionGeografica() {
 
             this.almacenamientoProyecto.delimitacionesGeograficas[parseInt(this.delimitacionGeograficaEdicion, 10)] = this.delimitacionGeografica;
 
             this.restablecerMapa();
             this.restablecerDelimitacionGeografica();
         },
-        eliminarProyecto(id){
+        eliminarProyecto(id) {
 
             Swal.fire({
-              title: 'Estas seguro?',
-              text: "No lo puedes revertir",
-              type: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-              confirmButtonText: 'Acepto!'
+                title: 'Estas seguro?',
+                text: "No lo puedes revertir",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Acepto!'
 
             }).then((result) => {
 
-              if (result.value) {
-
-                this.loader(true);
-
-                axios({
-                    method: 'delete',
-                    url: '/proyectos/delete/' + id,
-                    headers: {
-                        Authorization: getToken()
-                    }
-                })
-                .then(response => {
-
-                    this.listadoProyectos();
+                if (result.value) {
 
                     this.loader(true);
 
-                    Swal.fire(
-                      'Eliminado!',
-                      'El proyecto fue eliminado de forma exitosa',
-                      'success'
-                    );
-                })
-                .catch(response => {
+                    axios({
+                        method: 'delete',
+                        url: '/proyectos/delete/' + id,
+                        headers: {
+                            Authorization: getToken()
+                        }
+                    })
+                        .then(response => {
 
-                     this.listadoProyectos();
+                            this.listadoProyectos();
 
-                     this.loader(false);
+                            this.loader(true);
 
-                     Swal.fire(
-                      'Error!',
-                      'Ocurrio un error por favor intenta de nuevo',
-                      'error'
-                    );
-                });
-              }
+                            Swal.fire(
+                                'Eliminado!',
+                                'El proyecto fue eliminado de forma exitosa',
+                                'success'
+                            );
+                        })
+                        .catch(response => {
+
+                            this.listadoProyectos();
+
+                            this.loader(false);
+
+                            Swal.fire(
+                                'Error!',
+                                'Ocurrio un error por favor intenta de nuevo',
+                                'error'
+                            );
+                        });
+                }
             });
         },
-        editarProyecto(){
+        editarProyecto() {
 
             this.loader(true);
 
             var queryString = Object.keys(this.edicionProyecto).map(key => {
 
-                if(key == 'decisiones'){
+                if (key == 'dimensionesPre') {
+                    let dimensionesPrec = [];
+
+                    for (let i = 0; i < this.almacenamientoProyecto.dimensionesPre.length; i++) {
+                        dimensionesPrec.push(this.almacenamientoProyecto.dimensionesPre[i].dimension_id);
+                    }
+
+                    valor = JSON.stringify(dimensionesPrec);
+                } else if (key == 'decisiones') {
 
                     let decisiones = [];
 
-                    for(let i = 0; i < this.edicionProyecto.decisiones.length; i++){
+                    for (let i = 0; i < this.edicionProyecto.decisiones.length; i++) {
 
                         decisiones.push(this.edicionProyecto.decisiones[i].decs_id);
                     }
                     valor = JSON.stringify(decisiones);
 
-                } else if(key == 'contextos'){
+                } else if (key == 'contextos') {
 
                     let contextos = [];
 
-                    for(let i = 0; i < this.edicionProyecto.contextos.length; i++){
+                    for (let i = 0; i < this.edicionProyecto.contextos.length; i++) {
 
 
                         contextos.push(this.edicionProyecto.contextos[i].context_id);
@@ -397,7 +416,7 @@ proyecto = new Vue({
 
                     valor = JSON.stringify(contextos);
 
-                } else{
+                } else {
 
                     valor = this.edicionProyecto[key]
                 }
@@ -414,7 +433,7 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
+                .then(response => {
 
                     this.listadoProyectos();
                     $("#editar-proyecto").modal('hide');
@@ -425,20 +444,20 @@ proyecto = new Vue({
                         'Proyecto modificado satisfactoriamente',
                         'success'
                     );
-            })
-            .catch(() => {
+                })
+                .catch(() => {
 
-                $("#editar-proyecto").modal('hide');
-                this.loader(false);
+                    $("#editar-proyecto").modal('hide');
+                    this.loader(false);
 
-                Swal.fire(
-                    'Error!',
-                    'Ocurrio un error. Por favor intenta de nuevo',
-                    'error'
-                );
-            })
+                    Swal.fire(
+                        'Error!',
+                        'Ocurrio un error. Por favor intenta de nuevo',
+                        'error'
+                    );
+                })
         },
-        listadoDecisiones(){
+        listadoDecisiones() {
 
             axios({
                 method: 'GET',
@@ -447,18 +466,100 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
-
-                /*for(let i = 0; i < response.data.length; i++){
-
-                    this.decisiones.push({'track-by': response.data[i].desiid, 'label': response.data[i].desidescripcion});
-                }*/
-                this.decisiones = response.data;
-
-            })
+                .then(response => {
+                    this.decisiones = response.data;
+                })
         },
-        listadoContextos(){
+        listadoDimensionesPrecargadas() {
+            axios({
+                method: 'GET',
+                url: '/dimensionesPre/',
+                headers: {
+                    Authorization: getToken()
+                }
+            })
+                .then(response => {
+                    this.dimensionesPre = response.data;
+                })
+        },
+        pintarDimensionesSeleccion() {
+            this.loader(true);
+            let arr = [];
+            for (let index = 0; index < this.almacenamientoProyecto.dimensionesPre.length; index++) {
+                arr.push(this.almacenamientoProyecto.dimensionesPre[index].dimension_id);
+            }
 
+            data= {
+                dimensiones_id: arr
+            }
+            axios({
+                method: 'POST',
+                url: 'dimensionesPre/mapa/',
+                data: data,
+                headers: {
+                    Authorization: getToken()
+                }
+            })
+                .then(response => {
+                    this.ajusteGeoJson(response.data.geo)
+                    this.loader(false);
+                    console.log(response.data.geo)
+                }).catch( ()=>{
+                    this.loader(false);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Ocurrio un error. Por favor intenta de nuevo',
+                        type: 'error',
+                        confirmButtonText: 'Acepto'
+                    });
+                } )
+        },
+        ajusteGeoJson(dimensiones){
+            features = []
+
+                for(let i=0; i<dimensiones.length; i++){
+                    // Añadiendo Dimensiones geográficas
+                    let feature = JSON.parse(dimensiones[i].fields.dimension_geojson)
+
+                    feature.properties = {
+                        color: '#0CBAEF',
+                        description: dimensiones[i].fields.dimension_name,
+                        id: dimensiones[i].pk,
+                        type: 'dimension'
+                    }
+                    features.push(feature)
+                }
+
+                let geojson = {
+                    type: "FeatureCollection",
+                    features: features
+                }
+
+                this.cargarMapa(geojson);
+
+        },
+        cargarMapa(layer){
+
+            //this.restablecerMapa();
+            window.setTimeout(() => {
+
+                if(layer){
+                    L.geoJSON(layer,
+                    {
+                        style: (feature) => {
+                            return {color: feature.properties.color}
+                        }
+                    })
+                    .bindPopup(function (layer) {
+                        return layer.feature.properties.description;
+                    })
+                    .addTo(this.mapObject)
+                }
+            }, 1000);
+
+        },
+        listadoContextos() {
+    
             axios({
                 method: 'GET',
                 url: '/contextos/list/',
@@ -466,13 +567,13 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
-
-                this.contextos = response.data;
-            });
+                .then(response => {
+    
+                    this.contextos = response.data;
+                });
         },
-        listadoTiposProyecto(){
-
+        listadoTiposProyecto() {
+    
             axios({
                 url: '/tipos-proyecto/list/',
                 method: 'GET',
@@ -480,20 +581,20 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
-
-                if(response.data.code == 200 && response.data.status == 'success'){
-
-                    this.tiposProyecto = response.data.data;
-                }
-            })
+                .then(response => {
+    
+                    if (response.data.code == 200 && response.data.status == 'success') {
+    
+                        this.tiposProyecto = response.data.data;
+                    }
+                })
         },
-        loader(status){
-
+        loader(status) {
+    
             this.loading = status;
         },
-        listadoPlantillas(){
-
+        listadoPlantillas() {
+    
             axios({
                 url: '/plantillas-equipo/list/',
                 method: 'GET',
@@ -501,33 +602,32 @@ proyecto = new Vue({
                     Authorization: getToken()
                 }
             })
-            .then(response => {
-
-                if(response.data.code == 200 && response.data.status == 'success'){
-
-                    this.plantillas = response.data.data;
-                }
-            })
+                .then(response => {
+    
+                    if (response.data.code == 200 && response.data.status == 'success') {
+    
+                        this.plantillas = response.data.data;
+                    }
+                })
         },
-        formateoFechaInicio(date){
+        formateoFechaInicio(date) {
             this.almacenamientoProyecto.proyfechainicio = moment(date).format('YYYY-MM-DD');
         },
-        formateoFechaFin(date){
+        formateoFechaFin(date) {
             this.almacenamientoProyecto.proyfechacierre = moment(date).format('YYYY-MM-DD');
         }
     },
     computed: {
-        filteredProjects: function () {
-          var filterKey = this.filterKey && this.filterKey.toLowerCase()
-          var proyectos = this.proyectos
-          if (filterKey) {
+    filteredProjects: function () {
+        var filterKey = this.filterKey && this.filterKey.toLowerCase()
+        var proyectos = this.proyectos
+        if (filterKey) {
             proyectos = proyectos.filter(function (row) {
-              return Object.keys(row).some(function (key) {
-                return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-              })
+                return Object.keys(row).some(function (key) {
+                    return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+                })
             })
-          }
-          return proyectos;
         }
+        return proyectos;
     }
-})
+}});

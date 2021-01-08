@@ -115,6 +115,7 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
+    path('proyectos/movil/<str:proyid>', proyecto.actualizarProyectoMovil), #OK OK JM
     path('proyectos/details/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
     path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
@@ -140,6 +141,7 @@ urlpatterns = [
     path('tareas/store/', tareas.almacenamientoTarea), #OK S
     path('tareas/campana/', tareas.almacenamientoCampana), #OK S
     path('tareas/<str:tareid>', tareas.actualizarTarea), #OK S OK
+    path('tareas/movil/<str:tareid>', tareas.actualizarTareaMovil), #OK S OK
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
     path('tareas/detail/<str:tareid>', tareas.detalleTarea), #OK S OK
     path('instrumentos/informacion/<str:id>', instrumentview.informacionInstrumentoView), #S #???
@@ -180,6 +182,9 @@ urlpatterns = [
     path('reportes/ranking/', reporte.reporteRankView), #JM
     path('puntaje/tarea/<str:tarid>/', utilidades.puntajeTarea), #JM - S
     path('puntaje/proyecto/<str:proyid>/', utilidades.puntajeProyecto), #JM - S
+
+    path('dimensionesPre/', proyecto.listaDimensionesPrecargadas),
+    path('proyectos/dimensionesPre/mapa/', proyecto.mapaDimension),
 
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR
