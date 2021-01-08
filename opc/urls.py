@@ -180,6 +180,9 @@ urlpatterns = [
     path('puntaje/tarea/<str:tarid>/', utilidades.puntajeTarea), #JM - S
     path('puntaje/proyecto/<str:proyid>/', utilidades.puntajeProyecto), #JM - S
 
+    path('dimensionesPre/', proyecto.listaDimensionesPrecargadas),
+    path('proyectos/dimensionesPre/mapa/', proyecto.mapaDimension),
+
     # ========================== Estadisticas Antes =================================
     path('estadisticas/datos-generales/', estadisticas.datosGenerales), #OK - S PROBAR
     path('estadisticas/usuarios-x-rol/', estadisticas.usuariosXRol), #OK - S PROBAR

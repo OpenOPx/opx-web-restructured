@@ -218,6 +218,7 @@ def almacenamientoProyecto(request):
     # Decodificando el access token
     tokenBackend = TokenBackend(settings.SIMPLE_JWT['ALGORITHM'], settings.SIMPLE_JWT['SIGNING_KEY'], settings.SIMPLE_JWT['VERIFYING_KEY'])
     tokenDecoded = tokenBackend.decode(request.META['HTTP_AUTHORIZATION'].split()[1], verify=True)
+    delimintacionBarrio = request.POST.get('dimensionesPre')
     decisiones = request.POST.get('decisiones')
     contextos = request.POST.get('contextos')
     equipos = request.POST.get('plantillas')
@@ -239,6 +240,9 @@ def almacenamientoProyecto(request):
                 )
                 proyecto.full_clean()
                 proyecto.save()
+
+                delimintacionBarrio = json.loads(delimintacionBarrio)
+                almacenarDelimitacionesPrecarga(proyecto, delimintacionBarrio)
 
                 delimitacionGeograficas = json.loads(delimitacionGeograficas)
                 almacenarDelimitacionesGeograficas(proyecto, delimitacionGeograficas)
@@ -377,6 +381,28 @@ def almacenarDelimitacionesGeograficas(proyecto, delimitacionesGeograficas):
         return False
 
 ##
+# @brief 
+# @param proyecto instancia del modelo proyecto
+# @param delimitacionesGeograficas delimitaciones geograficas generadas por el mapa
+# @return Diccionario
+# 
+def almacenarDelimitacionesPrecarga(proyecto, delimintacionBarrio):
+    try:
+
+            for d in delimintacionBarrio:
+                delimitacionP = models.ProjectTerritorialDimension(
+                    project = proyecto,
+                    territorial_dimension = models.TerritorialDimension.objects.get(dimension_id__exact = d)
+                )
+                delimitacionP.save()
+                delimitacionP = None
+        
+            return True
+
+    except ValidationError as e:
+        return False
+
+##
 # @brief Funcion que asigna integrantes a un proyecto en base a los integrantes de una plantilla de equipo
 # @param proyecto instancia del modelo proyecto
 # @param equipos lista de identificadores de plantillas de equipo
@@ -412,17 +438,19 @@ def asignarEquipos(proyecto, equipos):
 def actualizarProyecto(request, proyid):
     try:
         proyecto = models.Project.objects.get(pk=proyid)
+        delimintacionBarrio = request.POST.get('dimensionesPre')
         decisiones = request.POST.get('decisiones')
         contextos = request.POST.get('contextos')
         equipos = request.POST.get('plantillas')
         delimitacionGeograficas = request.POST.get('delimitacionesGeograficas')
 
-        if((delimitacionGeograficas != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
+        if((delimitacionGeograficas != "[]" or delimintacionBarrio != "[]") and (decisiones != "[]") and (contextos != "[]") and (equipos != "[]")):
             proyecto.proj_name = request.POST.get('proynombre')
             proyecto.proj_description = request.POST.get('proydescripcion')
             proyecto.project_type = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
             proyecto.proj_start_date = request.POST.get('proyfechainicio')
             proyecto.proj_close_date = request.POST.get('proyfechacierre')
+
             #Actualiza las decisiones
             decisiones = json.loads(decisiones)
             if len(decisiones)>0:
@@ -502,7 +530,10 @@ def eliminarProyecto(request, proyid):
         for p in projTerr:
             p.delete()
 
-        query="select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id where pd.project_id = '"+proyid+"';"
+        query = "select dim.* \
+                from opx.territorial_dimension as dim \
+                inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id \
+                where pd.project_id = '"+proyid+"' and dim.preloaded = 0;"
 
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -895,4 +926,53 @@ def decisionesDelProyecto(request, proyid):
             'status': 'success'
         }
 
+    return JsonResponse(data, safe = False, status = data['code'])
+
+
+##
+# @brief 
+# @param request Instancia HttpRequest
+# @param proyid Identificacion del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def listaDimensionesPrecargadas(request):
+
+        query = "select dim.dimension_id, dim.dimension_name \
+                from opx.territorial_dimension as dim \
+                where dim.preloaded = '1' and dim.dimension_type_id = '35b0b478-9675-45fe-8da5-02ea9ef88f1b'"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            dimPre = dictfetchall(cursor)
+
+        return JsonResponse(dimPre, safe = False)
+
+##
+# @brief 
+# @param request Instancia HttpRequest
+# @param proyid Identificacion del proyecto
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def mapaDimension(request):
+    print(request.body)
+    data = json.loads(request.body)
+
+    dimensiones = []
+    for dimenId in data['dimensiones_id']:
+        print(dimenId)
+        dimension = models.TerritorialDimension.objects.get(pk=dimenId)
+        dimensiones.append(dimension)
+        
+    print(list(dimensiones))
+    data = {
+        'code': 200,
+        'geo': serializers.serialize('python', list(dimensiones)),
+        'status': 'success'
+    }
+    print(data)
     return JsonResponse(data, safe = False, status = data['code'])
