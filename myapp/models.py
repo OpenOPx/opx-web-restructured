@@ -176,8 +176,8 @@ class Project(models.Model):
     proj_description = models.CharField(max_length=500)
     proj_external_id = models.CharField(max_length=500)  # Revisar esta columna
     proj_creation_date = models.DateTimeField(auto_now_add=True, blank=True)
-    proj_close_date = models.DateTimeField(null=True, blank=True)
-    proj_start_date = models.DateTimeField(null=True, blank=True)
+    proj_close_date = models.DateField(null=True, blank=True)
+    proj_start_date = models.DateField(null=True, blank=True)
     proj_completness = models.FloatField(default=0.0)
     isactive = models.IntegerField(default=1, null=False, blank=False)
     project_type = models.ForeignKey(ProjectType, on_delete=models.PROTECT)

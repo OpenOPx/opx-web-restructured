@@ -117,6 +117,23 @@ def obtenerParametroSistema(parametro):
 
     return response
 
+def getPersonsByTeam(team_id):
+
+    return []
+
+def getPersonsIdByProject(proj_id):
+    persons = []
+    query = "SELECT DISTINCT tp.person_id \
+	        FROM opx.team_person as tp \
+	        INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id \
+	        WHERE pt.project_id = '"+proj_id+"';"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        person_ids = dictfetchall(cursor)
+        for pers_id in list(person_ids):
+            persons.append(pers_id['person_id'])
+    return persons
+
 ##
 # @brief Función que provee el listado de correos electrónicos de los integrantes de un proyecto
 # @param proyid Identificación de un proyecto

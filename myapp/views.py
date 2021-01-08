@@ -113,6 +113,7 @@ def login(request):
                         current_fcmtkn = device.registration_id
                         if current_fcmtkn != fcm_token:
                             device.registration_id = fcm_token
+                            device.type=type_device
                             device.save()
                             #verificar sesiones activas y cerrarlas
                     else:
