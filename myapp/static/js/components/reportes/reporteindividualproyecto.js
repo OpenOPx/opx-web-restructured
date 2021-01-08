@@ -1,62 +1,84 @@
 proyectoReporte = new Vue({
     el: '#reportes-proyectoindividual',
     delimiters: ['[[', ']]'],
-    almacenamientoPlantilla: {},
-    plantillas: [],
-    deci: [],
-    plantillaEdicion: {},
-    // Paginación
-    pagination: {
-        currentPage: 1,
-        perPage: 6
-    },
-    // Búsqueda
-    filter: '',
-    // Campos Equipo
-    teamFields: [
-        {
-            label: 'Nombre',
-            key: 'team_name'
-        },
-        {
-            label: 'Efectividad',
-            key: 'team_effectiveness'
-        },
-        {
-            label: 'Miembros',
-            key: 'team_miembros'
-        },
-        {
-            label: '',
-            key: 'acciones'
-        }
-    ],
     data: {
-        proyecto: [], 
+        proyecto: {},
+        almacenamientoComentario: {}, 
+        almacenamientoPlantilla: {},
         tareas: [],
+        tareas2: [],
         comentarios: [],
         deci: [],
         projectdecision: [],
+        equipos:[],
         proyectoID: '',
+        mapObject: {},
         loading: false,
         vistaGeneral: true,
         vistaTareas: false,
-        vistaComentarios: false
+        vistaComentarios: false,
+        plantillas: [],
+        plantillaEdicion: {},
+        // Paginación
+        pagination: {
+            currentPage: 1,
+            perPage: 6
+        },
+        // Búsqueda
+        filter: '',
+        // Campos Equipo
+        comentariosFields: [
+            {
+                label: 'Nombre',
+                key: 'comment_title'
+            },
+            {
+                label: 'Descripción',
+                key: 'comment_description'
+            },
+            {
+                label: 'Creación',
+                key: 'comment_date'
+            },
+            {
+                label: '',
+                key: 'acciones'
+            }
+        ],
+        teamFields: [
+            {
+                label: 'Nombre',
+                key: 'team_name'
+            },
+            {
+                label: 'cantidad',
+                key: 'team_miembros'
+            }
+        ]
     },
     created(){
         if(window.location.pathname.substr(1, 17) == "reportes/proyecto"){
             this.proyectoID = window.location.pathname.substr(19);
+            console.log("1");
             this.listadoGeneral();
+            console.log("1.5");
+            this.listadoDecisiones();
+            console.log("2");
             this.listadoTareas();
-            this.listadoComentarios();
+            console.log("3");
+            this.listadoComentarios(); 
+            console.log("4");
+            this.listadoEquipos();
+            console.log("5");
             this.generarMapa(0);
-            
+            console.log("6");
+
         }
 
     },
     methods: {
         listadoGeneral(){
-
+            console.log("Va a hacer el axios");
             axios({
                 url: '/proyectos/detail/'+ this.proyectoID,
                 method: 'GET',
@@ -65,14 +87,14 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
-                console.log(response.data)
-                console.log("respondió" + response.data.detail.proyecto)
                 if(response.data.code == 200 && response.data.status == 'success'){
-
                     this.proyecto = response.data.detail.proyecto;
-                    console.log(this.proyecto)
+                    this.tareas2 = response.data.detail.tareas;
+                    this.cargarDimensionesDeProyectoEnMapa();
                 }
             });
+        },
+        listadoDecisiones(){
             axios({
                 url: '/decisiones/reportes/'+ this.proyectoID,
                 method: 'GET',
@@ -88,9 +110,9 @@ proyectoReporte = new Vue({
             });
         },
         listadoTareas(){
-
             axios({
-                url: '/proyectos/'+this.proyectoID+'/tareas/',
+                
+                url: '/proyectos/details/'+this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -98,33 +120,33 @@ proyectoReporte = new Vue({
             })
             .then(response => {
 
-                if(response.data.code == 200 && response.data.status == 'success' && response.data.data.length > 0){
-
-                    this.tareas = response.data.data;
-
+                if(response.data.code == 200 && response.data.status == 'success' && response.data.detail.tareas.length > 0){
+                    this.tareas = response.data.detail.tareas;
                 }
             });
         }, 
         listadoComentarios(){
-
             axios({
-                url: '/comentario/list/',
-                data: this.datas(this.proyectoID),
+                url: '/comentario/list/'+ this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
                 }
             })
             .then(response => {
-
                 if(response.data.code == 200 && response.data.status == 'success'){
-
-                    this.comentarios = response.data.data;
+                    this.comentarios = response.data.comentarios;
                 }
             });
-        },listadoEquipos(){
+        },
+        datas () {
+            return {
+            id: this.proyectoID
+            }
+        },
+        listadoEquipos(){
             axios({
-                url: '/equipos/proyecto/'+ this.proyectoID,
+                url: '/equipos/list/'+ this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -132,25 +154,230 @@ proyectoReporte = new Vue({
             })
             .then(response => {
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    this.plantillas = response.data.data;
+                    this.equipos = response.data.equipo;
                 }
             })
         },
-        generarMapa(timeout, coordenadas){
+        cargarMapa(layer){
 
+            //this.restablecerMapa();
             window.setTimeout(() => {
 
-                let mapObject = L.map('dimension').setView([3.450572, -76.538705], 13);
+                if(layer){
+                    L.geoJSON(layer,
+                    {
+                        style: (feature) => {
+                            return {color: feature.properties.color}
+                        }
+                    })
+                    .bindPopup(function (layer) {
+                        return layer.feature.properties.description;
+                    })
+                    .addTo(this.mapObject)
+                    console.log("Se supone que cambió");
 
+                }
+            }, 1000);
+
+        },
+        almacenarComentario(){
+            //this.almacenamientoDecision.userid = getUser().userid;
+            var queryString = Object.keys(this.almacenamientoComentario).map(key => {
+                return key + '=' + this.almacenamientoComentario[key]
+            }).join('&');
+            this.loader(true);
+            axios({
+                method: 'post',
+                url: '/comentario/store/'+ this.proyectoID,
+                data: queryString,
+                headers: {
+                    'Content-type': 'application/x-www-form-urlencoded',
+                    Authorization: getToken()
+                }
+            })
+            .then(response => {
+
+                $("#agregar-comentario").modal('hide')
+                this.almacenamientoComentario = {};
+                this.listadoComentarios(); //HACER
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Exito!',
+                  text: 'Comentario creado satisfactoriamente',
+                  type: 'success',
+                  confirmButtonText: 'Acepto'
+                });
+            })
+            .catch(response => {
+
+                $("#agregar-comentario").modal('hide')
+                this.almacenamientoDecision = {};
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  type: 'error',
+                  confirmButtonText: 'Acepto'
+                });
+            });
+        },
+        loader(status){
+            this.loading = status;
+        },
+        cambioVista(vista){
+
+            if(vista == 1){
+
+                this.vistaGeneral = true;
+                this.vistaTareas = false;
+                this.vistaComentarios = false;
+
+            } else if(vista == 2){
+
+                this.vistaGeneral = false;
+                this.vistaTareas = true;
+                this.vistaComentarios = false;
+            } else{
+
+                this.vistaGeneral = false;
+                this.vistaTareas = false;
+                this.vistaComentarios = true;
+            }
+        },
+        detalle(id){
+
+            location.href = '/reportes/' + id + '/detalle/';
+        },
+        eliminarComentario(id){
+
+            Swal.fire({
+              title: 'Estas seguro que quiere borrar el comentario?',
+              text: "No lo puedes revertir",
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Acepto!'
+
+            }).then((result) => {
+
+              if (result.value) {
+
+                this.loader(true);
+
+                axios({
+                    method: 'delete',
+                    url: '/comentario/delete/' + id,
+                    headers: {
+                        Authorization: getToken()
+                    }
+                })
+                .then(response => {
+
+                    this.listadoComentarios;
+
+                    this.loader(true);
+
+                    Swal.fire(
+                      'Eliminado!',
+                      'El comentario fue eliminado de forma exitosa',
+                      'success'
+                    );
+                })
+                .catch(response => {
+
+                     this.listadoProyectos();
+
+                     this.loader(false);
+
+                     Swal.fire(
+                      'Error!',
+                      'Ocurrio un error por favor intenta eliminar el comentario de nuevo',
+                      'error'
+                    );
+                });
+              }
+            });
+        },
+        cargarDimensionesDeProyectoEnMapa(){
+            console.log(this.proyecto);
+            console.log("va a validar si tiene la propiedad dimensiones territoriales");
+
+            if(this.proyecto.hasOwnProperty('dimensiones_territoriales')){
+                console.log("Si tiene dimensiones");
+
+                dimensiones = this.proyecto.dimensiones_territoriales;
+                cantidadDimensiones = this.proyecto.dimensiones_territoriales.length;
+
+                if(cantidadDimensiones > 0){
+                    console.log("hay por lo menos una dimensión");
+                    features = []
+
+                    for(let i=0; i<cantidadDimensiones; i++){
+                        const randomColor = Math.floor(Math.random()*16777215).toString(16);
+                        // Añadiendo Dimensiones geográficas
+                        let feature = JSON.parse(dimensiones[i].dimension_geojson)
+                        feature.properties = {
+                            color: "#"+randomColor,
+                            description: dimensiones[i].dimension_name,
+                            dimensionid: dimensiones[i].dimension_id,
+                            id: this.proyecto.proj_id,//dimensiones[i].proyid,
+                            type: 'dimension'
+                        }
+
+                        features.push(feature)
+
+                        tareas = this.tareas2//dimensiones[i].tareas;
+                        cantidadTareas = tareas.length//dimensiones[i].tareas.length;
+
+                        if(cantidadTareas > 0){
+                            
+                            for(let j=0; j<cantidadTareas; j++){
+
+                                let feature = JSON.parse(tareas[j].dimension_geojson)
+                                feature.properties = {
+                                    color: '#F4B821',
+                                    description: tareas[j].task_name,
+                                    id: tareas[j].task_id,
+                                    type: 'tarea'
+                                }
+
+                                features.push(feature)
+                            }
+                        }
+                    }
+
+                    let geojson = {
+                        type: "FeatureCollection",
+                        features: features
+                    }
+                    console.log("Va cambiarlo");
+                    this.cargarMapa(geojson);
+
+                } else{
+
+                    this.cargarMapa();
+                }
+            }
+
+        },
+        generarMapa(timeout, coordenadas) {
+
+            window.setTimeout(() => {
+                let mapObject = L.map('dimension').setView([3.450572, -76.538705], 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 }).addTo(mapObject);
 
                 L.tileLayer.wms('http://ws-idesc.cali.gov.co:8081/geoserver/wms?service=WMS', {
-                  layers: 'idesc:mc_barrios',
-                  format: 'image/png',
-                  transparent: !0,
-                  version: '1.1.0'
+                    layers: 'idesc:mc_barrios',
+                    format: 'image/png',
+                    transparent: !0,
+                    version: '1.1.0'
                 }).addTo(mapObject);
 
                 var editableLayers = new L.FeatureGroup();
@@ -200,13 +427,13 @@ proyectoReporte = new Vue({
 
                 mapObject.on(L.Draw.Event.DELETED, (e) => {
 
-                     if(this.cantidadAreasMapa(editableLayers) == 0){
+                    if (this.cantidadAreasMapa(editableLayers) == 0) {
 
                         this.delimitacionGeografica.geojson = null;
-                     }
+                    }
                 });
 
-                if(coordenadas){
+                if (coordenadas) {
 
                     L.polygon(coordenadas).addTo(mapObject);
                 }
@@ -215,108 +442,32 @@ proyectoReporte = new Vue({
 
             }, timeout);
         },
-        //tareasXTipo(proyectoID){
-//
-        //    return new Promise((resolve,reject) => {
-//
-        //        axios({
-        //            url: '/estadisticas/' + proyectoID + '/tareas-x-tipo/',
-        //            method: 'GET',
-        //            headers: {
-        //                Authorization: getToken()
-        //            }
-        //        })
-        //        .then(response => {
-//
-//
-        //            
-        //        })
-        //    })
-        //},
-        //tareasXEstado(proyectoID){
-//
-        //    return new Promise((resolve,reject) => {
-//
-        //        axios({
-        //            url: '/estadisticas/' + proyectoID + '/tareas-x-estado/',
-        //            method: 'GET',
-        //            headers: {
-        //                Authorization: getToken()
-        //            }
-        //        })
-        //        .then(response => {
-//
-        //            if(response.data.code == 200 && response.data.status == 'success'){
-//
-        //                let data = response.data.data;
-//
-        //                let ctx = document.getElementById("tareas-x-estado").getContext('2d')
-        //                new Chart(ctx, {
-        //                    type: 'doughnut',
-        //                    data: {
-        //                      labels: data.estados,
-        //                      datasets: [
-        //                        {
-        //                          label: "Tareas Por Estado",
-        //                          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-        //                          data: data.cantidad
-        //                        }
-        //                      ]
-        //                    },
-        //                    options: {
-        //                      title: {
-        //                        display: true,
-        //                        text: 'Tareas Por Estado'
-        //                      }
-        //                    }
-        //                });
-//
-        //                resolve("");
-//
-        //            } else{
-//
-        //                reject("");
-        //            }
-        //        })
-        //    });
-        //},
-        cambioVista(vista){
 
-            if(vista == 1){
-
-                this.vistaGeneral = true;
-                this.vistaTareas = false;
-                this.vistaComentarios = false;
-
-            } else if(vista == 2){
-
-                this.vistaGeneral = false;
-                this.vistaTareas = true;
-                this.vistaComentarios = false;
-            } else{
-
-                this.vistaGeneral = false;
-                this.vistaTareas = false;
-                this.vistaComentarios = true;
-            }
-        },
-        detalle(id){
-
-            location.href = '/reportes/' + id + '/detalle/';
-        }
     },
     computed: {
-        filteredTeams(){
+        filteredComments(){
             var filter = this.filter && this.filter.toLowerCase();
-            var plantillas = this.plantillas;
+            var comentarios = this.comentarios
             if(filter){
-                var plantillas = plantillas.filter((row) => {
+                var comentarios = comentarios.filter((row) => {
                     return Object.keys(row).some((key) => {
                         return String(row[key]).toLowerCase().indexOf(filter) > -1;
                     });
                 });
             }
-            return plantillas;
+            return comentarios;
+        },
+        filteredTeams(){
+            var filter = this.filter && this.filter.toLowerCase();
+            var equipos = this.equipos
+            if(filter){
+                var equipos = equipos.filter((row) => {
+                    return Object.keys(row).some((key) => {
+                        return String(row[key]).toLowerCase().indexOf(filter) > -1;
+                    });
+                });
+            }
+            return equipos;
         }
     }
 });

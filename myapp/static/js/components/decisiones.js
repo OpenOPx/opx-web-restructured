@@ -99,7 +99,7 @@ let decision = new Vue({
 
                 Swal.fire({
                   title: 'Error!',
-                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  text: 'Ya existe una decisión con el nombre digitado, verifica la información',
                   type: 'error',
                   confirmButtonText: 'Acepto'
                 });
@@ -147,7 +147,7 @@ let decision = new Vue({
 
                      Swal.fire(
                       'Error!',
-                      'Ocurrio un error por favor intenta de nuevo',
+                      'No es posible eliminar la decisión debido a que está vinculada a un proyecto',
                       'error'
                     );
                 });
@@ -189,7 +189,7 @@ let decision = new Vue({
 
                 Swal.fire(
                     'Error!',
-                    'Ocurrio un error. Por favor intenta de nuevo',
+                    'Ya existe una decisión con el nombre digitado, verifica la información',
                     'error'
                 );
             });

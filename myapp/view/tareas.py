@@ -209,16 +209,27 @@ def listadoTareas(request):
         # Superadministrador
         if str(person.role_id) == ROL_SUPER_ADMIN:
             tareasUsuario = []
-            n = "SELECT tk.* FROM opx.task as tk;"
+            n="select tk.* from opx.task as tk order by tk.task_creation_date DESC;"
 
         # Consulta de proyectos para un usuario proyectista
         elif str(person.role_id) == ROL_PROYECTISTA:
-            n = "select tk.*, restric.* from opx.person as persona inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id inner join opx.task as tk on tk.project_id = proyecto.proj_id inner join opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id where persona.pers_id = '"+ str(person.pers_id)+"';"
+            n="select tk.*, restric.* \
+                from opx.person as persona  \
+                inner join opx.project as proyecto on proyecto.proj_owner_id = persona.pers_id  \
+                inner join opx.task as tk on tk.project_id = proyecto.proj_id \
+                inner join opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id  \
+                where persona.pers_id = '"+str(person.pers_id)+"' order by tk.task_creation_date DESC;"
 
         # Consulta de proyectos para un usuario voluntario o validador
         elif str(person.role_id) == ROL_VOLUNTARIO or str(person.pers_id) == ROL_VALIDADOR:
-            n = "SELECT DISTINCT tk.*, restric.* FROM opx.person AS person INNER JOIN opx.team_person AS tp ON person.pers_id =tp.person_id INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id INNER JOIN opx.task AS tk ON tk.project_id = pt.project_id INNER JOIN opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id WHERE person.pers_id = '"+str(person.pers_id)+"';"
-      
+            n="select distinct tk.*, restric.* \
+                from opx.person as person \
+                inner join opx.team_person as tp on person.pers_id = tp.person_id \
+                inner join opx.project_team as pt on tp.team_id = pt.team_id \
+                inner join opx.task as tk on tk.project_id = pt.project_id \
+                inner join opx.task_restriction as restric on tk.task_restriction_id = restric.restriction_id \
+                where person.pers_id = '"+str(person.pers_id)+"' order by tk.task_creation_date DESC;"   
+
       # ================ Obtener página validación de la misma ========================
         page = request.GET.get('page')
 

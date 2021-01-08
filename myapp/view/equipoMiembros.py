@@ -47,8 +47,11 @@ def listadoMiembros(request, planid):
     try:
         #miembrosPlantilla = MiembroPlantilla.objects.filter(planid__exact=planid).values()
         with connection.cursor() as cursor:
-            query = "select mp.teampers_id, u.* from opx.team_person mp inner join opx.person u on u.pers_id = mp.person_id " \
-                    "where mp.team_id = '" + planid + "' order by u.pers_name ASC"
+            query = "select mp.teampers_id, u.*, nei.neighb_name \
+                    from opx.team_person as mp \
+                    inner join opx.person as u on u.pers_id = mp.person_id  \
+                    inner join opx.neighborhood as nei on nei.neighb_id = u.neighborhood_id \
+                    where mp.team_id = '"+planid+"' order by u.pers_score DESC"
 
             cursor.execute(query)
 
@@ -153,9 +156,10 @@ def miembrosDisponibles(request, planid):
         # Busqueda de Usuarios
         search = request.GET.get('search')
 
-        query = "select u.user_id, u.pers_name, u.pers_lastname from opx.person u where \
-                (u.role_id = '0be58d4e-6735-481a-8740-739a73c3be86' or u.role_id = '53ad3141-56bb-4ee2-adcf-5664ba03ad65') and u.isactive = 1 \
-                and u.pers_id not in (select mp.person_id from opx.team_person mp where mp.team_id = '"+ planid +"')"
+        query = "select u.user_id, u.pers_name, u.pers_lastname, u.pers_score, nei.neighb_name \
+                from opx.person u \
+                inner join opx.neighborhood as nei on nei.neighb_id = u.neighborhood_id \
+                where (u.role_id = '0be58d4e-6735-481a-8740-739a73c3be86' or u.role_id = '53ad3141-56bb-4ee2-adcf-5664ba03ad65') and u.isactive = 1 and u.pers_id not in (select mp.person_id from opx.team_person mp where mp.team_id = '"+planid+"') order by u.pers_score DESC"
 
         if search is not None:
             query += "and u.pers_name ~* '" + search + "'"

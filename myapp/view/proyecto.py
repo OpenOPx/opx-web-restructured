@@ -275,7 +275,6 @@ def almacenamientoProyecto(request):
                 raise ValidationError({'Información incompleta'})
 
     except ValidationError as e:
-        proyecto.delete()
         try:
             errors = dict(e)
         except ValueError:
@@ -906,7 +905,15 @@ def detalleProyectoMovil(request, proyid):
 
         with connection.cursor() as cursor:
             cursor.execute(queryProyecto)
-            infoPj = dictfetchall(cursor)   
+            infoPj = dictfetchall(cursor)
+        infoPj[0]['dimensiones_territoriales'] = []
+
+        query = "select dim.* from opx.territorial_dimension as dim inner join opx.project_dimension as pd on pd.territorial_dimension_id = dim.dimension_id where pd.project_id = '"+ str(infoPj[0]['proj_id']) +"';"
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            territorios = dictfetchall(cursor)
+            infoPj[0]['dimensiones_territoriales'] = list(territorios)   
             
         with connection.cursor() as cursor:
             cursor.execute(queryTareas)

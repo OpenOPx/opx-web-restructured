@@ -40,10 +40,15 @@ from myapp.view.utilidades import usuarioAutenticado
 #
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def listadoComentarios(request):
-    comentarios = models.Comment.objects.filter(project__proj_id__exact = request.POST.get('pjId'))
-    comentarios = list(comentarios.values())
-    return JsonResponse(list(comentarios), safe = False)
+def listadoComentarios(request, projid):
+    comentariosFiltrados = models.Comment.objects.filter(project__proj_id__exact = projid)
+    comentarios = list(comentariosFiltrados.values())
+    data = {
+        'code': 200,
+        'comentarios': comentarios,
+        'status': 'success'
+    }
+    return JsonResponse(data, safe = False)
 
 ##
 # @brief Recurso de creación de plantilla de equipo
@@ -53,13 +58,13 @@ def listadoComentarios(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def crearComentario(request):
-
+def crearComentario(request, projid):
+    print(request.POST.get('comment_title'))
     user = usuarioAutenticado(request)
     comentario = models.Comment(
-        comment_title = request.POST.get('tituloComentario'), 
-        comment_description = request.POST.get('descripcionComentario'),
-        project = models.Project.objects.get(pk = (request.POST.get('idPj')))
+        comment_title = request.POST.get('comment_title'), 
+        comment_description = request.POST.get('comment_description'),
+        project = models.Project.objects.get(pk = projid)
     )
 
     try:
@@ -90,9 +95,9 @@ def crearComentario(request):
 #
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
-def eliminarComentario(request):
+def eliminarComentario(request, comid):
     try:
-        comentario = models.Comment.objects.get(pk=request.POST.get('commentid'))
+        comentario = models.Comment.objects.get(pk=comid)
         
         comentario.delete()
 
