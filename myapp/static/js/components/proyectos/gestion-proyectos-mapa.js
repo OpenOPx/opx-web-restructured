@@ -11,6 +11,9 @@ gestionProyecto = new Vue({
         tareaGestion: {},
         capaEdicion: '',
         tareaEdicion: false,
+        dimensionesBarrios: [],
+        barrioSeleccionadoId: '',
+        dimensionTareaBarrio: {},
         acciones: {
             objetivo: false,
             tiempo: false,
@@ -37,7 +40,7 @@ gestionProyecto = new Vue({
     created(){
 
         if(window.location.pathname == '/proyectos/gestion/'){
-
+            this.cargarDimensionesBarrios()
             this.cargarMapa();
             this.obtenerProyectos();
             setTimeout(() => this.ubicacionEquipoProyecto(), 1000);
@@ -76,7 +79,7 @@ gestionProyecto = new Vue({
                                 this.capaEdicion = feature.properties;
 
                                 if(feature.properties.type == 'dimension'){
-
+                                    this.datosCambioTerritorial.geojson = JSON.stringify(feature)
                                     this.acciones.objetivo = false;
                                     this.acciones.tiempo = true;
                                     this.acciones.territorio = true;
@@ -920,6 +923,22 @@ gestionProyecto = new Vue({
                 })
             })
 
+        },
+        cargarDimensionesBarrios(){
+            axios({
+                url: '/dimensionesPre/',
+                method: 'GET',
+                headers: {
+                    Authorization: getToken()
+                }
+            }).then(response => {
+                this.dimensionesBarrios = response
+            }).catch(()=> {
+                console.error("error al cargar dimensiones barrios")
+            })
+        },
+        cargarDimensionBarrio(dimensionid){
+            alert(dimensionid)
         },
         closeModalCambioTerritorio(){
             $("#gestion-territorio-proyecto").modal('hide');

@@ -124,6 +124,10 @@
                     <div class="modal-body">
                         <div align="center" v-if="gestionTerritorial.areaDimensionTerritorial">
                             <p>Por favor selecciona una nueva area en la que se va a ejecutar el proyecto o presiona en siguiente para usar la misma</p>
+                            <select v-model="barrioSeleccionadoId" @change="cargarDimensionBarrio(barrioSeleccionadoId)" name="" id="" class="form-control">
+                                <option value="">Seleccione una dimensión</option>
+                                <option v-for="barrio in dimensionesBarrios" :value="barrio.dimension_id"> [[ barrio.dimension_name ]] </option>
+                            </select>
                             <div id="mapa-dimension-territorial"></div>
                             <button :disabled="!datosCambioTerritorial.geojson" @click="paso2GestionTerritorial()" class="btn">Siguiente</button>
                         </div>
