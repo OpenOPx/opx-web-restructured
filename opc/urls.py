@@ -115,7 +115,7 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    path('proyectos/movil/<str:proyid>', proyecto.actualizarProyectoMovil), #OK OK JM
+    path('proyectos/basic-update/<str:proyid>', proyecto.actualizarProyectoBasic), #OK OK JM
     path('proyectos/details/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
     path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
@@ -242,6 +242,9 @@ urlpatterns = [
 
     path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl), #OK OK LEO
     path('notificaciones/list/', notificaciones.getPersonNotifications), # LF Gestion de cambios
-    path('dimensiones/list/', territorialDimension.listadoDimensionesPrecargadas),
+    path('notificaciones/delete/', notificaciones.deletePersonNotifications),
+    #=========================== Dimensiones ===============================================
+    path('dimensiones/barrios/', territorialDimension.listadoDimensionesBarrios),
+    path('dimensiones/<str:dimension_id>', territorialDimension.getDimensionPreloaded),
     path('proyectos/gestion/dimensiones/<str:dimension_id>/geojson/', territorialDimension.updateGeojson),
 ]

@@ -33,19 +33,28 @@ from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
-def listadoDimensionesPrecargadas(request):
+def listadoDimensionesBarrios(request):
     """
     Retorna el listado de dimensiones territoriales precargadas de acuerdo al tipo
     """
-    dimensions = models.TerritorialDimension.objects.all().values()
+    DIMENSION_TIPO_URBANA = '35b0b478-9675-45fe-8da5-02ea9ef88f1b'
+    query = "select dim.dimension_id, dim.dimension_name \
+            from opx.territorial_dimension as dim \
+            where dim.preloaded = '1' and dim.dimension_type_id = '"+DIMENSION_TIPO_URBANA+"'"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        barriosDimensions = dictfetchall(cursor)
 
-    data = {
-        'code': 200,
-        'status': 'success',
-        'dimensions': list(dimensions),
-    }
+    return JsonResponse(barriosDimensions, safe = False)
 
-    return JsonResponse(data, status=data['code'])
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def getDimensionPreloaded(request, dimension_id):
+    dimension = models.TerritorialDimension.objects.get(pk=dimension_id)
+    dimension = serializers.serialize('python', [dimension])[0]
+
+    return JsonResponse(dimension, safe=False)
+
 
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))

@@ -29,7 +29,8 @@ from rest_framework.permissions import (
 
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
+from myapp.view import notificaciones
+from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall, getPersonsIdByProject
 
 ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
 ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
@@ -511,7 +512,7 @@ def actualizarProyecto(request, proyid):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
-def actualizarProyectoMovil(request, proyid):
+def actualizarProyectoBasic(request, proyid):
     try:
         proyecto = models.Project.objects.get(pk=proyid)
 
@@ -524,6 +525,13 @@ def actualizarProyectoMovil(request, proyid):
         
         proyecto.full_clean()
         proyecto.save()
+
+        change = {
+            'start_date': request.POST.get('proj_start_date'),
+            'end_date': request.POST.get('proj_close_date'),
+        }
+        persons = getPersonsIdByProject(proyid)
+        notificaciones.notify(persons, notificaciones.CAMBIO_FECHA_PROYECTO, None, change, project_name=proyecto.proj_name)
 
         return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
 
@@ -940,6 +948,7 @@ def cambioTerritorio(request, dimensionid):
             project_dimension = models.TerritorialDimension.objects.get(pk=dimensionid)
 
             data = json.loads(request.body)
+            proj_id = data['proj_id']
 
             if 'geojson' in data:
                 #dimensionTerritorialNew = models.DelimitacionGeografica(proyid=dimensionTerritorialOld.proyid, nombre=dimensionTerritorialOld.nombre, geojson=data['geojson'])
@@ -984,8 +993,13 @@ def cambioTerritorio(request, dimensionid):
         proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
 
         # Envío de Notificaciones
-        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)
-        """
+        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)"""
+        project = models.Project.objects.get(pk=proj_id)
+        change = {
+            'proj_name': project.proj_name
+        }
+        personsid = getPersonsIdByProject(proj_id)
+        notificaciones.notify(personsid, notificaciones.CAMBIO_DIMENSION_TERRITORIAL, None, change, project_name=project.proj_name)
 
     except ObjectDoesNotExist:
         response = {

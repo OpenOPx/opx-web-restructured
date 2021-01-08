@@ -4,6 +4,7 @@ gestionProyecto = new Vue({
     data: {
         informacionProyecto: "",
         map: {},
+        mapaProyecto: {},
         mapaTarea: {},
         proyectos: [],
         proyectoSeleccionado: {},
@@ -14,6 +15,7 @@ gestionProyecto = new Vue({
         dimensionesBarrios: [],
         barrioSeleccionadoId: '',
         dimensionTareaBarrio: {},
+        equiposURL: '',
         acciones: {
             objetivo: false,
             tiempo: false,
@@ -27,7 +29,8 @@ gestionProyecto = new Vue({
         },
         datosCambioTerritorial: {
             geojson: false,
-            tareas: []
+            tareas: [],
+            proj_id: '',
         },
         // Gestión de Equipos
         equipoProyecto: [],
@@ -80,6 +83,7 @@ gestionProyecto = new Vue({
 
                                 if(feature.properties.type == 'dimension'){
                                     this.datosCambioTerritorial.geojson = JSON.stringify(feature)
+                                    this.datosCambioTerritorial.proj_id = this.capaEdicion.id
                                     this.acciones.objetivo = false;
                                     this.acciones.tiempo = true;
                                     this.acciones.territorio = true;
@@ -109,7 +113,7 @@ gestionProyecto = new Vue({
         },
         cargarMapaDimensionTerritorial(){
 
-            map = L.map('mapa-dimension-territorial',  {
+            this.mapaProyecto = L.map('mapa-dimension-territorial',  {
                 center: [3.450572, -76.538705],
                 drawControl: false,
                 zoom: 11
@@ -117,18 +121,18 @@ gestionProyecto = new Vue({
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            }).addTo(map);
+            }).addTo(this.mapaProyecto);
 
             L.tileLayer.wms('http://ws-idesc.cali.gov.co:8081/geoserver/wms?service=WMS', {
               layers: 'idesc:mc_barrios',
               format: 'image/png',
               transparent: !0,
               version: '1.1.0'
-            }).addTo(map);
+            }).addTo(this.mapaProyecto);
 
             var editableLayers = new L.FeatureGroup();
 
-            map.addLayer(editableLayers);
+            this.mapaProyecto.addLayer(editableLayers);
 
             var options = {
                 // position: 'topright',
@@ -157,9 +161,9 @@ gestionProyecto = new Vue({
 
             var drawControl = new L.Control.Draw(options);
 
-            map.addControl(drawControl);
+            this.mapaProyecto.addControl(drawControl);
 
-            map.on(L.Draw.Event.CREATED, (e) => {
+            this.mapaProyecto.on(L.Draw.Event.CREATED, (e) => {
                 type = e.layerType;
                 layer = e.layer;
 
@@ -171,7 +175,7 @@ gestionProyecto = new Vue({
                 }
             });
 
-            map.on(L.Draw.Event.DELETED, (e) => {
+            this.mapaProyecto.on(L.Draw.Event.DELETED, (e) => {
 
                  if(this.cantidadAreasMapa(editableLayers) == 0){
 
@@ -240,6 +244,7 @@ gestionProyecto = new Vue({
             this.mapaTarea.addControl(drawControl);
 
             this.mapaTarea.on(L.Draw.Event.CREATED, (e) => {
+                console.log(e)
                 type = e.layerType;
                 layer = e.layer;
 
@@ -310,6 +315,7 @@ gestionProyecto = new Vue({
         cargarInformacionProyecto(informacionProyecto){
 
             this.proyectoSeleccionado = informacionProyecto;
+            this.proyectoGestion = informacionProyecto;
 
             if(informacionProyecto.hasOwnProperty('dimensiones_territoriales')){
 
@@ -459,7 +465,7 @@ gestionProyecto = new Vue({
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.proyectoGestion = response.data.detail.proyecto;
-                    this.proyectoGestion['proyid'] = this.capaEdicion.id;
+                    this.proyectoGestion['proj_id'] = this.capaEdicion.id;
                     $("#gestion-proyecto").modal('show');
                 }
             })
@@ -487,7 +493,7 @@ gestionProyecto = new Vue({
                 .join('&');
 
             axios({
-                url: '/proyectos/' + this.proyectoGestion.proyid,
+                url: '/proyectos/basic-update/' + this.proyectoGestion.proj_id,
                 method: 'POST',
                 data: queryString,
                 headers: {
@@ -509,7 +515,7 @@ gestionProyecto = new Vue({
                 });
             })
             .catch(() => {
-
+                this.loader(false)
                 $("#gestion-proyecto").modal('hide');
 
                 Swal.fire({
@@ -805,7 +811,7 @@ gestionProyecto = new Vue({
             });
         },
         gestionEquipoProyecto(){
-
+            this.equiposURL = "/equipos/proyecto/"+this.capaEdicion.id//0eb624c4-2627-4067-8a04-38b13cc21ced"
             this.obtenerEquipoProyecto(this.capaEdicion.id);
             this.obtenerUsuariosDisponiblesProyecto(this.capaEdicion.id);
 
@@ -926,19 +932,63 @@ gestionProyecto = new Vue({
         },
         cargarDimensionesBarrios(){
             axios({
-                url: '/dimensionesPre/',
+                url: '/dimensiones/barrios/',
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
                 }
             }).then(response => {
-                this.dimensionesBarrios = response
+                this.dimensionesBarrios = response.data
             }).catch(()=> {
                 console.error("error al cargar dimensiones barrios")
             })
         },
         cargarDimensionBarrio(dimensionid){
-            alert(dimensionid)
+            this.loader(true)
+            axios({
+                url: '/dimensiones/'+dimensionid,
+                method: 'GET',
+                headers: {
+                    Authorization: getToken()
+                }
+            }).then(response => {
+                this.cargarPoligonoPrecargado(response.data)
+                this.loader(false)
+            }).catch(()=> {
+                this.loader(false)
+                console.error("error al cargar dimension del barrio")
+            })
+        },
+        cargarPoligonoPrecargado(dimension){
+            this.mapaProyecto.remove()
+            this.cargarMapaDimensionTerritorial()
+            feature_proj = JSON.parse(dimension.fields.dimension_geojson)
+            this.datosCambioTerritorial.geojson = dimension.fields.dimension_geojson
+            feature_proj.properties = {
+                color: '#0CBAEF',
+                description: dimension.fields.dimension_name,
+                id: dimension.pk,
+                type: 'dimension'
+            }
+            let geojson = {
+                type: "FeatureCollection",
+                features: [feature_proj]
+            }
+            window.setTimeout(() => {
+
+                if(geojson){
+                    L.geoJSON(geojson,
+                    {
+                        style: (feature) => {
+                            return {color: feature.properties.color}
+                        }
+                    })
+                    .bindPopup(function (layer) {
+                        return layer.feature.properties.description;
+                    })
+                    .addTo(this.mapaProyecto)
+                }
+            }, 500);
         },
         closeModalCambioTerritorio(){
             $("#gestion-territorio-proyecto").modal('hide');

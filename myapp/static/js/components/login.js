@@ -36,7 +36,7 @@ let login = new Vue({
                 })
                 .then(response => {             
                     sessionStorage.setItem('userinfo', JSON.stringify(response.data));
-
+                    localStorage.setItem('userinfo', JSON.stringify(response.data));
                     this.loader(false);
 
                     /*document.cookie = "csrftoken=wG2xUInpzPR787Bz8FXDIONSDYoemwW3;domain=http://kf.oim-opc.pre;path=/"

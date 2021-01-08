@@ -97,14 +97,14 @@
                             <div class="form-group row">
                                 <div class="col-sm-6">
                                     <label for="">Fecha Inicio</label>
-                                    <input v-model="proyectoGestion.proyfechainicio" type="date" name="" id="" class="form-control">
+                                    <input v-model="proyectoGestion.proj_start_date" type="date" name="" id="" class="form-control">
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="">Fecha Fin</label>
-                                    <input v-model="proyectoGestion.proyfechacierre" type="date" name="" id="" class="form-control">
+                                    <input v-model="proyectoGestion.proj_close_date" type="date" name="" id="" class="form-control">
                                 </div>
                                 <div align="center" class="col-md-12">
-                                    <button :disabled="(proyectoGestion.proyfechainicio && proyectoGestion.proyfechainicio.length == 0) && (proyectoGestion.proyfechacierre && proyectoGestion.proyfechacierre.length > 0)" @click="edicionTiempoProyecto()" class="btn" type="button">Guardar</button>
+                                    <button :disabled="(proyectoGestion.proj_start_date && proyectoGestion.proj_close_date.length == 0) && (proyectoGestion.proyfechacierre && proyectoGestion.proyfechacierre.length > 0)" @click="edicionTiempoProyecto()" class="btn" type="button">Guardar</button>
                                 </div>
                             </div>
                         </form>
@@ -171,6 +171,8 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="row">
+                                <iframe :src="equiposURL" width="860" height="315" frameborder="0"></iframe>
+                            <!--
                                 <div class="col-md-6">
                                     <table class="table table-responsive">
                                         <thead>
@@ -203,6 +205,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                -->
                             </div>
                         </div>
                     </div>
