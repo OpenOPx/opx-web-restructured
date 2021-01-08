@@ -25,7 +25,7 @@
                         <label for="">Seleccione Un Proyecto</label>
                         <select v-model="informacionProyecto" @change="cargarInformacionProyecto(informacionProyecto)" name="" id="" class="form-control">
                             <option value="">Seleccione un Proyecto</option>
-                            <option v-for="proyecto in proyectos" :value="proyecto"> [[ proyecto.proynombre ]] </option>
+                            <option v-for="proyecto in proyectos" :value="proyecto"> [[ proyecto.proj_name ]] </option>
                         </select>
                     </div>
                 </form>
@@ -119,11 +119,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Cambio de Territorio</h3>
-                        <div class="button close" data-dismiss="modal">&times;</div>
+                        <div @click="closeModalCambioTerritorio()" class="button close" data-dismiss="modal">&times;</div>
                     </div>
                     <div class="modal-body">
                         <div align="center" v-if="gestionTerritorial.areaDimensionTerritorial">
-                            <p>Por favor Delimita el area en la que se va a ejecutar el proyecto</p>
+                            <p>Por favor selecciona una nueva area en la que se va a ejecutar el proyecto o presiona en siguiente para usar la misma</p>
                             <div id="mapa-dimension-territorial"></div>
                             <button :disabled="!datosCambioTerritorial.geojson" @click="paso2GestionTerritorial()" class="btn">Siguiente</button>
                         </div>
@@ -139,7 +139,7 @@
                                     <th>Estado</th>
                                 </tr>
                                 <tr v-for="tarea in datosCambioTerritorial.tareas">
-                                    <td> [[ tarea.tarenombre ]] </td>
+                                    <td> [[ tarea.task_name ]] </td>
                                     <td> <button @click="paso3GestionTerritorial(tarea)" class="btn"> Editar </button> </td>
                                     <td :inner-html.prop="tarea.redimensionado | estadoTareasRedimension"></td>
                                 </tr>
@@ -148,7 +148,8 @@
                         </div>
                         <div align="center" v-if="gestionTerritorial.areaTarea">
                             <div id="mapa-tarea"></div>
-                            <button :disabled="!tareaEdicion" @click="paso2GestionTerritorial()" class="btn">Volver</button>
+                            <button @click="paso2GestionTerritorial()" class="btn">Volver</button>
+                            <button :disabled="!tareaEdicion" @click="paso2GestionTerritorial()" class="btn">Siguiente</button>
                         </div>
                     </div>
                 </div>

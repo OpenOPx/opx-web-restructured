@@ -30,7 +30,12 @@ from rest_framework.permissions import (
 
 from myapp import models
 from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
- 
+
+ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
+ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
+ROL_VOLUNTARIO = '0be58d4e-6735-481a-8740-739a73c3be86'
+ROL_VALIDADOR = '53ad3141-56bb-4ee2-adcf-5664ba03ad65'
+
 ##
 # @brief Función que provee una plantilla HTML para la gestión de proyectos
 # @param request Instancia HttpRequest
@@ -76,7 +81,7 @@ def listadoProyectos(request):
             #Consulta de proyectos para super administrador
             person = models.Person.objects.get(user__userid = user.userid)
                 
-            if str(person.role.role_id) == '8945979e-8ca5-481e-92a2-219dd42ae9fc':
+            if str(person.role.role_id) == ROL_SUPER_ADMIN:
                 proyectos = models.Project.objects.all()
                 # Especificando orden
                 proyectos = proyectos.order_by('-proj_creation_date')
@@ -84,7 +89,7 @@ def listadoProyectos(request):
                 proyectos = list(proyectos.values())
 
             # Consulta de proyectos para proyectista
-            elif str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            elif str(person.role.role_id) == ROL_PROYECTISTA:
                 proyectos = models.Project.objects.filter(proj_owner__pers_id__exact = person.pers_id)
                 # Especificando orden
                 proyectos = proyectos.order_by('-proj_creation_date')
@@ -92,7 +97,7 @@ def listadoProyectos(request):
                 proyectos = list(proyectos.values())
 
             # Consulta de proyectos para voluntarios o validadores
-            elif str(person.role.role_id) == '0be58d4e-6735-481a-8740-739a73c3be86' or str(person.role.role_id) == '53ad3141-56bb-4ee2-adcf-5664ba03ad65':
+            elif str(person.role.role_id) == ROL_VOLUNTARIO or str(person.role.role_id) == ROL_VALIDADOR:
 
                 #consultar los proyectos a los que está asociado el voluntario o validador
                 query = "select distinct pj.* from opx.team_person as tp inner join opx.project_team as pt on pt.team_id = tp.team_id inner join opx.project as pj on pt.project_id = pj.proj_id where tp.person_id = '"+str(person.pers_id)+"' order by pj.proj_creation_date DESC;"
@@ -127,7 +132,7 @@ def listadoProyectos(request):
             persona = models.Person.objects.get(pk = p['proj_owner_id'])
             p['proyectista'] = persona.pers_name + ' ' + persona.pers_lastname 
 
-            if 'user' in locals() and str(person.role.role_id) == '628acd70-f86f-4449-af06-ab36144d9d6a':
+            if 'user' in locals() and (str(person.role.role_id) == ROL_PROYECTISTA or str(person.role.role_id) == ROL_SUPER_ADMIN):
 
                 p['dimensiones_territoriales'] = []
 
@@ -138,7 +143,9 @@ def listadoProyectos(request):
                     territorios = dictfetchall(cursor)
                     p['dimensiones_territoriales'] = list(territorios)
 
-                query1 = "select tarea.* from opx.task as tarea where tarea.project_id = '"+str(p['proj_id'])+"';"
+                query1 = "select tarea.*, dim.* from opx.task as tarea \
+                        inner join opx.territorial_dimension as dim on dim.dimension_id = tarea.territorial_dimension_id \
+                        where tarea.project_id = '"+str(p['proj_id'])+"';"
                 with connection.cursor() as cursor:
                     cursor.execute(query1)
                     tareas = dictfetchall(cursor)
@@ -500,6 +507,33 @@ def actualizarProyecto(request, proyid):
     except ValidationError as e:
         return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
 
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarProyectoMovil(request, proyid):
+    try:
+        proyecto = models.Project.objects.get(pk=proyid)
+
+        
+        proyecto.proj_name = request.POST.get('proj_name')
+        proyecto.proj_description = request.POST.get('proj_description')
+        #proyecto.project_type = models.ProjectType.objects.get(projtype_id__exact = request.POST.get('tiproid'))
+        proyecto.proj_start_date = request.POST.get('proj_start_date')
+        proyecto.proj_close_date = request.POST.get('proj_close_date')
+        
+        proyecto.full_clean()
+        proyecto.save()
+
+        return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+
 ##
 # @brief recurso de eliminación de proyectos
 # @param request Instancia HttpRequest
@@ -855,10 +889,11 @@ def detalleProyectoMovil(request, proyid):
         queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity,  \
                         tarea.task_completness, tarea.task_creation_date, tarea.instrument_id, tarea.proj_dimension_id, \
                         tarea.project_id, tarea.task_priority_id, tarea.territorial_dimension_id, territorio.dimension_geojson, \
-                        tarea.task_restriction_id, tarea.task_type_id, tipoTarea.task_type_name \
+                        tarea.task_restriction_id, restric.*, tarea.task_type_id, tipoTarea.task_type_name \
                         from opx.task as tarea \
                         inner join opx.task_type as tipoTarea on tipoTarea.task_type_id = tarea.task_type_id \
                         inner join opx.territorial_dimension as territorio on territorio.dimension_id = tarea.territorial_dimension_id \
+                        inner join opx.task_restriction as restric on restric.restriction_id = tarea.task_restriction_id \
                         where tarea.project_id = '"+proyid+"'"
 
         with connection.cursor() as cursor:
@@ -894,6 +929,79 @@ def detalleProyectoMovil(request, proyid):
 
     return JsonResponse(data, status = data['code'], safe = False)
 
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def cambioTerritorio(request, dimensionid):
+
+    try:
+
+        with transaction.atomic():
+            project_dimension = models.TerritorialDimension.objects.get(pk=dimensionid)
+
+            data = json.loads(request.body)
+
+            if 'geojson' in data:
+                #dimensionTerritorialNew = models.DelimitacionGeografica(proyid=dimensionTerritorialOld.proyid, nombre=dimensionTerritorialOld.nombre, geojson=data['geojson'])
+                #dimensionTerritorialNew.save()
+                project_dimension.dimension_geojson = data['geojson']
+                project_dimension.save()
+                if 'tareas' in data:
+                    for tarea in data['tareas']:
+
+                        #tareaObj = models.Tarea.objects.get(pk=tarea['tareid'])
+                        task_dimension = models.TerritorialDimension.objects.get(pk = tarea['territorial_dimension_id'])
+                        task_dimension.dimension_geojson = tarea['dimension_geojson']
+                        task_dimension.save()
+                        """
+                        if(tarea['dimensionid'] == str(dimensionTerritorialOld.dimensionid)):
+                            tareaObj.geojson_subconjunto = tarea['geojson_subconjunto']
+                            tareaObj.dimensionid = dimensionTerritorialNew.dimensionid
+                            tareaObj.save()
+
+                        else:
+                            raise ValidationError("La Tarea no pertenece a la dimensión")
+
+                    dimensionTerritorialOld.estado = 0
+                    dimensionTerritorialOld.save()"""
+
+                    response = {
+                        'code': 200,
+                        'status': 'success'
+                    }
+
+                else:
+                    raise ValidationError("JSON Inválido")
+
+            else:
+                raise ValidationError("JSON Inválido")
+
+        # =============== Notificación de Gestión de Cambios ======================
+        """
+        usuarios = obtenerEmailsEquipo(dimensionTerritorialNew.proyid)
+
+        # Obteneniendo información del proyecto
+        proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
+
+        # Envío de Notificaciones
+        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)
+        """
+
+    except ObjectDoesNotExist:
+        response = {
+            'code': 404,
+            'status': 'error'
+        }
+
+    except ValidationError as e:
+        response = {
+            'code': 400,
+            'message': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+    
 ##
 # @brief Recurso que provee los integrantes de un proyecto
 # @param request Instancia HttpRequest

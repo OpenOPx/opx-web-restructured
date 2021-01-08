@@ -27,6 +27,10 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
+from myapp.view import (
+    utilidades
+)
+
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 from myapp.view.osm import detalleCartografia
 
