@@ -1,55 +1,66 @@
 proyectoReporte = new Vue({
     el: '#reportes-proyectoindividual',
     delimiters: ['[[', ']]'],
-    almacenamientoPlantilla: {},
-    plantillas: [],
-    deci: [],
-    plantillaEdicion: {},
-    // Paginación
-    pagination: {
-        currentPage: 1,
-        perPage: 6
-    },
-    // Búsqueda
-    filter: '',
-    // Campos Equipo
-    teamFields: [
-        {
-            label: 'Nombre',
-            key: 'team_name'
-        },
-        {
-            label: 'Efectividad',
-            key: 'team_effectiveness'
-        },
-        {
-            label: 'Miembros',
-            key: 'team_miembros'
-        },
-        {
-            label: '',
-            key: 'acciones'
-        }
-    ],
     data: {
-        proyecto: [], 
+        proyecto: [],
+        almacenamientoComentario: {}, 
+        almacenamientoPlantilla: {},
         tareas: [],
         comentarios: [],
         deci: [],
         projectdecision: [],
+        equipos:[],
         proyectoID: '',
         loading: false,
         vistaGeneral: true,
         vistaTareas: false,
-        vistaComentarios: false
+        vistaComentarios: false,
+        plantillas: [],
+        plantillaEdicion: {},
+        // Paginación
+        pagination: {
+            currentPage: 1,
+            perPage: 6
+        },
+        // Búsqueda
+        filter: '',
+        // Campos Equipo
+        comentariosFields: [
+            {
+                label: 'Nombre',
+                key: 'comment_title'
+            },
+            {
+                label: 'Descripción',
+                key: 'comment_description'
+            },
+            {
+                label: 'Creación',
+                key: 'comment_date'
+            },
+            {
+                label: '',
+                key: 'acciones'
+            }
+        ],
+        teamFields: [
+            {
+                label: 'Nombre',
+                key: 'team_name'
+            },
+            {
+                label: 'cantidad',
+                key: 'team_miembros'
+            }
+        ]
     },
     created(){
         if(window.location.pathname.substr(1, 17) == "reportes/proyecto"){
             this.proyectoID = window.location.pathname.substr(19);
             this.listadoGeneral();
             this.listadoTareas();
-            this.listadoComentarios();
-            
+            this.listadoComentarios(); 
+            this.listadoEquipos();
         }
 
     },
@@ -64,12 +75,8 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
-                console.log(response.data)
-                console.log("respondió" + response.data.detail.proyecto)
                 if(response.data.code == 200 && response.data.status == 'success'){
-
                     this.proyecto = response.data.detail.proyecto;
-                    console.log(this.proyecto)
                 }
             });
             axios({
@@ -87,9 +94,9 @@ proyectoReporte = new Vue({
             });
         },
         listadoTareas(){
-
             axios({
-                url: '/proyectos/'+this.proyectoID+'/tareas/',
+                
+                url: '/proyectos/details/'+this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -97,33 +104,33 @@ proyectoReporte = new Vue({
             })
             .then(response => {
 
-                if(response.data.code == 200 && response.data.status == 'success' && response.data.data.length > 0){
-
-                    this.tareas = response.data.data;
-
+                if(response.data.code == 200 && response.data.status == 'success' && response.data.detail.tareas.length > 0){
+                    this.tareas = response.data.detail.tareas;
                 }
             });
         }, 
         listadoComentarios(){
-
             axios({
-                url: '/comentario/list/',
-                data: this.datas(this.proyectoID),
+                url: '/comentario/list/'+ this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
                 }
             })
             .then(response => {
-
                 if(response.data.code == 200 && response.data.status == 'success'){
-
-                    this.comentarios = response.data.data;
+                    this.comentarios = response.data.comentarios;
                 }
             });
-        },listadoEquipos(){
+        },
+        datas () {
+            return {
+            id: this.proyectoID
+            }
+        },
+        listadoEquipos(){
             axios({
-                url: '/equipos/proyecto/'+ this.proyectoID,
+                url: '/equipos/list/'+ this.proyectoID,
                 method: 'GET',
                 headers: {
                     Authorization: getToken()
@@ -131,7 +138,8 @@ proyectoReporte = new Vue({
             })
             .then(response => {
                 if(response.data.code == 200 && response.data.status == 'success'){
-                    this.plantillas = response.data.data;
+                    this.equipos = response.data.equipo;
+                    console.log(this.equipos)
                 }
             })
         },
@@ -214,71 +222,54 @@ proyectoReporte = new Vue({
 
             }, timeout);
         },
-        //tareasXTipo(proyectoID){
-//
-        //    return new Promise((resolve,reject) => {
-//
-        //        axios({
-        //            url: '/estadisticas/' + proyectoID + '/tareas-x-tipo/',
-        //            method: 'GET',
-        //            headers: {
-        //                Authorization: getToken()
-        //            }
-        //        })
-        //        .then(response => {
-//
-//
-        //            
-        //        })
-        //    })
-        //},
-        //tareasXEstado(proyectoID){
-//
-        //    return new Promise((resolve,reject) => {
-//
-        //        axios({
-        //            url: '/estadisticas/' + proyectoID + '/tareas-x-estado/',
-        //            method: 'GET',
-        //            headers: {
-        //                Authorization: getToken()
-        //            }
-        //        })
-        //        .then(response => {
-//
-        //            if(response.data.code == 200 && response.data.status == 'success'){
-//
-        //                let data = response.data.data;
-//
-        //                let ctx = document.getElementById("tareas-x-estado").getContext('2d')
-        //                new Chart(ctx, {
-        //                    type: 'doughnut',
-        //                    data: {
-        //                      labels: data.estados,
-        //                      datasets: [
-        //                        {
-        //                          label: "Tareas Por Estado",
-        //                          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-        //                          data: data.cantidad
-        //                        }
-        //                      ]
-        //                    },
-        //                    options: {
-        //                      title: {
-        //                        display: true,
-        //                        text: 'Tareas Por Estado'
-        //                      }
-        //                    }
-        //                });
-//
-        //                resolve("");
-//
-        //            } else{
-//
-        //                reject("");
-        //            }
-        //        })
-        //    });
-        //},
+        almacenarComentario(){
+            //this.almacenamientoDecision.userid = getUser().userid;
+            var queryString = Object.keys(this.almacenamientoComentario).map(key => {
+                return key + '=' + this.almacenamientoComentario[key]
+            }).join('&');
+            this.loader(true);
+            axios({
+                method: 'post',
+                url: '/comentario/store/'+ this.proyectoID,
+                data: queryString,
+                headers: {
+                    'Content-type': 'application/x-www-form-urlencoded',
+                    Authorization: getToken()
+                }
+            })
+            .then(response => {
+
+                $("#agregar-comentario").modal('hide')
+                this.almacenamientoComentario = {};
+                this.listadoComentarios(); //HACER
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Exito!',
+                  text: 'Comentario creado satisfactoriamente',
+                  type: 'success',
+                  confirmButtonText: 'Acepto'
+                });
+            })
+            .catch(response => {
+
+                $("#agregar-comentario").modal('hide')
+                this.almacenamientoDecision = {};
+
+                this.loader(false);
+
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Ocurrio un error. Por favor intenta de nuevo',
+                  type: 'error',
+                  confirmButtonText: 'Acepto'
+                });
+            });
+        },
+        loader(status){
+            this.loading = status;
+        },
         cambioVista(vista){
 
             if(vista == 1){
@@ -302,20 +293,84 @@ proyectoReporte = new Vue({
         detalle(id){
 
             location.href = '/reportes/' + id + '/detalle/';
-        }
+        },
+        eliminarComentario(id){
+
+            Swal.fire({
+              title: 'Estas seguro que quiere borrar el comentario?',
+              text: "No lo puedes revertir",
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Acepto!'
+
+            }).then((result) => {
+
+              if (result.value) {
+
+                this.loader(true);
+
+                axios({
+                    method: 'delete',
+                    url: '/comentario/delete/' + id,
+                    headers: {
+                        Authorization: getToken()
+                    }
+                })
+                .then(response => {
+
+                    this.listadoComentarios;
+
+                    this.loader(true);
+
+                    Swal.fire(
+                      'Eliminado!',
+                      'El comentario fue eliminado de forma exitosa',
+                      'success'
+                    );
+                })
+                .catch(response => {
+
+                     this.listadoProyectos();
+
+                     this.loader(false);
+
+                     Swal.fire(
+                      'Error!',
+                      'Ocurrio un error por favor intenta eliminar el comentario de nuevo',
+                      'error'
+                    );
+                });
+              }
+            });
+        },
+
     },
     computed: {
-        filteredTeams(){
+        filteredComments(){
             var filter = this.filter && this.filter.toLowerCase();
-            var plantillas = this.plantillas;
+            var comentarios = this.comentarios
             if(filter){
-                var plantillas = plantillas.filter((row) => {
+                var comentarios = comentarios.filter((row) => {
                     return Object.keys(row).some((key) => {
                         return String(row[key]).toLowerCase().indexOf(filter) > -1;
                     });
                 });
             }
-            return plantillas;
+            return comentarios;
+        },
+        filteredTeams(){
+            var filter = this.filter && this.filter.toLowerCase();
+            var equipos = this.equipos
+            if(filter){
+                var equipos = equipos.filter((row) => {
+                    return Object.keys(row).some((key) => {
+                        return String(row[key]).toLowerCase().indexOf(filter) > -1;
+                    });
+                });
+            }
+            return equipos;
         }
     }
 });
