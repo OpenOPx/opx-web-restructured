@@ -159,7 +159,7 @@ proyecto = new Vue({
             })
                 .then(response => {
 
-                    $("#agregar-proyecto").modal('hide')
+                    $("#agregar-proyecto").modal('hide');
                     this.almacenamientoProyecto = {
                         delimitacionesGeograficas: []
                     };
@@ -177,7 +177,13 @@ proyecto = new Vue({
                 .catch(response => {
 
                     $("#agregar-proyecto").modal('hide');
+                    this.almacenamientoProyecto = {
+                        delimitacionesGeograficas: []
+                    };
+                    this.almacenamientoProyecto.proyfechainicio = null;
+                    this.almacenamientoProyecto.proyfechacierre = null;
 
+                    this.restablecerMapa();
                     this.loader(false);
 
                     Swal.fire({

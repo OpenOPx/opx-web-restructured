@@ -194,7 +194,8 @@ let tarea = new Vue({
                     geojsonsubconjunto: null
                 };
                 this.restablecerMapa();
-
+                this.almacenamientoProyecto.tarfechainicio = null;
+                this.almacenamientoProyecto.tarfechacierre= null;
                 this.loader(false);
                 Swal.fire({
                   title: 'Error!',

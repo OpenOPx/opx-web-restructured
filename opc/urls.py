@@ -162,9 +162,9 @@ urlpatterns = [
     #path('contextualizacion/semana/', contextualizacion.semanal), #Reportes?
     #path('contextualizacion/dia/', contextualizacion.dia), #Reportes?
 
-    path('comentario/list/', comentario.listadoComentarios), #OK - JM 
-    path('comentario/delete/', comentario.eliminarComentario), #OK - JM 
-    path('comentario/store/', comentario.crearComentario), #OK - JM 
+    path('comentario/list/<str:projid>', comentario.listadoComentarios), #OK - JM 
+    path('comentario/delete/<str:comid>', comentario.eliminarComentario), #OK - JM 
+    path('comentario/store/<str:projid>', comentario.crearComentario), #OK - JM 
     path('comentario/update/', comentario.actualizarComentario), #OK - JM 
 
     #pendiente
