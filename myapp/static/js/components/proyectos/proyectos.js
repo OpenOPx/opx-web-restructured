@@ -22,12 +22,17 @@ proyecto = new Vue({
                 sortable: true
             },
             {
-                label: 'Fecha de Creación',
-                key: 'proj_creation_date',
+                label: 'Fecha de inicio',
+                key: 'proj_start_date',
                 sortable: true
             },
             {
-                label: 'Completitud',
+                label: 'Fecha de cierre',
+                key: 'proj_close_date',
+                sortable: true
+            },
+            {
+                label: 'Completitud (%)',
                 key: 'proj_completness',
                 sortable: true
             },
@@ -373,7 +378,7 @@ proyecto = new Vue({
 
                             Swal.fire(
                                 'Error!',
-                                'Ocurrio un error por favor intenta de nuevo',
+                                'No es posible eliminar el proyecto debido a que tiene tareas vinculadas',
                                 'error'
                             );
                         });
@@ -522,7 +527,7 @@ proyecto = new Vue({
                     let feature = JSON.parse(dimensiones[i].fields.dimension_geojson)
 
                     feature.properties = {
-                        color: '#0CBAEF',
+                        color: '#3cba9f',
                         description: dimensiones[i].fields.dimension_name,
                         id: dimensiones[i].pk,
                         type: 'dimension'

@@ -11,9 +11,17 @@ miembrosPlantilla = new Vue({
                 label: 'Nombre',
                 key: 'pers_name'
             },
-             {
+            {
                 label: 'Apellido',
                 key: 'pers_lastname'
+            },
+            {
+                label: 'Barrio',
+                key: 'neighb_name'
+            },
+            {
+                label: 'Puntaje',
+                key: 'pers_score'
             },
             {
                 label: '',
@@ -36,6 +44,14 @@ miembrosPlantilla = new Vue({
             {
                 label: 'Apellido',
                 key: 'pers_lastname'
+            },
+            {
+                label: 'Barrio',
+                key: 'neighb_name'
+            },
+            {
+                label: 'Puntaje',
+                key: 'pers_score'
             },
             {
                 label: '',

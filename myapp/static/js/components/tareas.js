@@ -61,8 +61,8 @@ let tarea = new Vue({
                 sortable: true
             },
             {
-                label: 'Instrumento',
-                key: 'instrument_name'
+                label: 'Completitud (%)',
+                key: 'task_completness'
             },
             {
                 label: 'Proyecto',
@@ -312,7 +312,7 @@ let tarea = new Vue({
 
                     } else{
 
-                        this.listadoTareasProyecto();
+                        this.listadoTareasProyecto(this.proyectoID)
                     }
 
 
@@ -330,8 +330,8 @@ let tarea = new Vue({
 
                      } else{
 
-                        this.listadoTareasProyecto();
-                     }
+                        this.listadoTareasProyecto(this.proyectoID)
+                    }
 
                      this.loader(false);
 
@@ -387,7 +387,7 @@ let tarea = new Vue({
 
                 } else{
 
-                    this.listadoTareasProyecto();
+                    this.listadoTareasProyecto(this.proyectoID)
                 }
                 this.loader(false);
 
