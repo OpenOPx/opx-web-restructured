@@ -274,7 +274,6 @@ def almacenamientoProyecto(request):
                 raise ValidationError({'Información incompleta'})
 
     except ValidationError as e:
-        proyecto.delete()
         try:
             errors = dict(e)
         except ValueError:
