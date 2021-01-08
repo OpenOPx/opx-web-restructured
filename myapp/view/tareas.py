@@ -361,7 +361,10 @@ def detalleTarea(request, tareid):
             encuestas = models.Survery.objects.filter(task_id__exact=tarea.task_id)
             progreso = (len(encuestas) * 100) / tareaDict['task_quantity']
             tareaDict['task_completness'] = progreso
-
+            tareaDict['task_start_date'] = restricciones.task_start_date
+            tareaDict['task_end_date'] = restricciones.task_end_date
+            tareaDict['start_time'] = restricciones.start_time
+            tareaDict['end_time'] = restricciones.end_time
             # instrumento = models.Instrumento.objects.get(pk=tareaDict['instrid'])
             # detalleFormulario = detalleFormularioKoboToolbox(instrumento.instridexterno)
             #
@@ -435,62 +438,64 @@ def eliminarTarea(request, tareid):
 def actualizarTarea(request, tareid):
     try:
 
-        estado = 0
-        tarea = models.Task.objects.get(pk=tareid)
+        with transaction.atomic():
+
+            estado = 0
+            tarea = models.Task.objects.get(pk=tareid)
 
 
-        restriction = models.TaskRestriction.objects.get(pk = request.POST.get('task_restriction_id'))
-        restriction.start_time = request.POST.get('tarfechainicio')
-        restriction.task_end_date = request.POST.get('tarfechacierre')
-        restriction.start_time = request.POST.get('HoraInicio')
-        restriction.end_time = request.POST.get('HoraCierre')
-        restriction.save()
+            restriction = models.TaskRestriction.objects.get(pk = request.POST.get('task_restriction_id'))
+            restriction.start_time = request.POST.get('tarfechainicio')
+            restriction.task_end_date = request.POST.get('tarfechacierre')
+            restriction.start_time = request.POST.get('HoraInicio')
+            restriction.end_time = request.POST.get('HoraCierre')
+            restriction.save()
 
-        taskpriority = models.TaskPriority.objects.get(pk = request.POST.get('task_priority_id'))
+            taskpriority = models.TaskPriority.objects.get(pk = request.POST.get('task_priority_id'))
 
-        tasktipe = models.TaskType.objects.get(pk = request.POST.get('task_type_id'))
-       
+            tasktipe = models.TaskType.objects.get(pk = request.POST.get('task_type_id'))
+        
 
-        projecto = models.Project.objects.get(pk = request.POST.get('project_id'))
-        tarea.task_name = request.POST.get('task_name')
-        tarea.task_type = tasktipe
-        tarea.task_quantity = request.POST.get('task_quantity')
-        tarea.project = projecto
-        tarea.task_description = request.POST.get('task_description')
-        tarea.task_priority = taskpriority
-        tarea.task_restriction = restriction
+            projecto = models.Project.objects.get(pk = request.POST.get('project_id'))
+            tarea.task_name = request.POST.get('task_name')
+            tarea.task_type = tasktipe
+            tarea.task_quantity = request.POST.get('task_quantity')
+            tarea.project = projecto
+            tarea.task_description = request.POST.get('task_description')
+            tarea.task_priority = taskpriority
+            tarea.task_restriction = restriction
 
 
 
-        if estado == 2 and tarea.tareestado != 2:
+            if estado == 2 and tarea.tareestado != 2:
 
-            if validarTarea(tarea):
+                if validarTarea(tarea):
+
+                    tarea.tareestado = estado
+                    tarea.save()
+
+            else:
 
                 tarea.tareestado = estado
                 tarea.save()
 
-        else:
+            # Verificando que el recurso haya sido llamado desde Gestión de Cambios
+            if request.POST.get('gestionCambio', None) is not None:
 
-            tarea.tareestado = estado
-            tarea.save()
+                # Obtener los usuarios que hacen del proyecto
+                usuarios = obtenerEmailsEquipo(tarea.proyid)
 
-        # Verificando que el recurso haya sido llamado desde Gestión de Cambios
-        if request.POST.get('gestionCambio', None) is not None:
+                # Detalle del Cambio
+                detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
 
-            # Obtener los usuarios que hacen del proyecto
-            usuarios = obtenerEmailsEquipo(tarea.proyid)
+                # Enviar Notificaciones
+                gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
 
-            # Detalle del Cambio
-            detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
-
-            # Enviar Notificaciones
-            gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
-
-        response = {
-            'code': 200,
-            'tarea': serializers.serialize('python', [tarea])[0],
-            'status': 'success'
-        }
+            response = {
+                'code': 200,
+                'tarea': serializers.serialize('python', [tarea])[0],
+                'status': 'success'
+            }
 
     except ObjectDoesNotExist as e:
         response = {
@@ -520,6 +525,88 @@ def actualizarTarea(request, tareid):
         }
 
     return JsonResponse(response, safe=False, status=response['code'])
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def actualizarTareaMovil(request, tareid):
+    try:
+
+        with transaction.atomic():
+
+            estado = 0
+            tarea = models.Task.objects.get(pk=tareid)
+
+            restriction = models.TaskRestriction.objects.get(pk = request.POST.get('task_restriction_id'))
+            restriction.start_time = request.POST.get('task_start_date')
+            restriction.task_end_date = request.POST.get('task_end_date')
+            restriction.start_time = request.POST.get('start_time')
+            restriction.end_time = request.POST.get('end_time')
+            restriction.save()
+
+            tarea.task_quantity = request.POST.get('task_quantity')
+            tarea.task_restriction = restriction
+
+            if estado == 2 and tarea.tareestado != 2:
+
+                if validarTarea(tarea):
+
+                    tarea.tareestado = estado
+                    tarea.save()
+
+            else:
+
+                tarea.tareestado = estado
+                tarea.save()
+
+            # Verificando que el recurso haya sido llamado desde Gestión de Cambios
+            if request.POST.get('gestionCambio', None) is not None:
+
+                # Obtener los usuarios que hacen del proyecto
+                usuarios = obtenerEmailsEquipo(tarea.proyid)
+
+                # Detalle del Cambio
+                detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
+
+                # Enviar Notificaciones
+                gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
+
+            response = {
+                'code': 200,
+                'tarea': serializers.serialize('python', [tarea])[0],
+                'status': 'success'
+            }
+
+    except ObjectDoesNotExist as e:
+        response = {
+            'code': 404,
+            'message': str(e),
+            'status': 'error' + str(e)
+        }
+
+    except ValidationError as e:
+
+        try:
+            errors = dict(e)
+        except ValueError:
+            errors = list(e)[0]
+
+        response = {
+            'code': 400,
+            'errors': errors,
+            'status': 'error'
+        }
+
+    except IntegrityError as e:
+        response = {
+            'code': 500,
+            'message': str(e),
+            'status': 'error'
+        }
+
+    return JsonResponse(response, safe=False, status=response['code'])
+
 
 ##
 # @brief Función que se encarga de validar una tarea especifica

@@ -23,6 +23,18 @@ let gestionPlantilla = new Vue({
                 key: 'team_description'
             },
             {
+                label: 'Efectividad',
+                key: 'team_effectiveness'
+            },
+            {
+                label: 'Nombre lider',
+                key: 'pers_name'
+            },
+            {
+                label: 'Apellido lider',
+                key: 'pers_lastname'
+            },
+            {
                 label: '',
                 key: 'acciones'
             }
