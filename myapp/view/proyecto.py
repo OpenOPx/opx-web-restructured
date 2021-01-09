@@ -715,8 +715,15 @@ def agregarEquipo(request):
                 team = equipoP,
                 project = proyectoP
         )
-    
         proyectoEquipo.save()
+        
+        # ===Notificación===
+        person_ids = getPersonsIdByProject(proyectoId)
+        change = {
+            'team_name': equipoP.team_name,
+            'proj_name': proyectoP.proj_name
+        }
+        notificaciones.notify(person_ids, notificaciones.CAMBIO_EQUIPO_PROYECTO, notificaciones.EQUIPO_AGREGADO, change, project_name=proyectoP.proj_name )
 
         data = {
             'code': 201,
@@ -749,7 +756,17 @@ def eliminarEquipo(request,equid):
         
     try:
         proyectoEquipo = models.ProjectTeam.objects.get(pk = equid)
+        equipoP = models.Team.objects.get(pk=proyectoEquipo.team.team_id)
+        proyectoP = models.Project.objects.get(pk=proyectoEquipo.project.proj_id)
         proyectoEquipo.delete()
+
+        # ===Notificación===
+        person_ids = getPersonsIdByProject(proyectoP.proj_id)
+        change = {
+            'team_name': equipoP.team_name,
+            'proj_name': proyectoP.proj_name
+        }
+        notificaciones.notify(person_ids, notificaciones.CAMBIO_EQUIPO_PROYECTO, notificaciones.EQUIPO_ELIMINADO, change, project_name=proyectoP.proj_name )
 
         response = {
             'code': 200,
@@ -992,15 +1009,7 @@ def cambioTerritorio(request, dimensionid):
             else:
                 raise ValidationError("JSON Inválido")
 
-        # =============== Notificación de Gestión de Cambios ======================
-        """
-        usuarios = obtenerEmailsEquipo(dimensionTerritorialNew.proyid)
-
-        # Obteneniendo información del proyecto
-        proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
-
-        # Envío de Notificaciones
-        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)"""
+        # ===Notificación===
         project = models.Project.objects.get(pk=proj_id)
         change = {
             'proj_name': project.proj_name

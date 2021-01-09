@@ -104,7 +104,7 @@ def agregarMiembro(request, planid):
                 change={
                     'team_name' : equipo.team_name
                 }
-                notificaciones.notify([persona.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.AGREGADO_EQUIPO, change)
+                notificaciones.notify([persona.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.AGREGADO_A_EQUIPO, change)
                 response = {
                     'code': 201,
                     'data': model_to_dict(equipoMiembro),
@@ -214,7 +214,7 @@ def eliminarMiembro(request, miplid):
             change={
                 'team_name' : equipo.team_name
             }
-            notificaciones.notify([miembroPlantilla.person.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.AGREGADO_EQUIPO, change)
+            notificaciones.notify([miembroPlantilla.person.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.ELIMINADO_DE_EQUIPO, change)
             
 
             response = {

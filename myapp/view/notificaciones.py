@@ -36,12 +36,15 @@ from myapp import models
 from myapp.models import Notification
 from myapp.view.utilidades import usuarioAutenticado
 
-CAMBIO_EQUIPO = 3
 CAMBIO_DIMENSION_TERRITORIAL = 1
-CAMBIO_FECHA_PROYECTO = 4
 CAMBIO_FECHA_TAREA = 2
-AGREGADO_EQUIPO = 'AGREGADO_EQUIPO'
-ELIMINADO_EQUIPO = 'ELIMINADO_EQUIPO'
+CAMBIO_EQUIPO = 3
+CAMBIO_FECHA_PROYECTO = 4
+CAMBIO_EQUIPO_PROYECTO = 5
+AGREGADO_A_EQUIPO = 'MIEMBO_AGREGADO_A_EQUIPO'
+ELIMINADO_DE_EQUIPO = 'MIEMBRO_ELIMINADO_DE_EQUIPO'
+EQUIPO_AGREGADO = 'EQUIPO_AGREGADO_A_PROYECTO'
+EQUIPO_ELIMINADO = 'EQUIPO_ELIMINADO_DE_PROYECTO'
 
 ##
 # @brief Envio de notifificaciones correspondiente a la gestión de cambios de un proyecto especifico
@@ -112,15 +115,27 @@ def notify(personsid_list, notification_type, case, change, project_name=None, t
         
         if notification_type == CAMBIO_EQUIPO:
             push_message = 'Cambio en el equipo "'+ change['team_name']+'"'
-            if case == AGREGADO_EQUIPO:
+            if case == AGREGADO_A_EQUIPO:
                 description = {
                     'type': 'agregado',
-                    'message': 'Has sido agregado al equipo '+ change['team_name']
+                    'message': 'Has sido agregado al equipo "'+ change['team_name']+'"'
                 }
-            if case == ELIMINADO_EQUIPO:
+            if case == ELIMINADO_DE_EQUIPO:
                 description = {
-                    'type': 'agregado',
-                    'message': 'Has sido eliminado del equipo '+ change['team_name']
+                    'type': 'eliminado',
+                    'message': 'Has sido eliminado del equipo "'+ change['team_name']+'"'
+                }
+        if notification_type == CAMBIO_EQUIPO_PROYECTO:
+            push_message = 'Participación en el proyecto "'+change['proj_name']+'" modificada.'
+            if case == EQUIPO_AGREGADO:
+                description = {
+                    'type': 'Equipo agregado',
+                    'message': 'El equipo "'+ change['team_name'] +'", al que perteneces, ha sido agregado al proyecto "'+change['proj_name']+'"'
+                }
+            if case == EQUIPO_ELIMINADO:
+                description = {
+                    'type': 'Equipo eliminado',
+                    'message': 'El equipo "'+ change['team_name'] +'", al que perteneces, ha sido eliminado del proyecto "'+change['proj_name']+'"'
                 }
         if notification_type == CAMBIO_FECHA_PROYECTO:
             push_message = 'Cambio de fecha del proyecto "'+project_name+'"'
@@ -129,7 +144,7 @@ def notify(personsid_list, notification_type, case, change, project_name=None, t
                 'body': change
             }
         if notification_type == CAMBIO_FECHA_TAREA:
-            push_message = "Cambio de fecha de tarea"
+            push_message = 'Cambio en las condiciones de campaña para tarea "'+task_name+'"'
             description = {
                 'type': 'tarea',
                 'body': change
@@ -138,7 +153,7 @@ def notify(personsid_list, notification_type, case, change, project_name=None, t
             push_message = 'Cambio de territorio del proyecto "'+change['proj_name']+'"'
             description = {
                 'type': 'territorio',
-                'message': 'Se cambió la dimensión territorial del proyecto '+change['proj_name']
+                'message': 'Se cambió la dimensión territorial del proyecto "'+change['proj_name']+'"'
             }
         persons_list = []
         for personid in personsid_list:
@@ -201,7 +216,7 @@ def getPersonNotifications(request):
     user = usuarioAutenticado(request)
     person = models.Person.objects.get(user__userid__exact = user.userid)
 
-    notifications = models.Notification.objects.filter(person__pers_id__exact = person.pers_id)
+    notifications = models.Notification.objects.filter(person__pers_id__exact = person.pers_id).order_by('-notification_date')
     notifications = list(notifications.values())
     response = {
         'code': 200,

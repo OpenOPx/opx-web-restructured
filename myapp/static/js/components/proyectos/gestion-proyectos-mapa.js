@@ -14,7 +14,7 @@ gestionProyecto = new Vue({
         tareaEdicion: false,
         dimensionesBarrios: [],
         barrioSeleccionadoId: '',
-        dimensionTareaBarrio: {},
+        edicionTarea: {},
         equiposURL: '',
         acciones: {
             objetivo: false,
@@ -46,7 +46,7 @@ gestionProyecto = new Vue({
             this.cargarDimensionesBarrios()
             this.cargarMapa();
             this.obtenerProyectos();
-            setTimeout(() => this.ubicacionEquipoProyecto(), 1000);
+            //setTimeout(() => this.ubicacionEquipoProyecto(), 1000);
         }
     },
     methods: {
@@ -377,7 +377,7 @@ gestionProyecto = new Vue({
 
         },
         gestionObjetivoProyecto(){
-
+            this.loader(true)
             axios({
                 url: '/tareas/detail/' + this.capaEdicion.id,
                 headers: {
@@ -385,16 +385,17 @@ gestionProyecto = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.tareaGestion = response.data.tarea;
-                    this.tareaGestion['tareid'] = this.capaEdicion.id;
+                    this.tareaGestion['task_id'] = this.capaEdicion.id;
+                    this.tareaGestion['task_restriction_id'] = this.tareaGestion.task_restriction;
                     $("#gestion-objetivo-tarea").modal('show');
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 Swal.fire({
                     title: 'Error',
                     text: 'No se puedo recuperar la información de la Tarea',
@@ -417,7 +418,7 @@ gestionProyecto = new Vue({
             .join('&');
 
             axios({
-                url: '/tareas/' + this.tareaGestion.tareid,
+                url: '/tareas/gestion-cambios/' + this.tareaGestion.task_id,
                 method: 'POST',
                 data: queryString,
                 headers: {
@@ -436,13 +437,13 @@ gestionProyecto = new Vue({
 
                     Swal.fire({
                         title: 'Exito',
-                        text: 'El Objetivo fue cambiado de forma satisfactoria',
+                        text: 'El Objetivo y las condiciones de campaña de la tarea se cambiaron de forma satisfactoria',
                         type: 'success'
                     });
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 $("#gestion-objetivo-tarea").modal('hide');
 
                 Swal.fire({
@@ -453,7 +454,7 @@ gestionProyecto = new Vue({
             });
         },
         gestionTiempoProyecto(){
-
+            this.loader(true);
             axios({
                 url: '/proyectos/detail/' + this.capaEdicion.id,
                 headers: {
@@ -461,7 +462,7 @@ gestionProyecto = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.proyectoGestion = response.data.detail.proyecto;
@@ -470,7 +471,7 @@ gestionProyecto = new Vue({
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 Swal.fire({
                     title: 'Error',
                     text: 'No se puedo recuperar la información del Proyecto',
@@ -812,8 +813,8 @@ gestionProyecto = new Vue({
         },
         gestionEquipoProyecto(){
             this.equiposURL = "/equipos/proyecto/"+this.capaEdicion.id//0eb624c4-2627-4067-8a04-38b13cc21ced"
-            this.obtenerEquipoProyecto(this.capaEdicion.id);
-            this.obtenerUsuariosDisponiblesProyecto(this.capaEdicion.id);
+            //this.obtenerEquipoProyecto(this.capaEdicion.id);
+            //this.obtenerUsuariosDisponiblesProyecto(this.capaEdicion.id);
 
             $("#gestion-equipo-proyecto").modal({
                 backdrop: 'static',
@@ -989,6 +990,12 @@ gestionProyecto = new Vue({
                     .addTo(this.mapaProyecto)
                 }
             }, 500);
+        },
+        edicionformateoFechaInicio(date){
+            this.edicionTarea.tarfechainicio = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaFin(date){
+            this.edicionTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
         },
         closeModalCambioTerritorio(){
             $("#gestion-territorio-proyecto").modal('hide');
