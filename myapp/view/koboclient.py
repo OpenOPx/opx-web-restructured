@@ -151,7 +151,12 @@ def almacenarSurvery(request):
                         'status': 'success'
                     }
         utilidades.puntajeTarea(tareaid)  
-        utilidades.puntajeProyecto(tarea.project.proj_id)    
+        utilidades.puntajeProyecto(tarea.project.proj_id)
+        utilidades.puntajePersona(person.pers_id)
+        equipos = utilidades.equiposDePersona(person.pers_id)
+        for equipo in list(equipos):
+            utilidades.puntajeEquipo(equipo['team_id'])
+
     
 
     except ObjectDoesNotExist:

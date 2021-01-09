@@ -166,7 +166,7 @@ urlpatterns = [
     path('comentario/delete/<str:comid>', comentario.eliminarComentario), #OK - JM 
     path('comentario/store/<str:projid>', comentario.crearComentario), #OK - JM 
     path('comentario/update/', comentario.actualizarComentario), #OK - JM 
-
+    
     #pendiente
     path('reportes/equipos/', reporte.reporteEquiposView), #JM OK OK
     path('reportes/equipos/estadisticas/1/', reporte.canva1), #JM OK OK

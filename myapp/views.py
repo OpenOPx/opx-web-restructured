@@ -1,6 +1,7 @@
 # from django.shortcuts import render
 from datetime import datetime
 import json
+from myapp.view.proyecto import ROL_PROYECTISTA, ROL_SUPER_ADMIN
 import os
 import http.client
 from passlib.context import CryptContext
@@ -27,6 +28,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
+)
+from myapp.view import (
+    utilidades
 )
 
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
@@ -123,7 +127,21 @@ def login(request):
                             type=type_device
                         )
                         device.save()
-
+                else:
+                    #login desde la web
+                    ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
+                    ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
+                    print(person.role.role_id)
+                    if(str(person.role.role_id) == ROL_SUPER_ADMIN or str(person.role.role_id) == ROL_PROYECTISTA):
+                        print("if")
+                        pass
+                    else:
+                        print("else")
+                        data={
+                            'code': 403,
+                            'status': 'error',
+                            'message': 'Acceso no permitido para ese usuario',
+                        }
                 # Puntaje esperado para llegar a rol proximo
                 # Voluntario
                 # if str(rol.rolid) == '0be58d4e-6735-481a-8740-739a73c3be86':
