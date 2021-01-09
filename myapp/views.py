@@ -28,6 +28,9 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
 )
+from myapp.view import (
+    utilidades
+)
 
 from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
@@ -42,7 +45,10 @@ from myapp.view.utilidades import dictfetchall, usuarioAutenticado
 
 
 def loginView(request):
-
+    utilidades.puntajePersona("10dfe623-764b-43b0-8047-0aa65b80c766")
+    equipos = utilidades.equiposDePersona("10dfe623-764b-43b0-8047-0aa65b80c766")
+    for equipo in list(equipos):
+        utilidades.puntajeEquipo(equipo.team_id)
     return render(request, "auth/login.html")
 
 
