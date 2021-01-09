@@ -368,7 +368,7 @@ proyectoReporte = new Vue({
         generarMapa(timeout, coordenadas) {
 
             window.setTimeout(() => {
-                let mapObject = L.map('dimension').setView([3.450572, -76.538705], 13);
+                let mapObject = L.map('dimension').setView([3.450572, -76.538705], 12);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 }).addTo(mapObject);
