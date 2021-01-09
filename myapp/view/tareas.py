@@ -29,8 +29,8 @@ from rest_framework.permissions import (
     IsAuthenticated
 )
 
-from myapp.view import koboclient
-from myapp.view.utilidades import dictfetchall, obtenerParametroSistema, obtenerEmailsEquipo, usuarioAutenticado
+from myapp.view import koboclient, notificaciones
+from myapp.view.utilidades import dictfetchall, obtenerParametroSistema, getPersonsIdByProject, usuarioAutenticado
 from myapp.view.notificaciones import gestionCambios
 
 ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
@@ -475,9 +475,9 @@ def actualizarTarea(request, tareid):
             tarea.task_description = request.POST.get('task_description')
             tarea.task_priority = taskpriority
             tarea.task_restriction = restriction
+            tarea.save()
 
-
-
+            """
             if estado == 2 and tarea.tareestado != 2:
 
                 if validarTarea(tarea):
@@ -500,7 +500,7 @@ def actualizarTarea(request, tareid):
                 detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
 
                 # Enviar Notificaciones
-                gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
+                gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)"""
 
             response = {
                 'code': 200,
@@ -541,7 +541,7 @@ def actualizarTarea(request, tareid):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
-def actualizarTareaMovil(request, tareid):
+def actualizarTareaGestionCambios(request, tareid):
     try:
 
         with transaction.atomic():
@@ -557,7 +557,8 @@ def actualizarTareaMovil(request, tareid):
             restriction.save()
 
             tarea.task_quantity = request.POST.get('task_quantity')
-            tarea.task_restriction = restriction
+            tarea.save()
+            """tarea.task_restriction = restriction
 
             if estado == 2 and tarea.tareestado != 2:
 
@@ -569,19 +570,19 @@ def actualizarTareaMovil(request, tareid):
             else:
 
                 tarea.tareestado = estado
-                tarea.save()
+                tarea.save()"""
 
-            # Verificando que el recurso haya sido llamado desde Gestión de Cambios
-            if request.POST.get('gestionCambio', None) is not None:
 
-                # Obtener los usuarios que hacen del proyecto
-                usuarios = obtenerEmailsEquipo(tarea.proyid)
-
-                # Detalle del Cambio
-                detalle = "Encuestas Objetivo: {}".format(tarea.tarerestriccant)
-
-                # Enviar Notificaciones
-                gestionCambios(usuarios, 'tarea', tarea.task_name, 1, detalle)
+            # Obtener los usuarios que hacen del proyecto
+            pers_ids = getPersonsIdByProject(tarea.project.proj_id)
+            change = {
+                'start_date': request.POST.get('task_start_date'),
+                'end_date': request.POST.get('task_end_date'),
+                'start_time': request.POST.get('start_time'),
+                'end_time': request.POST.get('end_time'),
+                'task_quantity': request.POST.get('task_quantity')
+            }
+            notificaciones.notify(pers_ids, notificaciones.CAMBIO_FECHA_TAREA, None, change, project_name=tarea.project.proj_name, task_name=tarea.task_name)
 
             response = {
                 'code': 200,

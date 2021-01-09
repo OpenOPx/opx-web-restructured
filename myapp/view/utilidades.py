@@ -75,7 +75,7 @@ def listadoNivelesEducativos(request):
 @permission_classes((AllowAny,))
 def listadoBarrios(request):
 
-    neighborhood = models.Neighborhood.objects.all().values()
+    neighborhood = models.Neighborhood.objects.all().order_by('neighb_name').values()
 
     data = {
         'code': 200,
@@ -126,7 +126,7 @@ def getPersonsIdByProject(proj_id):
     query = "SELECT DISTINCT tp.person_id \
 	        FROM opx.team_person as tp \
 	        INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id \
-	        WHERE pt.project_id = '"+proj_id+"';"
+	        WHERE pt.project_id = '"+str(proj_id)+"';"
     with connection.cursor() as cursor:
         cursor.execute(query)
         person_ids = dictfetchall(cursor)

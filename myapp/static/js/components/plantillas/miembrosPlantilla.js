@@ -63,7 +63,8 @@ miembrosPlantilla = new Vue({
             perPage: 10
         },
         // Busqueda usuarios disponibles
-        filterAvailableUsers: ''
+        filterAvailableUsers: '',
+        loading: false
     },
     created(){
         window.setTimeout(() => {
@@ -91,7 +92,7 @@ miembrosPlantilla = new Vue({
             });
         },
         listadoUsuariosDisponibles(){
-
+            this.loader(true)
             axios({
                 url: '/miembros-plantilla/' + window.location.pathname.substr(9, 36) + '/usuarios-disponibles/',
                 method: 'GET',
@@ -100,14 +101,17 @@ miembrosPlantilla = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.usuariosDisponibles = response.data.data;
                 }
+            }).catch(()=>{
+                this.loader(false)
             });
         },
         agregarIntegrante(userid){
+            this.loader(true)
             axios({
                 url: '/miembros-plantilla/' + window.location.pathname.substr(9, 36) + '/store/',
                 method: 'POST',
@@ -118,12 +122,14 @@ miembrosPlantilla = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 201 && response.data.status == 'success'){
 
                     this.listadoMiembros();
                     this.listadoUsuariosDisponibles();
                 }
+            }).catch(()=> {
+                this.loader(false)
             });
         },
         eliminarIntegrante(miplid){
@@ -135,7 +141,7 @@ miembrosPlantilla = new Vue({
             .then(result => {
 
                 if(result.value){
-
+                    this.loader(true)
                      axios({
                         url: '/miembros-plantilla/' + miplid + '/delete/',
                         method: 'DELETE',
@@ -144,7 +150,7 @@ miembrosPlantilla = new Vue({
                         }
                     })
                     .then(response => {
-
+                        this.loader(false)
                         if(response.data.code == 200 && response.data.status == 'success'){
 
                             this.listadoMiembros();
@@ -156,9 +162,14 @@ miembrosPlantilla = new Vue({
                                 'success'
                             )
                         }
+                    }).catch(()=>{
+                        this.loader(false)
                     })
                 }
             });
+        },
+        loader(status){
+            this.loading = status;
         }
     },
     computed: {

@@ -14,7 +14,7 @@ gestionProyecto = new Vue({
         tareaEdicion: false,
         dimensionesBarrios: [],
         barrioSeleccionadoId: '',
-        dimensionTareaBarrio: {},
+        edicionTarea: {},
         equiposURL: '',
         acciones: {
             objetivo: false,
@@ -46,7 +46,7 @@ gestionProyecto = new Vue({
             this.cargarDimensionesBarrios()
             this.cargarMapa();
             this.obtenerProyectos();
-            setTimeout(() => this.ubicacionEquipoProyecto(), 1000);
+            //setTimeout(() => this.ubicacionEquipoProyecto(), 1000);
         }
     },
     methods: {
@@ -244,23 +244,26 @@ gestionProyecto = new Vue({
             this.mapaTarea.addControl(drawControl);
 
             this.mapaTarea.on(L.Draw.Event.CREATED, (e) => {
-                console.log(e)
                 type = e.layerType;
                 layer = e.layer;
 
-                if (type === 'polygon' && this.cantidadAreasMapa(editableLayers) == 0 && this.validarSubconjunto(layer.toGeoJSON())) {
+                if (type === 'polygon' && this.cantidadAreasMapa(editableLayers) == 0) {
+                    geojson = this.datosCambioTerritorial.geojson
+                    if(this.isMultiPolygon(geojson)){
+                        geojson = this.convertMultiPolygonToPolygon(geojson)
+                    }
 
-                    editableLayers.addLayer(layer);
-                    this.loader(true)
-                    /*this.updateTaskDimension(tarea, JSON.stringify(layer.toGeoJSON())).then(resp => {
-
+                    if(this.validarSubconjunto(geojson, layer.toGeoJSON())){
+                        editableLayers.addLayer(layer);
+                        /*this.updateTaskDimension(tarea, JSON.stringify(layer.toGeoJSON())).then(resp => {
+    
+                            tarea['redimensionado'] = true;
+                            this.tareaEdicion = true;
+                        })*/
+                        tarea['dimension_geojson'] = JSON.stringify(layer.toGeoJSON());
                         tarea['redimensionado'] = true;
                         this.tareaEdicion = true;
-                    })*/
-                    tarea['dimension_geojson'] = JSON.stringify(layer.toGeoJSON());
-                    tarea['redimensionado'] = true;
-                    this.tareaEdicion = true;
-                    this.loader(false)
+                    }
                 }
             });
 
@@ -377,7 +380,7 @@ gestionProyecto = new Vue({
 
         },
         gestionObjetivoProyecto(){
-
+            this.loader(true)
             axios({
                 url: '/tareas/detail/' + this.capaEdicion.id,
                 headers: {
@@ -385,16 +388,17 @@ gestionProyecto = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.tareaGestion = response.data.tarea;
-                    this.tareaGestion['tareid'] = this.capaEdicion.id;
+                    this.tareaGestion['task_id'] = this.capaEdicion.id;
+                    this.tareaGestion['task_restriction_id'] = this.tareaGestion.task_restriction;
                     $("#gestion-objetivo-tarea").modal('show');
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 Swal.fire({
                     title: 'Error',
                     text: 'No se puedo recuperar la información de la Tarea',
@@ -417,7 +421,7 @@ gestionProyecto = new Vue({
             .join('&');
 
             axios({
-                url: '/tareas/' + this.tareaGestion.tareid,
+                url: '/tareas/gestion-cambios/' + this.tareaGestion.task_id,
                 method: 'POST',
                 data: queryString,
                 headers: {
@@ -436,13 +440,13 @@ gestionProyecto = new Vue({
 
                     Swal.fire({
                         title: 'Exito',
-                        text: 'El Objetivo fue cambiado de forma satisfactoria',
+                        text: 'El Objetivo y las condiciones de campaña de la tarea se cambiaron de forma satisfactoria',
                         type: 'success'
                     });
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 $("#gestion-objetivo-tarea").modal('hide');
 
                 Swal.fire({
@@ -453,7 +457,7 @@ gestionProyecto = new Vue({
             });
         },
         gestionTiempoProyecto(){
-
+            this.loader(true);
             axios({
                 url: '/proyectos/detail/' + this.capaEdicion.id,
                 headers: {
@@ -461,7 +465,7 @@ gestionProyecto = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.proyectoGestion = response.data.detail.proyecto;
@@ -470,7 +474,7 @@ gestionProyecto = new Vue({
                 }
             })
             .catch(() => {
-
+                this.loader(false)
                 Swal.fire({
                     title: 'Error',
                     text: 'No se puedo recuperar la información del Proyecto',
@@ -623,7 +627,7 @@ gestionProyecto = new Vue({
                     })
 
                 } else {
-
+                    this.loader(false)
                     Swal.fire({
                         title: 'Error',
                         text: 'Todas las Tareas no estan redimensionadas',
@@ -632,12 +636,44 @@ gestionProyecto = new Vue({
                 }
 
             } else{
+                axios({
+                    url: '/proyectos/' + this.capaEdicion.dimensionid + '/cambio-territorio/',
+                    method: 'POST',
+                    data: JSON.stringify(this.datosCambioTerritorial),
+                    headers: {
+                        Authorization: getToken()
+                    }
+                })
+                .then(response => {
 
-                 Swal.fire({
-                    title: 'Error',
-                    text: 'No hay tareas que redimensionar',
-                    type: 'error'
-                });
+                    this.loader(false);
+
+                    if(response.data.code == 200 && response.data.status == 'success'){
+
+                        this.obtenerProyectos().then(response => {
+
+                           proyectoEdicion = response.find(element => element.proj_id == this.capaEdicion.id);
+
+                           this.cargarInformacionProyecto(proyectoEdicion);
+                           this.closeModalCambioTerritorio();
+
+                           Swal.fire({
+                               title: 'Exito',
+                               text: 'Cambio Correcto',
+                               type: 'success'
+                           });
+                        });
+                    }
+                })
+                .catch(() => {
+                    this.loader(false)
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrio un error. Por favor intenta de nuevo',
+                        type: 'error'
+                    });
+                })
+
             }
         },
         paso2GestionTerritorial(){
@@ -680,13 +716,27 @@ gestionProyecto = new Vue({
 
             return coordenadas;
         },
-        validarSubconjunto(geojson){
+        isMultiPolygon(geojson){
+            geoJSON = JSON.parse(geojson);
+            typeGeometry = geoJSON.geometry.type
+            if(typeGeometry === "MultiPolygon"){
+                return true;
+            }
+            return false;
+        },
+        convertMultiPolygonToPolygon(geojson){
+            multiPolygon = JSON.parse(geojson);
+            polygon = multiPolygon.geometry.coordinates[0];
+            multiPolygon.geometry.type = "Polygon"
+            multiPolygon.geometry.coordinates = polygon;
+            return JSON.stringify(multiPolygon)
+        },
+        validarSubconjunto(geojson, geojsonSubset){
 
             coordsFails = 0;
 
-            var polyPoints = this.obtenerCoordenadas(this.datosCambioTerritorial.geojson);
-
-            coordenadas = this.obtenerCoordenadas(JSON.stringify(geojson));
+            var polyPoints = this.obtenerCoordenadas(geojson);
+            coordenadas = this.obtenerCoordenadas(JSON.stringify(geojsonSubset));
 
             for(var k = 0; k < coordenadas.length; k++){
 
@@ -812,8 +862,8 @@ gestionProyecto = new Vue({
         },
         gestionEquipoProyecto(){
             this.equiposURL = "/equipos/proyecto/"+this.capaEdicion.id//0eb624c4-2627-4067-8a04-38b13cc21ced"
-            this.obtenerEquipoProyecto(this.capaEdicion.id);
-            this.obtenerUsuariosDisponiblesProyecto(this.capaEdicion.id);
+            //this.obtenerEquipoProyecto(this.capaEdicion.id);
+            //this.obtenerUsuariosDisponiblesProyecto(this.capaEdicion.id);
 
             $("#gestion-equipo-proyecto").modal({
                 backdrop: 'static',
@@ -989,6 +1039,12 @@ gestionProyecto = new Vue({
                     .addTo(this.mapaProyecto)
                 }
             }, 500);
+        },
+        edicionformateoFechaInicio(date){
+            this.edicionTarea.tarfechainicio = moment(date).format('YYYY-MM-DD');
+        },
+        edicionformateoFechaFin(date){
+            this.edicionTarea.tarfechacierre = moment(date).format('YYYY-MM-DD');
         },
         closeModalCambioTerritorio(){
             $("#gestion-territorio-proyecto").modal('hide');

@@ -101,7 +101,7 @@ let equipo = new Vue({
             })
         },
         addIntegrante(teamID){
-
+            this.loader(true)
             data = "equipoId=" + teamID + "&proyectoId=" + this.proyectoID;
 
             axios({
@@ -114,16 +114,18 @@ let equipo = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 201 && response.data.status == 'success'){
 
                     this.obtenerEquipos();
                     this.obtenerUsuariosDisponibles();
                 }
+            }).catch(()=> {
+                this.loader(false)
             });
         },
         eliminarIntegrante(equID){
-
+            this.loader(true)
             axios({
                 url: '/equipos/delete/' + equID,
                 method: 'DELETE',
@@ -132,13 +134,15 @@ let equipo = new Vue({
                 }
             })
             .then(response => {
-
+                this.loader(false)
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.obtenerEquipos();
 
                     this.obtenerUsuariosDisponibles();
                 }
+            }).catch(()=> {
+                this.loader(false)
             })
         },
         loader(status){
