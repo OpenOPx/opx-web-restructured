@@ -147,7 +147,6 @@ proyecto = new Vue({
                 }
                 return key + '=' + valor
             }).join('&');
-            console.log(queryString)
             axios({
                 method: 'post',
                 url: '/proyectos/store/',
@@ -317,7 +316,6 @@ proyecto = new Vue({
                 });
         },
         detalleDelimitacionGeografica(delimitacion, index) {
-            console.log(delimitacion)
             this.delimitacionGeografica = delimitacion;
             this.delimitacionGeograficaEdicion = index.toString();
 
@@ -330,7 +328,6 @@ proyecto = new Vue({
             }
 
             this.mapObject.remove();
-            console.log(coordenadas)
             this.generarMapa(0, coordenadas);
         },
         actualizarDelimitacionGeografica() {
@@ -514,7 +511,6 @@ proyecto = new Vue({
                 .then(response => {
                     this.ajusteGeoJson(response.data.geo)
                     this.loader(false);
-                    console.log(response.data.geo)
                 }).catch( ()=>{
                     this.loader(false);
                     Swal.fire({

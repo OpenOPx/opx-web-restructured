@@ -475,7 +475,6 @@ let tarea = new Vue({
         },
         generarMapa(timeout, dimension){
             
-            console.log('Entro al generar mapa')
             window.setTimeout(() => {
                 
                 var taskMap = L.map('taskmap',  {
@@ -494,9 +493,7 @@ let tarea = new Vue({
                   transparent: !0,
                   version: '1.1.0'
                 }).addTo(taskMap);
-                console.log('Antes del if dimension')
                 if(dimension){
-                    console.log('Entro al if dimension')
                     this.dimensionTerritorialReferencia = L.polygon(this.obtenerCoordenadas(dimension.dimension_geojson)).addTo(taskMap);
 
                     //L.marker([3.45000, -76.535000]).addTo(taskMap);

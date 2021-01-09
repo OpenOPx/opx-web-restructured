@@ -18,12 +18,12 @@ reporteMiembro = new Vue({
                 key: 'pers_name'
             },
             {
-                label: 'Apellido lider',
-                key: 'pers_lastname'
+                label: 'Puntaje equipo',
+                key: 'team_effectiveness'
             },
             {
                 label: 'Participacion',
-                key: 'participation'
+                key: 'pers_score'
             },
         ],
         // Paginación Equipos
@@ -36,16 +36,24 @@ reporteMiembro = new Vue({
         // Campos proyectos
         projectFields: [
             {
-                label: 'Nombre',
+                label: 'Nombre del proyecto',
                 key: 'proj_name'
-            },
-            {
-                label: 'Fecha de creacion',
-                key: 'proj_creation_date'
             },
             {
                 label: 'Estado',
                 key: 'isactive'
+            },
+            {
+                label: 'Nombre de la tarea',
+                key: 'task_name'
+            },
+            {
+                label: 'Fecha de inicio',
+                key: 'task_start_date'
+            },
+            {
+                label: 'Fecha de fin',
+                key: 'task_end_date'
             },
             {
                 label: 'Participacion',
@@ -69,6 +77,7 @@ reporteMiembro = new Vue({
     },
     methods: {
         listadoEquipos(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/miembro/'+this.personaId+'/equipos/',
                 method: 'GET',
@@ -77,12 +86,25 @@ reporteMiembro = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.equipos = response.data.data;
+                    for(i=0; i < this.equipos.length; i++ ){
+                        
+                        if (this.equipos[i].pers_score > this.equipos[i].team_effectiveness){
+
+                            this.equipos[i].pers_score = "Eficiente"
+
+                        }else if (this.equipos[i].pers_score < this.equipos[i].team_effectiveness){
+                            this.equipos[i].pers_score = "Poco eficiente"
+                        }
+                        this.equipos[i].pers_name += " " +this.equipos[i].pers_lastname
+                    }
                 }
             });
         },
         listadoProyectos(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/miembro/'+this.personaId+'/proyectos/',
                 method: 'GET',
@@ -91,12 +113,23 @@ reporteMiembro = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.proyectos = response.data.data;
+
+                    for(i=0; i < this.proyectos.length; i++ ){
+                        if (this.proyectos[i].isactive == 1){
+                            this.proyectos[i].isactive = "Activo"
+                        }else{
+                            this.proyectos[i].isactive = "Inactivo"
+                        }
+                    }
+
                 }
             });
         },
         detalleUsuario(){
+            this.loader(true);
             axios({
                 url: '/persona/detalle/'+this.personaId+'/',
                 method: 'GET',
@@ -105,11 +138,15 @@ reporteMiembro = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.persona = response.data.data;
                 }
             });
         },
+        loader(status){
+            this.loading = status;
+       }
     },
     computed: {
         filteredTeam(){

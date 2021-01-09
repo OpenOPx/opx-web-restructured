@@ -188,13 +188,9 @@ def serverErrorPage(request, exception=None):
 #COMENTAR LUEGO XD
 
 def puntajeTarea(tarid):
-    print(tarid)
     tarea = models.Task.objects.get(pk = tarid)
-    print("2")
     if tarea.task_type_id == 1:
-        print("3")
         encuestas = models.Survery.objects.filter(task__task_id__exact = tarea.task_id)
-        print("4")
         progreso = (len(encuestas)/ tarea.task_quantity)
         tarea.task_completness = progreso
         if progreso == 1:
