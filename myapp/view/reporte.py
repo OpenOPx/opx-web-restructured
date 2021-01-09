@@ -176,22 +176,32 @@ def generales(request):
 @permission_classes((IsAuthenticated,))
 def proyectosPersona(request, personId):
     
-    query= "select pj.* \
-            from opx.project as pj \
-            inner join opx.project_team as pt on pj.proj_id = pt.project_id \
-            inner join opx.team_person as tp on pt.team_id = tp.team_id \
-            where tp.person_id = '"+personId+"';"
+    query = "select * \
+            from (select tk.*, count(su.survery_id) \
+            from opx.survery as su \
+            inner join opx.task as tk on tk.task_id = su.task_id \
+            inner join opx.task_priority as prio on prio.priority_id = tk.task_priority_id \
+            where su.person_id = '"+personId+"' group by tk.task_id) as taskcount \
+            inner join opx.task_priority as tprio on taskcount.task_priority_id = tprio.priority_id \
+            inner join opx.project as proy on proy.proj_id = taskcount.project_id \
+            inner join opx.task_restriction as rest on rest.restriction_id = taskcount.task_restriction_id"
 
     with connection.cursor() as cursor:
         cursor.execute(query)
         proyectosP = dictfetchall(cursor)
+
+        for proyectP in proyectosP:
+            cantidadEncuestas = proyectP['count']
+            prioridadEncuestas = proyectP['priority_number']
+            prueba = cantidadEncuestas*prioridadEncuestas
+            proyectP['participation'] = prueba
+            
 
     response = {
         'code': 200,
         'data': proyectosP,
         'status': 'success'
     }
-
     return JsonResponse(response, safe=False, status=response['code'])
 
 
@@ -204,7 +214,7 @@ def proyectosPersona(request, personId):
 @permission_classes((IsAuthenticated,))
 def equiposPersona(request, personId):
     
-    query= "select tp.*, equipo.*, persona.pers_name, persona.pers_lastname \
+    query= "select tp.*, equipo.*, persona.pers_name, persona.pers_lastname, persona.pers_score \
             from opx.team_person as tp \
             inner join opx.team as equipo on equipo.team_id = tp.team_id \
             inner join opx.person as persona on persona.pers_id = tp.person_id \

@@ -1074,20 +1074,16 @@ def listaDimensionesPrecargadas(request):
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def mapaDimension(request):
-    print(request.body)
     data = json.loads(request.body)
 
     dimensiones = []
     for dimenId in data['dimensiones_id']:
-        print(dimenId)
         dimension = models.TerritorialDimension.objects.get(pk=dimenId)
         dimensiones.append(dimension)
         
-    print(list(dimensiones))
     data = {
         'code': 200,
         'geo': serializers.serialize('python', list(dimensiones)),
         'status': 'success'
     }
-    print(data)
     return JsonResponse(data, safe = False, status = data['code'])

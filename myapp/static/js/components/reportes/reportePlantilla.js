@@ -3,6 +3,7 @@ reportePlantilla = new Vue({
     delimiters: ['[[', ']]'],
     data: {
         plantillaID: '',
+        loading: false,
         miembrosPlantilla: [],
         // Campos Equipo
         teamFields: [
@@ -54,6 +55,7 @@ reportePlantilla = new Vue({
     },
     methods: {
         listadoMiembros(){
+            this.loader(true);
             axios({
                 url: '/miembros-plantilla/' + window.location.pathname.substr(18, 36) + '/list/',
                 method: 'GET',
@@ -62,11 +64,15 @@ reportePlantilla = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.miembrosPlantilla = response.data.data;
                 }
             });
         },
+        loader(status){
+            this.loading = status;
+       }
     },
     computed: {
         filteredTeam(){

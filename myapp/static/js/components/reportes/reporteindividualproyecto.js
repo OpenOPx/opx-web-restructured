@@ -59,26 +59,18 @@ proyectoReporte = new Vue({
     created(){
         if(window.location.pathname.substr(1, 17) == "reportes/proyecto"){
             this.proyectoID = window.location.pathname.substr(19);
-            console.log("1");
             this.listadoGeneral();
-            console.log("1.5");
             this.listadoDecisiones();
-            console.log("2");
             this.listadoTareas();
-            console.log("3");
             this.listadoComentarios(); 
-            console.log("4");
             this.listadoEquipos();
-            console.log("5");
             this.generarMapa(0);
-            console.log("6");
 
         }
 
     },
     methods: {
         listadoGeneral(){
-            console.log("Va a hacer el axios");
             axios({
                 url: '/proyectos/detail/'+ this.proyectoID,
                 method: 'GET',
@@ -174,7 +166,6 @@ proyectoReporte = new Vue({
                         return layer.feature.properties.description;
                     })
                     .addTo(this.mapObject)
-                    console.log("Se supone que cambió");
 
                 }
             }, 1000);
@@ -304,17 +295,13 @@ proyectoReporte = new Vue({
             });
         },
         cargarDimensionesDeProyectoEnMapa(){
-            console.log(this.proyecto);
-            console.log("va a validar si tiene la propiedad dimensiones territoriales");
 
             if(this.proyecto.hasOwnProperty('dimensiones_territoriales')){
-                console.log("Si tiene dimensiones");
 
                 dimensiones = this.proyecto.dimensiones_territoriales;
                 cantidadDimensiones = this.proyecto.dimensiones_territoriales.length;
 
                 if(cantidadDimensiones > 0){
-                    console.log("hay por lo menos una dimensión");
                     features = []
 
                     for(let i=0; i<cantidadDimensiones; i++){
@@ -355,7 +342,6 @@ proyectoReporte = new Vue({
                         type: "FeatureCollection",
                         features: features
                     }
-                    console.log("Va cambiarlo");
                     this.cargarMapa(geojson);
 
                 } else{

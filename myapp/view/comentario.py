@@ -59,7 +59,6 @@ def listadoComentarios(request, projid):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def crearComentario(request, projid):
-    print(request.POST.get('comment_title'))
     user = usuarioAutenticado(request)
     comentario = models.Comment(
         comment_title = request.POST.get('comment_title'), 

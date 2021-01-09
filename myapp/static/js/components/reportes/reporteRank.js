@@ -61,13 +61,13 @@ reporteClasificacion = new Vue({
             if(window.location.pathname.substr(1, 18) == "reportes/ranking/"){
                 this.listadoTop();
                 this.listadoOthers();
-
+                
             }
         }, 1000);
     },
     methods: {
         listadoTop(){
-
+            this.loader(true);
             axios({
                 url: '/reportes/rank/?inicio=0&fin=3',
                 method: 'GET',
@@ -77,12 +77,14 @@ reporteClasificacion = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.top = response.data.data;
                 }
             });
         },
         listadoOthers(){
+            this.loader(true);
             axios({
                 url: '/reportes/rank/?inicio=3&fin=30',
                 method: 'GET',
@@ -92,11 +94,15 @@ reporteClasificacion = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.others = response.data.data;
                 }
             });
         },
+        loader(status){
+            this.loading = status;
+       }
     },
     computed: {
         filteredOtherUs(){

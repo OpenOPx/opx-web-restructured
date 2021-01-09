@@ -3,6 +3,7 @@ let reporteEquipo = new Vue({
     delimiters: ['[[', ']]'],
     data: {
         almacenamientoPlantilla: {},
+        loading: false,
         plantillas: [],
         plantillaEdicion: {},
         // Paginación
@@ -53,6 +54,7 @@ let reporteEquipo = new Vue({
     },
     methods: {
         listadoEquipos(){
+            this.loader(true);
             axios({
                 url: '/plantillas-equipo/list/',
                 method: 'GET',
@@ -61,12 +63,15 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
+
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.plantillas = response.data.data;
                 }
             })
         },
         canva1(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/estadisticas/1/',
                 method: 'GET',
@@ -75,6 +80,7 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 let data = response.data.data;
                 let ctx = document.getElementById("usuariosXgenero").getContext('2d')
                 
@@ -111,6 +117,7 @@ let reporteEquipo = new Vue({
             })
         },
         canva2(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/estadisticas/2/',
                 method: 'GET',
@@ -119,6 +126,7 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 let data = response.data.data;
                 let ctx = document.getElementById("usuariosXrol").getContext('2d')
                 
@@ -153,6 +161,7 @@ let reporteEquipo = new Vue({
             })
         },
         canva3(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/estadisticas/3/',
                 method: 'GET',
@@ -161,6 +170,8 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
+
                 let data = response.data.data;
                 let ctx = document.getElementById("usuariosXnivelE").getContext('2d')
                 
@@ -195,6 +206,7 @@ let reporteEquipo = new Vue({
             })
         },
         datosGenerales(){
+            this.loader(true);
             axios({
                 url: '/reportes/equipos/estadisticas/generales/',
                 method: 'GET',
@@ -203,9 +215,13 @@ let reporteEquipo = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
                 this.datosGenerales = response.data.data;
             })
         },
+        loader(status){
+            this.loading = status;
+       }
     },
     computed: {
         filteredTeams(){
