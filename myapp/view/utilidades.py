@@ -75,7 +75,7 @@ def listadoNivelesEducativos(request):
 @permission_classes((AllowAny,))
 def listadoBarrios(request):
 
-    neighborhood = models.Neighborhood.objects.all().values()
+    neighborhood = models.Neighborhood.objects.all().order_by('neighb_name').values()
 
     data = {
         'code': 200,

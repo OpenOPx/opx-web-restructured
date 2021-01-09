@@ -981,22 +981,9 @@ def cambioTerritorio(request, dimensionid):
                 project_dimension.save()
                 if 'tareas' in data:
                     for tarea in data['tareas']:
-
-                        #tareaObj = models.Tarea.objects.get(pk=tarea['tareid'])
                         task_dimension = models.TerritorialDimension.objects.get(pk = tarea['territorial_dimension_id'])
                         task_dimension.dimension_geojson = tarea['dimension_geojson']
                         task_dimension.save()
-                        """
-                        if(tarea['dimensionid'] == str(dimensionTerritorialOld.dimensionid)):
-                            tareaObj.geojson_subconjunto = tarea['geojson_subconjunto']
-                            tareaObj.dimensionid = dimensionTerritorialNew.dimensionid
-                            tareaObj.save()
-
-                        else:
-                            raise ValidationError("La Tarea no pertenece a la dimensión")
-
-                    dimensionTerritorialOld.estado = 0
-                    dimensionTerritorialOld.save()"""
 
                     response = {
                         'code': 200,

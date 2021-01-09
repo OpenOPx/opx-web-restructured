@@ -244,23 +244,26 @@ gestionProyecto = new Vue({
             this.mapaTarea.addControl(drawControl);
 
             this.mapaTarea.on(L.Draw.Event.CREATED, (e) => {
-                console.log(e)
                 type = e.layerType;
                 layer = e.layer;
 
-                if (type === 'polygon' && this.cantidadAreasMapa(editableLayers) == 0 && this.validarSubconjunto(layer.toGeoJSON())) {
+                if (type === 'polygon' && this.cantidadAreasMapa(editableLayers) == 0) {
+                    geojson = this.datosCambioTerritorial.geojson
+                    if(this.isMultiPolygon(geojson)){
+                        geojson = this.convertMultiPolygonToPolygon(geojson)
+                    }
 
-                    editableLayers.addLayer(layer);
-                    this.loader(true)
-                    /*this.updateTaskDimension(tarea, JSON.stringify(layer.toGeoJSON())).then(resp => {
-
+                    if(this.validarSubconjunto(geojson, layer.toGeoJSON())){
+                        editableLayers.addLayer(layer);
+                        /*this.updateTaskDimension(tarea, JSON.stringify(layer.toGeoJSON())).then(resp => {
+    
+                            tarea['redimensionado'] = true;
+                            this.tareaEdicion = true;
+                        })*/
+                        tarea['dimension_geojson'] = JSON.stringify(layer.toGeoJSON());
                         tarea['redimensionado'] = true;
                         this.tareaEdicion = true;
-                    })*/
-                    tarea['dimension_geojson'] = JSON.stringify(layer.toGeoJSON());
-                    tarea['redimensionado'] = true;
-                    this.tareaEdicion = true;
-                    this.loader(false)
+                    }
                 }
             });
 
@@ -624,7 +627,7 @@ gestionProyecto = new Vue({
                     })
 
                 } else {
-
+                    this.loader(false)
                     Swal.fire({
                         title: 'Error',
                         text: 'Todas las Tareas no estan redimensionadas',
@@ -633,12 +636,44 @@ gestionProyecto = new Vue({
                 }
 
             } else{
+                axios({
+                    url: '/proyectos/' + this.capaEdicion.dimensionid + '/cambio-territorio/',
+                    method: 'POST',
+                    data: JSON.stringify(this.datosCambioTerritorial),
+                    headers: {
+                        Authorization: getToken()
+                    }
+                })
+                .then(response => {
 
-                 Swal.fire({
-                    title: 'Error',
-                    text: 'No hay tareas que redimensionar',
-                    type: 'error'
-                });
+                    this.loader(false);
+
+                    if(response.data.code == 200 && response.data.status == 'success'){
+
+                        this.obtenerProyectos().then(response => {
+
+                           proyectoEdicion = response.find(element => element.proj_id == this.capaEdicion.id);
+
+                           this.cargarInformacionProyecto(proyectoEdicion);
+                           this.closeModalCambioTerritorio();
+
+                           Swal.fire({
+                               title: 'Exito',
+                               text: 'Cambio Correcto',
+                               type: 'success'
+                           });
+                        });
+                    }
+                })
+                .catch(() => {
+                    this.loader(false)
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrio un error. Por favor intenta de nuevo',
+                        type: 'error'
+                    });
+                })
+
             }
         },
         paso2GestionTerritorial(){
@@ -681,13 +716,27 @@ gestionProyecto = new Vue({
 
             return coordenadas;
         },
-        validarSubconjunto(geojson){
+        isMultiPolygon(geojson){
+            geoJSON = JSON.parse(geojson);
+            typeGeometry = geoJSON.geometry.type
+            if(typeGeometry === "MultiPolygon"){
+                return true;
+            }
+            return false;
+        },
+        convertMultiPolygonToPolygon(geojson){
+            multiPolygon = JSON.parse(geojson);
+            polygon = multiPolygon.geometry.coordinates[0];
+            multiPolygon.geometry.type = "Polygon"
+            multiPolygon.geometry.coordinates = polygon;
+            return JSON.stringify(multiPolygon)
+        },
+        validarSubconjunto(geojson, geojsonSubset){
 
             coordsFails = 0;
 
-            var polyPoints = this.obtenerCoordenadas(this.datosCambioTerritorial.geojson);
-
-            coordenadas = this.obtenerCoordenadas(JSON.stringify(geojson));
+            var polyPoints = this.obtenerCoordenadas(geojson);
+            coordenadas = this.obtenerCoordenadas(JSON.stringify(geojsonSubset));
 
             for(var k = 0; k < coordenadas.length; k++){
 
