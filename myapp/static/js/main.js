@@ -4,7 +4,7 @@
 
 window.getToken = function(){
 
-    let userInfo = JSON.parse(sessionStorage.getItem('userinfo'));
+    let userInfo = JSON.parse(localStorage.getItem('userinfo'));
 
     if(userInfo != null && typeof userInfo == 'object' && userInfo.hasOwnProperty('token')){
 

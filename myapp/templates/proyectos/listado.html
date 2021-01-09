@@ -277,7 +277,7 @@
             <!-- Guardado De proyecto -->
             <div align="center">
               <button class="btn" @click="almacenarProyecto"
-                :disabled="!almacenamientoProyecto.proynombre || !almacenamientoProyecto.proydescripcion || !almacenamientoProyecto.tiproid || !almacenamientoProyecto.decisiones || !almacenamientoProyecto.contextos || !almacenamientoProyecto.plantillas || !almacenamientoProyecto.delimitacionesGeograficas.length > 0 || !almacenamientoProyecto.proyfechainicio || !almacenamientoProyecto.proyfechacierre">Guardar
+                :disabled="!almacenamientoProyecto.proynombre || !almacenamientoProyecto.proydescripcion || !almacenamientoProyecto.tiproid || !almacenamientoProyecto.decisiones || !almacenamientoProyecto.contextos || !almacenamientoProyecto.plantillas || (!almacenamientoProyecto.delimitacionesGeograficas.length > 0 || !almacenamientoProyecto.dimensionesPre > 0) || !almacenamientoProyecto.proyfechainicio || !almacenamientoProyecto.proyfechacierre">Guardar
                 Proyecto</button>
             </div>
 

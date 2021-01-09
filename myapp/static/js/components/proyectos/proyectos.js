@@ -169,7 +169,7 @@ proyecto = new Vue({
 
                     Swal.fire({
                         title: 'Exito!',
-                        text: 'Proyecto creado satisfactoriamente',
+                        text: 'Debes diligenciar todos los campos',
                         type: 'success',
                         confirmButtonText: 'Acepto'
                     });
