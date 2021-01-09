@@ -75,7 +75,7 @@ def listadoNivelesEducativos(request):
 @permission_classes((AllowAny,))
 def listadoBarrios(request):
 
-    neighborhood = models.Neighborhood.objects.all().values()
+    neighborhood = models.Neighborhood.objects.all().order_by('neighb_name').values()
 
     data = {
         'code': 200,
@@ -116,6 +116,23 @@ def obtenerParametroSistema(parametro):
         response = None
 
     return response
+
+def getPersonsByTeam(team_id):
+
+    return []
+
+def getPersonsIdByProject(proj_id):
+    persons = []
+    query = "SELECT DISTINCT tp.person_id \
+	        FROM opx.team_person as tp \
+	        INNER JOIN opx.project_team AS pt ON tp.team_id = pt.team_id \
+	        WHERE pt.project_id = '"+str(proj_id)+"';"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        person_ids = dictfetchall(cursor)
+        for pers_id in list(person_ids):
+            persons.append(pers_id['person_id'])
+    return persons
 
 ##
 # @brief Función que provee el listado de correos electrónicos de los integrantes de un proyecto
@@ -201,6 +218,62 @@ def puntajeProyecto( proyid):
         proyecto.isactive = 0
     proyecto.proj_completness = progresoProyecto
     proyecto.save()
+
+
+def puntajePersona(persid):
+    persona = models.Person.objects.get(pk = persid)
+    puntajeDePersona = 0
+
+    query = "select su.survery_id, su.person_id, tp.priority_number \
+            from opx.person as persona \
+            inner join opx.survery as su on su.person_id = persona.pers_id  \
+            inner join opx.task as tk on tk.task_id = su.task_id \
+            inner join opx.task_priority as tp on tp.priority_id = tk.task_priority_id \
+            where persona.pers_id = '"+persid+"';"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        encuestas = dictfetchall(cursor)
+
+    for encuesta in list(encuestas):
+        puntajeDePersona += encuesta['priority_number']
+
+    persona.pers_score = puntajeDePersona
+    persona.save()
+    equipos = equiposDePersona(persid)
+    for equipo in list(equipos):
+        puntajeEquipo(str(equipo['team_id']))
+
+
+def puntajeEquipo(teamid):
+    equipo = models.Team.objects.get(pk = teamid)  
+    puntajeDeEquipo = 0
+    query = "select pr.pers_score from opx.team as tm \
+            inner join opx.team_person as tp on tp.team_id = tm.team_id  \
+            inner join opx.person as pr on pr.pers_id = tp.person_id \
+            where tm.team_id = '"+teamid+"';"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        puntajes = dictfetchall(cursor)
+
+    for puntaje in list(puntajes):
+        puntajeDeEquipo += puntaje['pers_score']
+    equipo.team_effectiveness = puntajeDeEquipo/len(puntajes)
+
+    equipo.save()
+
+def equiposDePersona(personId):
+    query= "select tp.*, equipo.*, persona.pers_name, persona.pers_lastname \
+            from opx.team_person as tp \
+            inner join opx.team as equipo on equipo.team_id = tp.team_id \
+            inner join opx.person as persona on persona.pers_id = tp.person_id \
+            where tp.person_id = '"+personId+"';"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        equiposP = dictfetchall(cursor)
+    
+    return equiposP
 
 ##
 # @brief Función que calcula el estado actual de un proyecto. provee datos como:

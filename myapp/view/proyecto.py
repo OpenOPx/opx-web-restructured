@@ -29,7 +29,8 @@ from rest_framework.permissions import (
 
 
 from myapp import models
-from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall
+from myapp.view import notificaciones
+from myapp.view.utilidades import usuarioAutenticado, reporteEstadoProyecto, dictfetchall, getPersonsIdByProject
 
 ROL_SUPER_ADMIN = '8945979e-8ca5-481e-92a2-219dd42ae9fc'
 ROL_PROYECTISTA = '628acd70-f86f-4449-af06-ab36144d9d6a'
@@ -510,7 +511,7 @@ def actualizarProyecto(request, proyid):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
-def actualizarProyectoMovil(request, proyid):
+def actualizarProyectoBasic(request, proyid):
     try:
         proyecto = models.Project.objects.get(pk=proyid)
 
@@ -523,6 +524,13 @@ def actualizarProyectoMovil(request, proyid):
         
         proyecto.full_clean()
         proyecto.save()
+
+        change = {
+            'start_date': request.POST.get('proj_start_date'),
+            'end_date': request.POST.get('proj_close_date'),
+        }
+        persons = getPersonsIdByProject(proyid)
+        notificaciones.notify(persons, notificaciones.CAMBIO_FECHA_PROYECTO, None, change, project_name=proyecto.proj_name)
 
         return JsonResponse(serializers.serialize('python', [proyecto]), safe=False)
 
@@ -707,8 +715,15 @@ def agregarEquipo(request):
                 team = equipoP,
                 project = proyectoP
         )
-    
         proyectoEquipo.save()
+        
+        # ===Notificación===
+        person_ids = getPersonsIdByProject(proyectoId)
+        change = {
+            'team_name': equipoP.team_name,
+            'proj_name': proyectoP.proj_name
+        }
+        notificaciones.notify(person_ids, notificaciones.CAMBIO_EQUIPO_PROYECTO, notificaciones.EQUIPO_AGREGADO, change, project_name=proyectoP.proj_name )
 
         data = {
             'code': 201,
@@ -741,7 +756,17 @@ def eliminarEquipo(request,equid):
         
     try:
         proyectoEquipo = models.ProjectTeam.objects.get(pk = equid)
+        equipoP = models.Team.objects.get(pk=proyectoEquipo.team.team_id)
+        proyectoP = models.Project.objects.get(pk=proyectoEquipo.project.proj_id)
         proyectoEquipo.delete()
+
+        # ===Notificación===
+        person_ids = getPersonsIdByProject(proyectoP.proj_id)
+        change = {
+            'team_name': equipoP.team_name,
+            'proj_name': proyectoP.proj_name
+        }
+        notificaciones.notify(person_ids, notificaciones.CAMBIO_EQUIPO_PROYECTO, notificaciones.EQUIPO_ELIMINADO, change, project_name=proyectoP.proj_name )
 
         response = {
             'code': 200,
@@ -947,6 +972,7 @@ def cambioTerritorio(request, dimensionid):
             project_dimension = models.TerritorialDimension.objects.get(pk=dimensionid)
 
             data = json.loads(request.body)
+            proj_id = data['proj_id']
 
             if 'geojson' in data:
                 #dimensionTerritorialNew = models.DelimitacionGeografica(proyid=dimensionTerritorialOld.proyid, nombre=dimensionTerritorialOld.nombre, geojson=data['geojson'])
@@ -955,22 +981,9 @@ def cambioTerritorio(request, dimensionid):
                 project_dimension.save()
                 if 'tareas' in data:
                     for tarea in data['tareas']:
-
-                        #tareaObj = models.Tarea.objects.get(pk=tarea['tareid'])
                         task_dimension = models.TerritorialDimension.objects.get(pk = tarea['territorial_dimension_id'])
                         task_dimension.dimension_geojson = tarea['dimension_geojson']
                         task_dimension.save()
-                        """
-                        if(tarea['dimensionid'] == str(dimensionTerritorialOld.dimensionid)):
-                            tareaObj.geojson_subconjunto = tarea['geojson_subconjunto']
-                            tareaObj.dimensionid = dimensionTerritorialNew.dimensionid
-                            tareaObj.save()
-
-                        else:
-                            raise ValidationError("La Tarea no pertenece a la dimensión")
-
-                    dimensionTerritorialOld.estado = 0
-                    dimensionTerritorialOld.save()"""
 
                     response = {
                         'code': 200,
@@ -983,16 +996,13 @@ def cambioTerritorio(request, dimensionid):
             else:
                 raise ValidationError("JSON Inválido")
 
-        # =============== Notificación de Gestión de Cambios ======================
-        """
-        usuarios = obtenerEmailsEquipo(dimensionTerritorialNew.proyid)
-
-        # Obteneniendo información del proyecto
-        proyecto = models.Proyecto.objects.get(pk = dimensionTerritorialNew.proyid)
-
-        # Envío de Notificaciones
-        gestionCambios(usuarios, 'proyecto', proyecto.proynombre, 4)
-        """
+        # ===Notificación===
+        project = models.Project.objects.get(pk=proj_id)
+        change = {
+            'proj_name': project.proj_name
+        }
+        personsid = getPersonsIdByProject(proj_id)
+        notificaciones.notify(personsid, notificaciones.CAMBIO_DIMENSION_TERRITORIAL, None, change, project_name=project.proj_name)
 
     except ObjectDoesNotExist:
         response = {

@@ -115,7 +115,7 @@ urlpatterns = [
     path('proyectos/store/', proyecto.almacenamientoProyecto), #OK OK JM
     path('proyectos/delete/<str:proyid>/', proyecto.eliminarProyecto), #OK OK JM
     path('proyectos/<str:proyid>', proyecto.actualizarProyecto), #OK OK JM
-    path('proyectos/movil/<str:proyid>', proyecto.actualizarProyectoMovil), #OK OK JM
+    path('proyectos/basic-update/<str:proyid>', proyecto.actualizarProyectoBasic), #OK OK JM
     path('proyectos/details/<str:proyid>', proyecto.detalleProyecto), #OK OK JM
     path('proyectos/detail/<str:proyid>', proyecto.detalleProyectoMovil), #OK OK JM
     path('proyectos/<str:proyid>/tareas/', proyecto.tareasProyectoView), #OK OK JM
@@ -141,7 +141,7 @@ urlpatterns = [
     path('tareas/store/', tareas.almacenamientoTarea), #OK S
     path('tareas/campana/', tareas.almacenamientoCampana), #OK S
     path('tareas/<str:tareid>', tareas.actualizarTarea), #OK S OK
-    path('tareas/movil/<str:tareid>', tareas.actualizarTareaMovil), #OK S OK
+    path('tareas/gestion-cambios/<str:tareid>', tareas.actualizarTareaGestionCambios), #OK S OK
     #path('tareas/datos-geoespaciales/', tareas.listadoTareasMapa), #S #???
     path('tareas/detail/<str:tareid>', tareas.detalleTarea), #OK S OK
     path('instrumentos/informacion/<str:id>', instrumentview.informacionInstrumentoView), #S #???
@@ -166,7 +166,7 @@ urlpatterns = [
     path('comentario/delete/<str:comid>', comentario.eliminarComentario), #OK - JM 
     path('comentario/store/<str:projid>', comentario.crearComentario), #OK - JM 
     path('comentario/update/', comentario.actualizarComentario), #OK - JM 
-
+    
     #pendiente
     path('reportes/equipos/', reporte.reporteEquiposView), #JM OK OK
     path('reportes/equipos/estadisticas/1/', reporte.canva1), #JM OK OK
@@ -242,6 +242,9 @@ urlpatterns = [
 
     path('external-platforms/kobo-kpi/', koboclient.getKoboKpiUrl), #OK OK LEO
     path('notificaciones/list/', notificaciones.getPersonNotifications), # LF Gestion de cambios
-    path('dimensiones/list/', territorialDimension.listadoDimensionesPrecargadas),
+    path('notificaciones/delete/', notificaciones.deletePersonNotifications),
+    #=========================== Dimensiones ===============================================
+    path('dimensiones/barrios/', territorialDimension.listadoDimensionesBarrios),
+    path('dimensiones/<str:dimension_id>', territorialDimension.getDimensionPreloaded),
     path('proyectos/gestion/dimensiones/<str:dimension_id>/geojson/', territorialDimension.updateGeojson),
 ]

@@ -31,6 +31,7 @@ from rest_framework.permissions import (
 )
 
 from myapp import models
+from myapp.view import notificaciones
 from myapp.view.utilidades import usuarioAutenticado, dictfetchall
 
 ##
@@ -99,6 +100,11 @@ def agregarMiembro(request, planid):
                 )
                 equipoMiembro.full_clean()
                 equipoMiembro.save()
+                #notificación del cambio a la persona
+                change={
+                    'team_name' : equipo.team_name
+                }
+                notificaciones.notify([persona.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.AGREGADO_A_EQUIPO, change)
                 response = {
                     'code': 201,
                     'data': model_to_dict(equipoMiembro),
@@ -201,8 +207,15 @@ def eliminarMiembro(request, miplid):
     try:
         with transaction.atomic():
             miembroPlantilla = models.TeamPerson.objects.get(pk=miplid)
+            equipo = models.Team.objects.get(pk=miembroPlantilla.team.team_id)
 
             miembroPlantilla.delete()
+            #notificación del cambio a la persona
+            change={
+                'team_name' : equipo.team_name
+            }
+            notificaciones.notify([miembroPlantilla.person.pers_id], notificaciones.CAMBIO_EQUIPO, notificaciones.ELIMINADO_DE_EQUIPO, change)
+            
 
             response = {
                 'code': 200,
