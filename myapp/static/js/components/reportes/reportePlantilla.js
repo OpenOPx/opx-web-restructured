@@ -12,10 +12,6 @@ reportePlantilla = new Vue({
                 key: 'pers_name'
             },
             {
-                label: 'Apellido',
-                key: 'pers_lastname'
-            },
-            {
                 label: 'Fecha de nacimiento',
                 key: 'pers_birthdate'
             },
@@ -67,6 +63,10 @@ reportePlantilla = new Vue({
                 this.loader(false);
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.miembrosPlantilla = response.data.data;
+                    for(i=0; i < this.miembrosPlantilla.length; i++ ){
+                        
+                        this.miembrosPlantilla[i].pers_name += " " +this.miembrosPlantilla[i].pers_lastname
+                    }
                 }
             });
         },

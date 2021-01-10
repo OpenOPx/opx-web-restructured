@@ -31,10 +31,6 @@ let gestionPlantilla = new Vue({
                 key: 'pers_name'
             },
             {
-                label: 'Apellido lider',
-                key: 'pers_lastname'
-            },
-            {
                 label: 'Miembros',
                 key: 'team_miembros'
             },
@@ -64,6 +60,9 @@ let gestionPlantilla = new Vue({
 
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.plantillas = response.data.data;
+                    for(i=0; i < this.plantillas.length; i++ ){
+                        this.plantillas[i].pers_name += " " +this.plantillas[i].pers_lastname
+                    }
                 }
 
             })

@@ -47,6 +47,7 @@ def canva1(request):
     query = "select genero.gender_name, count(*) \
             from opx.gender as genero \
             inner join opx.person as persona on persona.gender_id = genero.gender_id \
+            where persona.isactive = 1 \
             group by genero.gender_id"
 
     with connection.cursor() as cursor:
@@ -73,6 +74,7 @@ def canva2(request):
     query = "select rol.role_name, count(*) \
             from opx.role as rol \
             inner join opx.person as persona on persona.role_id = rol.role_id \
+            where persona.isactive = 1 \
             group by rol.role_id"
 
     with connection.cursor() as cursor:
@@ -99,6 +101,7 @@ def canva3(request):
     query = "select nivelE.educlevel_name, count(*) \
             from opx.education_level as nivelE \
             inner join opx.person as persona on persona.education_level_id = nivelE.educlevel_id \
+            where persona.isactive = 1 \
             group by nivelE.educlevel_id"
 
     with connection.cursor() as cursor:
