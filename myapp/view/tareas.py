@@ -550,7 +550,7 @@ def actualizarTareaGestionCambios(request, tareid):
             tarea = models.Task.objects.get(pk=tareid)
 
             restriction = models.TaskRestriction.objects.get(pk = request.POST.get('task_restriction_id'))
-            restriction.start_time = request.POST.get('task_start_date')
+            restriction.task_start_date = request.POST.get('task_start_date')
             restriction.task_end_date = request.POST.get('task_end_date')
             restriction.start_time = request.POST.get('start_time')
             restriction.end_time = request.POST.get('end_time')
@@ -558,20 +558,6 @@ def actualizarTareaGestionCambios(request, tareid):
 
             tarea.task_quantity = request.POST.get('task_quantity')
             tarea.save()
-            """tarea.task_restriction = restriction
-
-            if estado == 2 and tarea.tareestado != 2:
-
-                if validarTarea(tarea):
-
-                    tarea.tareestado = estado
-                    tarea.save()
-
-            else:
-
-                tarea.tareestado = estado
-                tarea.save()"""
-
 
             # Obtener los usuarios que hacen del proyecto
             pers_ids = getPersonsIdByProject(tarea.project.proj_id)
