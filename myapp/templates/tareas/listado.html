@@ -98,7 +98,7 @@
                           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a @click.prevent="edicionTarea = data.item; listadoInstrumentos(edicionTarea.taretipo)" data-toggle="modal" data-target="#editar-tarea" class="dropdown-item" href="#"> Edición </a>
                             <a @click.prevent="eliminarTarea(data.item.task_id)" class="dropdown-item" href="#"> Eliminación</a>
-                            <a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrument_id"> Validar </a>
+                            <!--<a class="dropdown-item" :href="'/instrumentos/informacion/' + data.item.instrument_id"> Validar </a>-->
                             <a @click="cambiarCampana(true); almacenamientoTarea = data.item; listadoInstrumentos(almacenamientoTarea.taretipo); generarMapa(2000); obtenerDimensionesTerritoriales(almacenamientoTarea.project_id)" data-toggle="modal" data-target="#agregar-tarea" class="dropdown-item" href="#"> Nueva Campaña </a>
                           </div>
                         </div>
