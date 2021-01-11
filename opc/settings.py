@@ -181,7 +181,7 @@ EMAIL_HOST_USER = 'develop.opx@gmail.com'
 EMAIL_HOST_PASSWORD = 'Opxcali2020'
 EMAIL_USE_TLS = True
 
-URL_APP = "http://localhost:8000/"
+URL_APP = "http://opx.variamos.com/"
 
 # X_FRAME_OPTIONS = 'ALLOW-FROM http://localhost:7000/'
 
