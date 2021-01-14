@@ -85,7 +85,7 @@ def login(request):
             )
             passwordVerification = pwd_context.verify(password, user.password)
 
-            if(passwordVerification):
+            if(passwordVerification and person.isactive==1):
 
                 # Generación de tokens
                 refresh = RefreshToken.for_user(user)
