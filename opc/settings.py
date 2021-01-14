@@ -12,6 +12,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from datetime import timedelta
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+# reading .env file
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,10 +30,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '4!2^+$k%9^hc1=6#e8!!(j+nt38hict5#@sn+$xa!b7xql@5$p'
+#SECRET_KEY = '4!2^+$k%9^hc1=6#e8!!(j+nt38hict5#@sn+$xa!b7xql@5$p'
+SECRET_KEY = env('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['*'] #BEYCKER REVISAR
 
@@ -72,7 +83,8 @@ TEMPLATES = [
 ]
 
 FCM_DJANGO_SETTINGS = {
-    'FCM_SERVER_KEY': 'AAAAtC1PfqU:APA91bFAOuTx6EPxqZ7YM5cOy-HRDPaUEI1Ve-PIeQF-7DhHkz4OITTOMlglUNnBZxLjOd9TanuIkPXTTGfA4qW8kHpfZXGarlp330gaY1LaNdiMLp1Hp89-EFwG_hjKVlAbJQRGn8X5',
+    #'FCM_SERVER_KEY': 'AAAAtC1PfqU:APA91bFAOuTx6EPxqZ7YM5cOy-HRDPaUEI1Ve-PIeQF-7DhHkz4OITTOMlglUNnBZxLjOd9TanuIkPXTTGfA4qW8kHpfZXGarlp330gaY1LaNdiMLp1Hp89-EFwG_hjKVlAbJQRGn8X5',
+    'FCM_SERVER_KEY': env('FCM_SERVER_KEY'),
     'ONE_DEVICE_PER_USER': True,
 }
 
@@ -90,14 +102,16 @@ WSGI_APPLICATION = 'opc.wsgi.application'
 #}
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'opx_dev',
-        'USER': 'opxuser',
-        'PASSWORD': 'opx_dev_pass',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    
+    #'default': {
+    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #    'NAME': env('DB_NAME'), #'opx_dev',
+    #    'USER': env('DB_USER'), #'opxuser',
+    #    'PASSWORD': env('DB_USER_PASSWORD'), #'opx_dev_pass',
+    #    'HOST': env('DB_HOST'), #'localhost',
+    #    'PORT': env('DB_PORT') #'5432',
+    #}
+    'default': env.db()
 }
 
 
@@ -177,8 +191,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'develop.opx@gmail.com'
-EMAIL_HOST_PASSWORD = 'Opxcali2020'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 
 URL_APP = "http://opx.variamos.com/"
