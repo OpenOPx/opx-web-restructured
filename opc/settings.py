@@ -30,18 +30,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = '4!2^+$k%9^hc1=6#e8!!(j+nt38hict5#@sn+$xa!b7xql@5$p'
 SECRET_KEY = env('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*'] #BEYCKER REVISAR
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -83,7 +81,6 @@ TEMPLATES = [
 ]
 
 FCM_DJANGO_SETTINGS = {
-    #'FCM_SERVER_KEY': 'AAAAtC1PfqU:APA91bFAOuTx6EPxqZ7YM5cOy-HRDPaUEI1Ve-PIeQF-7DhHkz4OITTOMlglUNnBZxLjOd9TanuIkPXTTGfA4qW8kHpfZXGarlp330gaY1LaNdiMLp1Hp89-EFwG_hjKVlAbJQRGn8X5',
     'FCM_SERVER_KEY': env('FCM_SERVER_KEY'),
     'ONE_DEVICE_PER_USER': True,
 }
@@ -102,15 +99,6 @@ WSGI_APPLICATION = 'opc.wsgi.application'
 #}
 
 DATABASES = {
-    
-    #'default': {
-    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #    'NAME': env('DB_NAME'), #'opx_dev',
-    #    'USER': env('DB_USER'), #'opxuser',
-    #    'PASSWORD': env('DB_USER_PASSWORD'), #'opx_dev_pass',
-    #    'HOST': env('DB_HOST'), #'localhost',
-    #    'PORT': env('DB_PORT') #'5432',
-    #}
     'default': env.db()
 }
 
