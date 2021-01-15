@@ -168,7 +168,7 @@ proyecto = new Vue({
 
                     Swal.fire({
                         title: 'Exito!',
-                        text: 'Debes diligenciar todos los campos',
+                        text: 'Se creó el proyecto exitosamente',
                         type: 'success',
                         confirmButtonText: 'Acepto'
                     });
@@ -323,7 +323,6 @@ proyecto = new Vue({
             coordenadas = []
 
             for (let i = 0; i < coordenadasLeaflet.length; i++) {
-
                 coordenadas.push(coordenadasLeaflet[i].reverse());
             }
 

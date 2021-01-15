@@ -73,6 +73,8 @@
 </script>
 
 <div class="container-fluid" id="reportes-proyectoindividual">
+   <div :class="{loading:loading}"></div>
+
   <!-- TABS -->
   <div class="row">
      <div class="col-md-12">
@@ -313,23 +315,6 @@
                           </div>
                        </div>
                     </form>
-                 </div>
-              </div>
-           </div>
-        </div>
-        <!-- Detalle de Proyectos -->
-        <div class="modal fade" id="estadisticas-tareas">
-           <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                 <div class="modal-body">
-                    <div class="row">
-                       <div class="col md-6">
-                          <canvas id="tareas-x-tipo" width="400" height="400"></canvas>
-                       </div>
-                       <div class="col md-6">
-                          <canvas id="tareas-x-estado" width="400" height="400"></canvas>
-                       </div>
-                    </div>
                  </div>
               </div>
            </div>

@@ -5,7 +5,6 @@ proyectoReporte = new Vue({
         proyecto: {},
         almacenamientoComentario: {}, 
         almacenamientoPlantilla: {},
-        tareas: [],
         tareas2: [],
         comentarios: [],
         deci: [],
@@ -19,6 +18,7 @@ proyectoReporte = new Vue({
         vistaComentarios: false,
         plantillas: [],
         plantillaEdicion: {},
+
         // Paginación
         pagination: {
             currentPage: 1,
@@ -71,6 +71,8 @@ proyectoReporte = new Vue({
     },
     methods: {
         listadoGeneral(){
+            this.loader(true);
+
             axios({
                 url: '/proyectos/detail/'+ this.proyectoID,
                 method: 'GET',
@@ -79,14 +81,25 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false);
+
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.proyecto = response.data.detail.proyecto;
                     this.tareas2 = response.data.detail.tareas;
+
+                    for(i=0; i < this.tareas2.length; i++ ){
+                        if (this.tareas2[i].isactive == 1){
+                            this.tareas2[i].isactive = "Activo"
+                        }else{
+                            this.tareas2[i].isactive = "Inactivo"
+                        }
+                    }
                     this.cargarDimensionesDeProyectoEnMapa();
                 }
             });
         },
         listadoDecisiones(){
+
             axios({
                 url: '/decisiones/reportes/'+ this.proyectoID,
                 method: 'GET',
@@ -95,29 +108,15 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
+
                 if(response.data.code == 200 && response.data.status == 'success'){
 
                     this.projectdecision = response.data.decisiones;
                 }
             });
         },
-        listadoTareas(){
-            axios({
-                
-                url: '/proyectos/details/'+this.proyectoID,
-                method: 'GET',
-                headers: {
-                    Authorization: getToken()
-                }
-            })
-            .then(response => {
-
-                if(response.data.code == 200 && response.data.status == 'success' && response.data.detail.tareas.length > 0){
-                    this.tareas = response.data.detail.tareas;
-                }
-            });
-        }, 
         listadoComentarios(){
+
             axios({
                 url: '/comentario/list/'+ this.proyectoID,
                 method: 'GET',
@@ -126,6 +125,7 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
+
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.comentarios = response.data.comentarios;
                 }
@@ -137,6 +137,7 @@ proyectoReporte = new Vue({
             }
         },
         listadoEquipos(){
+
             axios({
                 url: '/equipos/list/'+ this.proyectoID,
                 method: 'GET',
@@ -145,6 +146,7 @@ proyectoReporte = new Vue({
                 }
             })
             .then(response => {
+
                 if(response.data.code == 200 && response.data.status == 'success'){
                     this.equipos = response.data.equipo;
                 }
@@ -271,7 +273,7 @@ proyectoReporte = new Vue({
 
                     this.listadoComentarios;
 
-                    this.loader(true);
+                    this.loader(false);
 
                     Swal.fire(
                       'Eliminado!',
@@ -282,8 +284,6 @@ proyectoReporte = new Vue({
                 .catch(response => {
 
                      this.listadoProyectos();
-
-                     this.loader(false);
 
                      Swal.fire(
                       'Error!',

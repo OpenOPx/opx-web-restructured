@@ -910,14 +910,15 @@ def detalleProyectoMovil(request, proyid):
     try:
         queryProyecto= "select proyecto.*, persona.pers_name, persona.pers_lastname from opx.project as proyecto inner join opx.person as persona on persona.pers_id = proyecto.proj_owner_id where proyecto.proj_id = '"+proyid+"'"
 
-        queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity,  \
+        queryTareas = "select tarea.task_id, tarea.task_name, tarea.task_description, tarea.task_quantity, tarea.isactive,  \
                         tarea.task_completness, tarea.task_creation_date, tarea.instrument_id, tarea.proj_dimension_id, \
-                        tarea.project_id, tarea.task_priority_id, tarea.territorial_dimension_id, territorio.dimension_geojson, \
+                        tarea.project_id, tarea.task_priority_id, prio.priority_name, tarea.territorial_dimension_id, territorio.dimension_geojson, \
                         tarea.task_restriction_id, restric.*, tarea.task_type_id, tipoTarea.task_type_name \
                         from opx.task as tarea \
                         inner join opx.task_type as tipoTarea on tipoTarea.task_type_id = tarea.task_type_id \
                         inner join opx.territorial_dimension as territorio on territorio.dimension_id = tarea.territorial_dimension_id \
                         inner join opx.task_restriction as restric on restric.restriction_id = tarea.task_restriction_id \
+                        inner join opx.task_priority as prio on prio.priority_id = tarea.task_priority_id \
                         where tarea.project_id = '"+proyid+"'"
 
         with connection.cursor() as cursor:
