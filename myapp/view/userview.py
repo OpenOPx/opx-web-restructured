@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import (connection, transaction)
-from django.db.utils import DataError, IntegrityError
+from django.db.utils import DataError, Error, IntegrityError
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.http.response import JsonResponse
@@ -420,3 +420,28 @@ def eliminarUsuario(request, userid):
 
     except ValidationError:
         return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe=True, status=400)
+
+
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def logout(request):
+    try:
+        user = usuarioAutenticado(request)
+        device = FCMDevice.objects.filter(user_id__exact = user.userid).first()
+        if device is not None:
+            device = FCMDevice.objects.get(user_id__exact = user.userid)
+            device.registration_id = ''
+            device.save()
+            data = {
+                'code': 200,
+                'status': 'success'
+            }
+            return JsonResponse(data, status=data['code'], safe=False)
+    except Error as e:
+        data = {
+            'code': 500,
+            'errors': str(e),
+            'status': 'error'
+        }
+        return JsonResponse(data, status=data['code'], safe=False)

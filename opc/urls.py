@@ -32,6 +32,7 @@ urlpatterns = [
 
     path('', views.loginView), #OK OK LEO
     path('login/', views.login), #OK OK LEO
+    path('usuarios/logout/', userview.logout),
 
     path('auth/password-reset/', auth.passwordReset), #OK OK LEO
     path('auth/password-reset-verification/', auth.passwordResetVerification), #O OK LEO
