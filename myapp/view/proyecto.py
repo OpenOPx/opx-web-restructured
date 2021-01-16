@@ -567,10 +567,6 @@ def eliminarProyecto(request, proyid):
         for p in projTeam:
             p.delete()
 
-        projTerr = models.ProjectTerritorialDimension.objects.filter(project__proj_id = proyid)
-        for p in projTerr:
-            p.delete()
-
         query = "select dim.* \
                 from opx.territorial_dimension as dim \
                 inner join opx.project_dimension as pd on dim.dimension_id = pd.territorial_dimension_id \
@@ -579,8 +575,14 @@ def eliminarProyecto(request, proyid):
         with connection.cursor() as cursor:
             cursor.execute(query)
             territorios = dictfetchall(cursor)
-            for p in territorios:
-                models.TerritorialDimension.objects.get(pk = p['dimension_id']).delete()
+                
+        projTerr = models.ProjectTerritorialDimension.objects.filter(project__proj_id = proyid)
+        for p in projTerr:
+            p.delete()
+
+        for p in territorios:
+            models.TerritorialDimension.objects.get(pk = p['dimension_id']).delete()
+
             
         
         projComentario = models.Comment.objects.filter(project__proj_id = proyid)
