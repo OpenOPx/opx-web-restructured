@@ -22,7 +22,7 @@ gestionPerfil = new Vue({
     },
     methods: {
         obtenerInformacion(){
-
+            this.loader(true)
             axios({
                 url: '/usuarios/detail/' + getUser().userid,
                 method: 'GET',
@@ -31,6 +31,7 @@ gestionPerfil = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -41,9 +42,11 @@ gestionPerfil = new Vue({
             })
         },
         listadoGeneros(){
+            this.loader(true)
 
             axios.get('/generos/list/')
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -52,9 +55,11 @@ gestionPerfil = new Vue({
             });
         },
         listadoBarrios(){
+            this.loader(true)
 
             axios.get('/barrios/list/')
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -63,9 +68,11 @@ gestionPerfil = new Vue({
             });
         },
         listadoNivelesEducativos(){
+            this.loader(true)
 
             axios.get('/niveles-educativos/list/')
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -92,6 +99,7 @@ gestionPerfil = new Vue({
             return response;
         },
         actualizarInformacion(){
+            this.loader(true)
 
              if(this.verificacionPassword()){
 
@@ -111,6 +119,7 @@ gestionPerfil = new Vue({
                     url: '/usuarios/' + getUser().userid
                 })
                 .then(response => {
+                    this.loader(false)
 
                     if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -122,6 +131,7 @@ gestionPerfil = new Vue({
                     }
                 })
                 .catch(error => {
+                    this.loader(false)
 
                     Swal.fire({
                         title: 'Error',
@@ -131,6 +141,7 @@ gestionPerfil = new Vue({
                 });
 
              } else{
+                this.loader(false)
 
                 Swal.fire({
                     title: 'Error',
@@ -147,6 +158,10 @@ gestionPerfil = new Vue({
                 this.iniciales += letter.charAt(0);
             });
 
+        },
+        loader(status){
+
+            this.loading = status;
         }
     }
 });

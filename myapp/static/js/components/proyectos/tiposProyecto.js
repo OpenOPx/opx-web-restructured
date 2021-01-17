@@ -4,7 +4,9 @@ tiposProyecto = new Vue({
     data: {
         almacenamientoTipoProyecto: {},
         edicionTipoProyecto: {},
-        tiposProyecto: []
+        tiposProyecto: [],
+        loading: false,
+
     },
     created(){
 
@@ -15,6 +17,7 @@ tiposProyecto = new Vue({
     },
     methods: {
         listadoTiposProyecto(){
+            this.loader(true)
 
             axios({
                 url: '/tipos-proyecto/list/',
@@ -24,6 +27,7 @@ tiposProyecto = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -32,12 +36,13 @@ tiposProyecto = new Vue({
             });
         },
         almacenarTipoProyecto(){
-
+            
             queryString = Object.keys(this.almacenamientoTipoProyecto).map(key => {
-
+                
                 return key + "=" + this.almacenamientoTipoProyecto[key];
             })
             .join('&');
+            this.loader(true)
 
             axios({
                 url: '/tipos-proyecto/store/',
@@ -49,6 +54,7 @@ tiposProyecto = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 201 && response.data.status == 'success'){
 
@@ -65,11 +71,13 @@ tiposProyecto = new Vue({
             });
         },
         editarTipoProyecto(ids){
+            
             queryString = Object.keys(this.edicionTipoProyecto).map(key => {
-
+                
                 return key + "=" + this.edicionTipoProyecto[key];
             })
             .join('&');
+            this.loader(true)
 
             axios({
                 url: '/tipos-proyecto/' + ids,
@@ -80,6 +88,7 @@ tiposProyecto = new Vue({
                 }
             })
             .then(response => {
+                this.loader(false)
 
                 if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -104,6 +113,7 @@ tiposProyecto = new Vue({
             .then(result => {
 
                 if(result.value){
+                    this.loader(true)
 
                     axios({
                         url: '/tipos-proyecto/' + tiproid + '/delete/',
@@ -113,6 +123,7 @@ tiposProyecto = new Vue({
                         }
                     })
                     .then(response => {
+                        this.loader(false)
 
                         if(response.data.code == 200 && response.data.status == 'success'){
 
@@ -127,6 +138,9 @@ tiposProyecto = new Vue({
                     });
                 }
             });
+        },
+        loader(status){
+            this.loading = status;
         }
     }
 })

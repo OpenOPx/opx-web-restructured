@@ -251,13 +251,7 @@ def listadoTareas(request):
             t['instrument_name']= (models.Instrument.objects.get(pk = t['instrument_id'])).instrument_name
             t['proj_name']= (models.Project.objects.get(pk = t['project_id'])).proj_name
             t['priority_name']= (models.TaskPriority.objects.get(pk = t['task_priority_id'])).priority_name
-
-            # Tipo encuesta
-            if t['task_type_id'] == 1:
-                encuestas = models.Survery.objects.filter(task_id__exact=t['task_id']) #Me quedé varado en el survey
-                if t['task_completness'] != 0:
-                    progreso = (len(encuestas) * 100) / t['task_completness']
-                    t['task_quantity'] = progreso
+            t['task_completness']= t['task_completness']*100
 
         # Obtener Búsqueda y validación de la misma
         search = request.GET.get('search')

@@ -152,12 +152,7 @@ def almacenarSurvery(request):
                     }
         utilidades.puntajeTarea(tareaid)  
         utilidades.puntajeProyecto(tarea.project.proj_id)
-        utilidades.puntajePersona(person.pers_id)
-        equipos = utilidades.equiposDePersona(person.pers_id)
-        for equipo in list(equipos):
-            utilidades.puntajeEquipo(equipo['team_id'])
-
-    
+        utilidades.puntajePersona(str(person.pers_id))
 
     except ObjectDoesNotExist:
 
@@ -234,38 +229,6 @@ def enlaceFormularioKoboToolbox(request, tareid):
 
 
         if instrumento.instrument_type == KOBO_INSTR:
-            """
-            informacion = informacionFormularioKoboToolbox(
-                instrumento.external_id)
- 
-
-            if (isinstance(informacion, dict)):
-                #print("6")
-                user = usuarioAutenticado(request)
-                #print("7")
-
-                person = models.Person.objects.get(user__userid__exact = user.userid)
-                #print("8")
-
-                #encuestaview.almacenarEncuestas(
-                #    instrumento, informacion['info'], person, tarea)
-                index_info = len(informacion['info'])
-                #print(informacion)
-                print(index_info)
-                info = informacion['info'][index_info-1]
-                #print(info)
-                encuesta = models.Survery(
-                    instrument=instrumento, 
-                    koboid=info['_uuid'], 
-                    survery_content=json.dumps(info), 
-                    survery_observation='Ehhg',
-                    #userid=userid, (person)
-                    person=person,
-                    task=tarea)
-                encuesta.full_clean()
-                encuesta.save()
-                print("9")
-                """
 
             detalleFormulario = detalleFormularioKoboToolbox(
                 instrumento.external_id)
@@ -274,7 +237,9 @@ def enlaceFormularioKoboToolbox(request, tareid):
 
                 if(detalleFormulario['deployment__active']):
 
-                    if detalleFormulario['deployment__submission_count'] < tarea.task_quantity:
+                    surveryCantidad = len(list(models.Survery.objects.filter(task__task_id__exact = tarea.task_id).values() ))
+
+                    if surveryCantidad < tarea.task_quantity:
 
                         enlace = detalleFormulario['deployment__links']['offline_url']
 
