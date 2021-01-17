@@ -327,6 +327,10 @@ let instrumento = new Vue({
 
             });
         },
+        editarFormulario(instrumento){
+            url = this.kpiUrl+'/#/forms/'+instrumento.external_id+'/edit'
+            window.open(url)
+        },
         async implementarEncuesta(id){
 
             this.loader(true);

@@ -85,8 +85,8 @@
                       <a @click.prevent="edicionInstrumento = data.item" data-toggle="modal" data-target="#editar-instrumento" class="dropdown-item" href="#"> Edición </a>
                       <!--<a @click.prevent="eliminarInstrumento(instrumento.instrid)" class="dropdown-item" href="#"> Eliminación </a>-->
                       <a v-if="data.item.instrument_type == 1" @click.prevent="implementarEncuesta(data.item.instrument_id)" class="dropdown-item" href="#"> Implementar </a>
-                      <!-- <a v-if="instrumento.instrtipo == 1" @click.prevent="informacionEncuesta(instrumento.instrid)" class="dropdown-item" href="#"> Información </a>
-                      <a v-if="instrumento.instrtipo == 2" class="dropdown-item" :href="'/instrumentos/informacion/' + instrumento.instrid"> Información </a> -->
+                      <a v-if="data.item.instrument_type == 1" @click.prevent="editarFormulario(data.item)" class="dropdown-item" href="#"> Editar Formulario</a>
+                      <!-- <a v-if="instrumento.instrtipo == 2" class="dropdown-item" :href="'/instrumentos/informacion/' + instrumento.instrid"> Información </a> -->
                     </div>
                   </div>
                 </template>
