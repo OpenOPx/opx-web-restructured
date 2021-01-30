@@ -450,21 +450,15 @@ class Conflict(models.Model):
 
 # 34
 class Contextualization(models.Model):
-    contxzn_id = models.UUIDField(
-        primary_key=True, default=uuid4, editable=False)
-    fact_date = models.DateField()
-    fact_hour = models.TimeField()
-    fac_day = models.IntegerField()
-    fact_age = models.IntegerField()
-    #nombre_barrio = models.CharField(max_length=300) como ya está el barrio no es necesario
-    contxzn_quantity = models.IntegerField(null=True)
-    education_level = models.ForeignKey(
-        EducationLevel, on_delete=models.PROTECT, null=True, blank=True)
-    gender = models.ForeignKey(
-        Gender, on_delete=models.PROTECT, null=True, blank=True)
-    neighborhood = models.ForeignKey(
-        Neighborhood, on_delete=models.PROTECT, null=True, blank=True)
+    contextualization_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    fact_date = models.DateTimeField(auto_now_add=True, blank=True)
+    fact_hour = models.TimeField() #???
     conflict = models.ForeignKey(Conflict, on_delete=models.PROTECT)
+    city = models.ForeignKey(City, on_delete=models.PROTECT)
+    neighborhood = models.ForeignKey(Neighborhood, on_delete=models.PROTECT)
+    person = models.ForeignKey(Person, on_delete=models.PROTECT)
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=500)
 
     class Meta:
         db_table = '"opx"."contextualization"'

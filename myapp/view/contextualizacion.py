@@ -14,8 +14,96 @@ from rest_framework.permissions import (
 from rest_framework_simplejwt.backends import TokenBackend
 from rest_framework_simplejwt.exceptions import TokenBackendError
 
-from myapp.models import Contextualizacion, Conflictividad, Usuario
-from myapp.view.utilidades import dictfetchall
+from myapp.models import Contextualization, Conflict, User, City, Neighborhood
+from myapp.view.utilidades import dictfetchall, usuarioAutenticado
+from django.views.decorators.csrf import csrf_exempt
+
+
+
+##
+# @brief Recurso de almacenamiento de contextualizaciones
+# @param request Instancia HttpRequest
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
+def almacenarContextualizacion(request):
+    user = usuarioAutenticado(request)
+
+    contextualizacion = models.Contextualization(
+        conflict = models.Conflict.objects.get(pk = (request.POST.get('conflicto_id')) ),
+        city = models.City.objects.get(pk = (request.POST.get('ciudad_id')) ),
+        neighborhood = models.Neighborhood.objects.get(pk = (request.POST.get('barrio_id')) ),
+        person = models.Person.objects.get(user__userid = user.userid),
+        title = request.POST.get('titulo'),
+        description = request.POST.get('descripcion')
+    )
+
+    try:
+        with transaction.atomic():
+            contextualizacion.full_clean()
+            contextualizacion.save()
+        
+            data = serializers.serialize('python', [contextualizacion])
+        return JsonResponse(data, safe = False, status = 201)
+
+    except ValidationError as e:
+        return JsonResponse(dict(e), safe = True, status = 400)    
+
+##
+# @brief Recurso de actualización de contextualizaciones
+# @param request Instancia HttpRequest
+# param desiid Identificación de la decisión
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["PUT"])
+@permission_classes((IsAuthenticated,))
+def actualizarContextualizacion(request, contextualization_id):
+
+    try:
+        with transaction.atomic():
+            contextualizacion = models.Contextualization.objects.get(pk=contextualization_id)
+
+            contextualizacion.conflict = models.Conflict.objects.get(pk = (request.POST.get('conflicto_id')) )
+            contextualizacion.city = models.City.objects.get(pk = (request.POST.get('ciudad_id')) )
+            contextualizacion.neighborhood = models.Neighborhood.objects.get(pk = (request.POST.get('barrio_id')) )
+            contextualizacion.title = request.POST.get('titulo')
+            contextualizacion.description = request.POST.get('descripcion')
+
+            decision.full_clean()
+            decision.save()
+
+        return JsonResponse(serializers.serialize('python', [contextualizacion]), safe=False)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'errors': dict(e)}, status=400)
+
+##
+# @brief Recurso de eliminación de decisiones
+# @param request Instancia HttpRequest
+# @param desiid Identificación de la decisión
+# @return cadena JSON
+#
+@csrf_exempt
+@api_view(["DELETE"])
+@permission_classes((IsAuthenticated,))
+def eliminarContextualizacion(request, contextualization_id):
+
+    try:
+        decision = models.Contextualization.objects.get(pk = contextualization_id)
+        decision.delete()
+        return JsonResponse({'status': 'success'})
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'La decision no existe'}, safe = True, status = 404)
+
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'message': 'Información inválida'}, safe = True, status = 400)
 
 ##
 # @brief Indicadores de Conflictivades Por Categorias

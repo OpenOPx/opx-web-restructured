@@ -21,7 +21,7 @@ from myapp import views
 
 from myapp.view import (
     userview, instrumentview, koboclient, auth, proyecto, decision, equipo, comentario, equipoMiembros, notificaciones,
-    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview, territorialDimension, #,contextualizacion, tareas
+    utilidades, osm, rolesview, tiposProyecto, profileview, estadisticas, contextoview, tareas, reporte, encuestaview, territorialDimension, contextualizacion, #tareas
 )
 
 urlpatterns = [
@@ -153,10 +153,14 @@ urlpatterns = [
     path('niveles-educativos/list/', utilidades.listadoNivelesEducativos), #OK OK S
     path('elementos-osm/list/', osm.elementosOsm),  #S JM LEO
 
-
-
     path('barrios/list/', utilidades.listadoBarrios), #OK OK S
     path('tareas/store/', tareas.almacenamientoTarea), #OK - JM
+
+    path('contextualizacion/store/', contextualizacion.almacenarContextualizacion), #JM
+    path('contextualizacion/update/<str:contextualization_id>/', contextualizacion.almacenarContextualizacion), #JM
+    path('contextualizacion/delete/<str:contextualization_id>/', contextualizacion.almacenarContextualizacion), #JM
+
+
     #path('contextualizacion/categorizacion/', contextualizacion.categorizacion), # Reportes?
     #path('contextualizacion/todo/', contextualizacion.todo), #Reportes?
     #path('contextualizacion/mes/', contextualizacion.mensual), #Reportes?
